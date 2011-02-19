@@ -27,3 +27,8 @@ Upcoming Features
 * Before and after update callbacks
 * Better table name guessing
 * Better support for associations and JOINs
+
+Special Thanks
+--------------
+
+Thanks to [Phil Sturgeon](http://philsturgeon.co.uk) and [Dan Horrigan](http://danhorrigan.com) who have both contributed a great amount of code and ideas to this MY_Model.
