@@ -9,7 +9,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @modified Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified Dan Horrigan <http://dhorrigan.com>
- * @copyright Copyright (c) 2009, Jamie Rumbelow <http://jamierumbelow.net>
+ * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
 class MY_Model extends CI_Model {
