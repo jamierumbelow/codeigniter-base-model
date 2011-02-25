@@ -9,6 +9,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @modified Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified Dan Horrigan <http://dhorrigan.com>
+ * @modified Adam Jackett <http://darkhousemedia.com>
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
@@ -45,6 +46,22 @@ class MY_Model extends CI_Model {
 	 * @var array
 	 */
 	protected $after_create = array();
+	
+	/**
+	 * An array of functions to be called before
+	 * a record is retrieved.
+	 *
+	 * @var array
+	 */
+	protected $before_get = array();
+	
+	/**
+	 * An array of functions to be called after
+	 * a record is retrieved.
+	 *
+	 * @var array
+	 */
+	protected $after_get = array();
 
 	/**
 	 * An array of validation rules
@@ -89,9 +106,12 @@ class MY_Model extends CI_Model {
 	 * @return object
 	 */
 	public function get($primary_value) {
-		return $this->db->where($this->primary_key, $primary_value)
+		$this->_run_before_get();
+		$row = $this->db->where($this->primary_key, $primary_value)
 						->get($this->_table)
 						->row();
+		$this->_run_after_get($row);
+		return $row;
 	}
 	
 	/**
@@ -106,8 +126,11 @@ class MY_Model extends CI_Model {
 		$where =& func_get_args();
 		$this->_set_where($where);
 		
-		return $this->db->get($this->_table)
+		$this->_run_before_get();
+		$row = $this->db->get($this->_table)
 						->row();
+		$this->_run_after_get($row);
+		return $row;
 	}
 	
 	/**
@@ -136,7 +159,10 @@ class MY_Model extends CI_Model {
 		$where =& func_get_args();
 		$this->_set_where($where);
 		
-		return $this->get_all();
+		$this->_run_before_get();
+		$result = $this->get_all();
+		$this->_run_after_get($result);
+		return $result;
 	}
 	
 	/**
@@ -424,6 +450,38 @@ class MY_Model extends CI_Model {
 	private function _run_after_create($data, $id) {
 		foreach ($this->after_create as $method) {
 			call_user_func_array(array($this, $method), array($data, $id));
+		}
+	}
+	
+	/**
+	 * Runs the before get actions.
+	 *
+	 * @return void
+	 */
+	private function _run_before_get()
+	{
+		foreach ($this->before_get as $method)
+		{
+			$this->$method();
+		}
+	}
+	
+	/**
+	 * Runs the after get actions.
+	 *
+	 * @return void
+	 */
+	private function _run_after_get($result)
+	{
+		if($result === FALSE) return;
+		
+		if(!is_array($result)) $result = array($result);
+		
+		foreach($result as &$row){
+			foreach ($this->after_get as $method)
+			{
+				call_user_func_array(array($this, $method), array($row));
+			}
 		}
 	}
 	
