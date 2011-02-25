@@ -159,10 +159,7 @@ class MY_Model extends CI_Model {
 		$where =& func_get_args();
 		$this->_set_where($where);
 		
-		$this->_run_before_get();
-		$result = $this->get_all();
-		$this->_run_after_get($result);
-		return $result;
+		return $this->get_all();
 	}
 	
 	/**
@@ -171,8 +168,11 @@ class MY_Model extends CI_Model {
 	 * @return array
 	 */
 	public function get_all() {
-		return $this->db->get($this->_table)
-						->result();
+		$this->_run_before_get();
+		$result = $this->db->get($this->_table)
+							->result();
+		$this->_run_after_get($result);
+		return $result;
 	}
 	
 	/**
