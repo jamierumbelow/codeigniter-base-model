@@ -130,6 +130,9 @@ class MY_Model extends CI_Model {
 		$row = $this->db->get($this->_table)
 						->row();
 		$this->_run_after_get($row);
+		
+		$row = (is_array($row) and empty($row)) ? null : $row;
+		
 		return $row;
 	}
 	
