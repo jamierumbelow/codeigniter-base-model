@@ -1,6 +1,30 @@
 codeigniter-base-model
 =====================================
 
+Synopsis
+--------
+
+```php
+class Post_model extends MY_Model { }
+
+$this->load->model('post_model', 'post');
+
+$this->post->get_all();
+
+$this->post->get(1);
+$this->post->get_by('title', 'Pigs CAN Fly!');
+$this->post->get_many_by('status', 'open');
+
+$this->post->insert(array(
+    'status' => 'open',
+    'title' => "I'm too sexy for my shirt"
+));
+
+$this->post->update(1, array( 'status' => 'closed' ));
+
+$this->post->delete(1);
+```
+
 Introduction
 ------------
 
@@ -21,14 +45,17 @@ Validation
 
 This class also includes some excellent validation support. This uses the built-in Form Validation library and provides a wrapper around it to make validation automatic on insert. To enable, set the *$validate* instance variable to the rules array that you would pass into `$this->form_validation->set_rules()`. To find out more about the rules array, please [view the library's documentation](http://codeigniter.com/user_guide/libraries/form_validation.html#validationrulesasarray).
 
-Upcoming Features
------------------
+Then, for each call to `insert()`, the data passed through will be validated according to the *$validate* rules array. **Unlike the CodeIgniter validation library, this won't validate the POST data, rather, it validates the data passed directly through.**
 
-* Before and after update callbacks
-* Better table name guessing
-* Better support for associations and JOINs
+If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
-Special Thanks
---------------
+Contributors
+------------
 
-Thanks to [Phil Sturgeon](http://philsturgeon.co.uk) and [Dan Horrigan](http://danhorrigan.com) who have both contributed a great amount of code and ideas to this MY_Model.
+Thanks to:
+    
+* [Phil Sturgeon](http://philsturgeon.co.uk)
+* [Dan Horrigan](http://danhorrigan.com)
+* [Adam Jackett](http://darkhousemedia.com)
+    
+...who have all contributed a great amount of code and ideas to this MY_Model.
