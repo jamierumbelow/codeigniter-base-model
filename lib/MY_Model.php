@@ -13,7 +13,8 @@
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
-class MY_Model extends CI_Model {
+class MY_Model extends CI_Model
+{
     
     /**
      * The database table to use, only
@@ -90,7 +91,8 @@ class MY_Model extends CI_Model {
      * The class constructer, tries to guess
      * the table name.
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         
         $this->load->helper('inflector');
@@ -105,7 +107,8 @@ class MY_Model extends CI_Model {
      * @param string $primary_value The value of your primary key
      * @return object
      */
-    public function get($primary_value) {
+    public function get($primary_value)
+    {
         $this->_run_before_get();
         $row = $this->db->where($this->primary_key, $primary_value)
                         ->get($this->_table)
@@ -122,7 +125,8 @@ class MY_Model extends CI_Model {
      * @param string $val The value of that key
      * @return object
      */
-    public function get_by() {
+    public function get_by()
+    {
         $where =& func_get_args();
         $this->_set_where($where);
         
@@ -141,7 +145,8 @@ class MY_Model extends CI_Model {
      * @param string $values The value of that key
      * @return array
      */
-    public function get_many($values) {
+    public function get_many($values)
+    {
         $this->db->where_in($this->primary_key, $values);
         
         return $this->get_all();
@@ -155,7 +160,8 @@ class MY_Model extends CI_Model {
      * @param string $val The value of that key
      * @return array
      */
-    public function get_many_by() {
+    public function get_many_by()
+    {
         $where =& func_get_args();
         $this->_set_where($where);
         
@@ -167,7 +173,8 @@ class MY_Model extends CI_Model {
      *
      * @return array
      */
-    public function get_all() {
+    public function get_all()
+    {
         $this->_run_before_get();
         $result = $this->db->get($this->_table)
                             ->result();
@@ -183,7 +190,8 @@ class MY_Model extends CI_Model {
      * @param string $val The value of that key
      * @return integer
      */
-    public function count_by() {
+    public function count_by()
+    {
         $where =& func_get_args();
         $this->_set_where($where);
         
@@ -195,7 +203,8 @@ class MY_Model extends CI_Model {
      *
      * @return integer
      */
-    public function count_all() {
+    public function count_all()
+    {
         return $this->db->count_all($this->_table);
     }
     
@@ -207,20 +216,25 @@ class MY_Model extends CI_Model {
      * @param array $data Information
      * @return integer
      */
-    public function insert($data, $skip_validation = FALSE) {
+    public function insert($data, $skip_validation = FALSE)
+    {
         $valid = TRUE;
         
-        if ($skip_validation === FALSE) {
+        if ($skip_validation === FALSE)
+        {
             $valid = $this->_run_validation($data);
         }
 
-        if($valid) {
+        if ($valid)
+        {
             $data = $this->_run_before_create($data);
                 $this->db->insert($this->_table, $data);
             $this->_run_after_create($data, $this->db->insert_id());
             
             return $this->db->insert_id();
-        } else {
+        } 
+        else 
+        {
             return FALSE;
         }
     }
@@ -232,10 +246,12 @@ class MY_Model extends CI_Model {
      * @param array $data Array of arrays to insert
      * @return array
      */
-    public function insert_many($data, $skip_validation = FALSE) {
+    public function insert_many($data, $skip_validation = FALSE)
+    {
         $ids = array();
         
-        foreach ($data as $row) {
+        foreach ($data as $row)
+        {
             $ids[] = $this->insert($row, $skip_validation);
         }
         
@@ -249,18 +265,23 @@ class MY_Model extends CI_Model {
      * @param array $array The data to update
      * @return bool
      */
-    public function update($primary_value, $data, $skip_validation = FALSE) {
+    public function update($primary_value, $data, $skip_validation = FALSE)
+    {
         $valid = TRUE;
         
-        if ($skip_validation === FALSE) {
+        if ($skip_validation === FALSE)
+        {
             $valid = $this->_run_validation($data);
         }
-
-        if ($valid) {
+        
+        if ($valid)
+        {
             return $this->db->where($this->primary_key, $primary_value)
                             ->set($data)
                             ->update($this->_table);
-        } else {
+        } 
+        else
+        {
             return FALSE;
         }
     }
@@ -273,15 +294,19 @@ class MY_Model extends CI_Model {
      * @param array $array The data to update
      * @return bool
      */
-    public function update_by() {
+    public function update_by()
+    {
         $args =& func_get_args();
         $data = array_pop($args);
         $this->_set_where($args);
         
-        if ($this->_run_validation($data)) {
+        if ($this->_run_validation($data))
+        {
             return $this->db->set($data)
                             ->update($this->_table);
-        } else {
+        }
+        else
+        {
             return FALSE;
         }
     }
@@ -294,19 +319,24 @@ class MY_Model extends CI_Model {
      * @param array $data The data to update
      * @return bool
      */
-    public function update_many($primary_values, $data, $skip_validation) {
+    public function update_many($primary_values, $data, $skip_validation)
+    {
         $valid = TRUE;
         
-        if($skip_validation === FALSE) {
+        if ($skip_validation === FALSE)
+        {
             $valid = $this->_run_validation($data);
         }
             
-        if($valid) {
+        if ($valid)
+        {
             return $this->db->where_in($this->primary_key, $primary_values)
                             ->set($data)
                             ->update($this->_table);
         
-        } else {
+        }
+        else
+        {
             return FALSE;
         }
     }
@@ -330,7 +360,8 @@ class MY_Model extends CI_Model {
      * @param integer $id 
      * @return bool
      */
-    public function delete($id) {
+    public function delete($id)
+    {
         return $this->db->where($this->primary_key, $id)
                         ->delete($this->_table);
     }
@@ -343,7 +374,8 @@ class MY_Model extends CI_Model {
      * @param string $value 
      * @return bool
      */
-    public function delete_by() {
+    public function delete_by()
+    {
         $where =& func_get_args();
         $this->_set_where($where);
         
@@ -357,7 +389,8 @@ class MY_Model extends CI_Model {
      * @param array $primary_values 
      * @return bool
      */
-    public function delete_many($primary_values) {
+    public function delete_many($primary_values)
+    {
         return $this->db->where_in($this->primary_key, $primary_values)
                         ->delete($this->_table);
     }
@@ -368,22 +401,28 @@ class MY_Model extends CI_Model {
      *
      * @return void
      */
-    function dropdown() {
+    function dropdown()
+    {
         $args =& func_get_args();
         
-        if(count($args) == 2) {
+        if(count($args) == 2)
+        {
             list($key, $value) = $args;
-        } else {
+        }
+        else
+        {
             $key = $this->primary_key;
             $value = $args[0];
         }
         
-        $query = $this->db->select(array($key, $value))
-                          ->get($this->_table);
+        $result = $this->db->select(array($key, $value))
+                           ->get($this->_table)
+                           ->result();
         
         $options = array();
         
-        foreach ($query->result() as $row) {
+        foreach ($result as $row)
+        {
             $options[$row->{$key}] = $row->{$value};
         }
         
@@ -398,7 +437,8 @@ class MY_Model extends CI_Model {
      * @return void
      * @since 1.1.2
      */
-    public function order_by($criteria, $order = 'ASC') {
+    public function order_by($criteria, $order = 'ASC')
+    {
         $this->db->order_by($criteria, $order);
         return $this;
     }
@@ -412,7 +452,8 @@ class MY_Model extends CI_Model {
      * @return void
      * @since 1.1.1
      */
-    public function limit($limit, $offset = 0) {
+    public function limit($limit, $offset = 0)
+    {
         $this->db->limit($limit, $offset);
         return $this;
     }
@@ -422,7 +463,8 @@ class MY_Model extends CI_Model {
      *
      * @return void
      */
-    public function skip_validation() {
+    public function skip_validation()
+    {
         $this->skip_validation = TRUE;
         return $this;
     }
@@ -433,8 +475,10 @@ class MY_Model extends CI_Model {
      * @param array $data The array of actions
      * @return void
      */
-    private function _run_before_create($data) {
-        foreach ($this->before_create as $method) {
+    private function _run_before_create($data)
+    {
+        foreach ($this->before_create as $method)
+        {
             $data = call_user_func_array(array($this, $method), array($data));
         }
         
@@ -447,8 +491,10 @@ class MY_Model extends CI_Model {
      * @param array $data The array of actions
      * @return void
      */
-    private function _run_after_create($data, $id) {
-        foreach ($this->after_create as $method) {
+    private function _run_after_create($data, $id)
+    {
+        foreach ($this->after_create as $method)
+        {
             call_user_func_array(array($this, $method), array($data, $id));
         }
     }
@@ -477,7 +523,8 @@ class MY_Model extends CI_Model {
         
         if(!is_array($result)) $result = array($result);
         
-        foreach($result as &$row){
+        foreach($result as &$row)
+        {
             foreach ($this->after_get as $method)
             {
                 call_user_func_array(array($this, $method), array($row));
@@ -490,26 +537,35 @@ class MY_Model extends CI_Model {
      *
      * @return bool
      */
-    private function _run_validation($data) {
-        if($this->skip_validation) {
+    private function _run_validation($data)
+    {
+        if($this->skip_validation)
+        {
             return TRUE;
         }
         
-        if(!empty($this->validate)) {
-            foreach($data as $key => $val) {
+        if(!empty($this->validate))
+        {
+            foreach($data as $key => $val)
+            {
                 $_POST[$key] = $val;
             }
             
             $this->load->library('form_validation');
             
-            if(is_array($this->validate)) {
+            if(is_array($this->validate))
+            {
                 $this->form_validation->set_rules($this->validate);
                 
                 return $this->form_validation->run();
-            } else {
+            }
+            else
+            {
                 return $this->form_validation->run($this->validate);
             }
-        } else {
+        }
+        else
+        {
             return TRUE;
         }
     }
@@ -519,8 +575,10 @@ class MY_Model extends CI_Model {
      *
      * @return void
      */
-    private function _fetch_table() {
-        if ($this->_table == NULL) {
+    private function _fetch_table()
+    {
+        if ($this->_table == NULL)
+        {
             $class = preg_replace('/(_m|_model)?$/', '', get_class($this));
             
             $this->_table = plural(strtolower($class));
@@ -532,10 +590,14 @@ class MY_Model extends CI_Model {
      *
      * @return void
      */
-    private function _set_where($params) {
-        if(count($params) == 1) {
+    private function _set_where($params)
+    {
+        if (count($params) == 1)
+        {
             $this->db->where($params[0]);
-        } else {
+        }
+        else
+        {
             $this->db->where($params[0], $params[1]);
         }
     }
