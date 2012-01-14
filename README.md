@@ -40,6 +40,36 @@ Naming Conventions
 
 This class will try to guess the name of the table to use, by guessing the plural of the class name. If the table name isn't the plural and you need to set it to something else, just declare the _$\_table_ instance variable and set it to the table name. Some of the CRUD functions also assume that your primary key ID column is called _'id'_. You can overwrite this functionality by setting the _$primary\_key_ instance variable.
 
+Callbacks
+---------
+
+There are many times when you'll need to alter your model data before it's inserted or returned. This could be adding timestamps, pulling in relationships or deleting dependent rows. The MVC pattern states that these sorts of operations need to go in the model. In order to facilitate this, **MY_Model** contains a series of callbacks -- methods that will be called at certain points.
+
+The full list of callbacks are as follows:
+
+* $before_create
+* $after_create
+* $before_update
+* $after_update
+* $before_get
+* $after_get
+* $before_delete
+* $after_delete
+
+These are instance variables usually defined at the class level. They are arrays of methods on this class to be called at certain points. An example:
+
+```php
+class Book_model extends MY_Model
+{
+    public $before_create = array( 'timestamps' );
+    
+    protected function timestamps($book)
+    {
+        $book['created_at'] = $book['updated_at'] = date('Y-m-d H:i:s');
+    }
+}
+```
+
 Validation
 ----------
 
