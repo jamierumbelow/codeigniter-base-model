@@ -33,37 +33,19 @@ class MY_Model extends CI_Model
     protected $primary_key = 'id';
     
     /**
-     * An array of functions to be called before
-     * a record is created.
+     * Callbacks.
      *
      * @var array
      */
     protected $before_create = array();
-    
-    /**
-     * An array of functions to be called after
-     * a record is created.
-     *
-     * @var array
-     */
     protected $after_create = array();
-    
-    /**
-     * An array of functions to be called before
-     * a record is retrieved.
-     *
-     * @var array
-     */
+    protected $before_update = array();
+    protected $after_update = array();
     protected $before_get = array();
-    
-    /**
-     * An array of functions to be called after
-     * a record is retrieved.
-     *
-     * @var array
-     */
     protected $after_get = array();
-
+    protected $before_delete = array();
+    protected $after_delete = array();
+    
     /**
      * An array of validation rules
      *
@@ -529,6 +511,16 @@ class MY_Model extends CI_Model
             {
                 call_user_func_array(array($this, $method), array($row));
             }
+        }
+    }
+    
+    private function _run_before_callbacks($type, $params)
+    {
+        $name = 'before_' . $type;
+        
+        foreach ($this->$name as $method)
+        {
+            $data = call_user_func_array(array($this, $method), $params);
         }
     }
     
