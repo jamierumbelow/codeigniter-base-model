@@ -1,6 +1,8 @@
 codeigniter-base-model
 =====================================
 
+My CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a full CRUD base to make developing database interactions easier and quicker. It also includes a bunch of other cool stuff, including before and after create callbacks, validation and a some table name guessing.
+
 Synopsis
 --------
 
@@ -24,11 +26,6 @@ $this->post->update(1, array( 'status' => 'closed' ));
 
 $this->post->delete(1);
 ```
-
-Introduction
-------------
-
-My CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a full CRUD base to make developing database interactions easier and quicker. It also includes a bunch of other cool stuff, including before and after create callbacks, validation and a some table name guessing.
 
 Usage
 -----
