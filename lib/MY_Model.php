@@ -91,11 +91,14 @@ class MY_Model extends CI_Model
      */
     public function get($primary_value)
     {
-        $this->_run_before_get();
+        $this->_run_before_callbacks('get');
+        
         $row = $this->db->where($this->primary_key, $primary_value)
                         ->get($this->_table)
                         ->row();
-        $this->_run_after_get($row);
+                        
+        $this->_run_after_callbacks('get', array( $row ));
+        
         return $row;
     }
     
@@ -112,10 +115,11 @@ class MY_Model extends CI_Model
         $where =& func_get_args();
         $this->_set_where($where);
         
-        $this->_run_before_get();
+        $this->_run_before_callbacks('get');
         $row = $this->db->get($this->_table)
                         ->row();
-        $this->_run_after_get($row);
+        $this->_run_after_callbacks('get', array( $row ));
+        
         return $row;
     }
     
@@ -157,10 +161,16 @@ class MY_Model extends CI_Model
      */
     public function get_all()
     {
-        $this->_run_before_get();
+        $this->_run_before_callbacks('get');
+        
         $result = $this->db->get($this->_table)
                             ->result();
-        $this->_run_after_get($result);
+                
+        foreach ($result as &$row)
+        {
+            $row = $this->_run_after_callbacks('get', array( $row ));
+        }
+        
         return $result;
     }
     
@@ -209,9 +219,9 @@ class MY_Model extends CI_Model
 
         if ($valid)
         {
-            $data = $this->_run_before_create($data);
+            $data = $this->_run_before_callbacks('create', array( $data ));
                 $this->db->insert($this->_table, $data);
-            $this->_run_after_create($data, $this->db->insert_id());
+            $this->_run_after_callbacks('create', array( $data, $this->db->insert_id() ));
             
             return $this->db->insert_id();
         } 
@@ -251,6 +261,8 @@ class MY_Model extends CI_Model
     {
         $valid = TRUE;
         
+        $data = $this->_run_before_callbacks('update', array( $data, $primary_value ));
+        
         if ($skip_validation === FALSE)
         {
             $valid = $this->_run_validation($data);
@@ -258,9 +270,12 @@ class MY_Model extends CI_Model
         
         if ($valid)
         {
-            return $this->db->where($this->primary_key, $primary_value)
-                            ->set($data)
-                            ->update($this->_table);
+            $result = $this->db->where($this->primary_key, $primary_value)
+                               ->set($data)
+                               ->update($this->_table);
+            $this->_run_after_callbacks('update', array( $data, $primary_value, $result ));
+            
+            return $result;
         } 
         else
         {
@@ -282,10 +297,15 @@ class MY_Model extends CI_Model
         $data = array_pop($args);
         $this->_set_where($args);
         
+        $data = $this->_run_before_callbacks('update', array( $data, $args ));
+        
         if ($this->_run_validation($data))
         {
-            return $this->db->set($data)
-                            ->update($this->_table);
+            $result = $this->db->set($data)
+                               ->update($this->_table);
+            $this->_run_after_callbacks('update', array( $data, $args, $result ));
+            
+            return $result;
         }
         else
         {
@@ -305,18 +325,22 @@ class MY_Model extends CI_Model
     {
         $valid = TRUE;
         
+        $data = $this->_run_before_callbacks('update', array( $data, $primary_value ));
+        
         if ($skip_validation === FALSE)
         {
             $valid = $this->_run_validation($data);
         }
-            
+        
         if ($valid)
         {
-            return $this->db->where_in($this->primary_key, $primary_values)
-                            ->set($data)
-                            ->update($this->_table);
-        
-        }
+            $result = $this->db->where_in($this->primary_key, $primary_values)
+                               ->set($data)
+                               ->update($this->_table);
+            $this->_run_after_callbacks('update', array( $data, $primary_value, $result ));
+            
+            return $result;
+        } 
         else
         {
             return FALSE;
@@ -331,8 +355,12 @@ class MY_Model extends CI_Model
      */
     public function update_all($data)
     {
-        return $this->db->set($data)
-                        ->update($this->_table);
+        $data = $this->_run_before_callbacks('update', array( $data ));
+        $result = $this->db->set($data)
+                           ->update($this->_table);
+        $this->_run_after_callbacks('update', array( $data, $result ));
+        
+        return $result;
     }
     
     /**
@@ -344,8 +372,12 @@ class MY_Model extends CI_Model
      */
     public function delete($id)
     {
-        return $this->db->where($this->primary_key, $id)
-                        ->delete($this->_table);
+        $data = $this->_run_before_callbacks('delete', array( $id ));
+        $result = $this->db->where($this->primary_key, $id)
+                           ->delete($this->_table);
+        $this->_run_after_callbacks('delete', array( $id, $result ));
+        
+        return $result;
     }
     
     /**
@@ -361,7 +393,11 @@ class MY_Model extends CI_Model
         $where =& func_get_args();
         $this->_set_where($where);
         
-        return $this->db->delete($this->_table);
+        $data = $this->_run_before_callbacks('delete', array( $where ));
+        $result = $this->db->delete($this->_table);
+        $this->_run_after_callbacks('delete', array( $where, $result ));
+        
+        return $result;
     }
     
     /**
@@ -373,8 +409,12 @@ class MY_Model extends CI_Model
      */
     public function delete_many($primary_values)
     {
-        return $this->db->where_in($this->primary_key, $primary_values)
-                        ->delete($this->_table);
+        $data = $this->_run_before_callbacks('delete', array( $primary_values ));
+        $result = $this->db->where_in($this->primary_key, $id)
+                           ->delete($this->_table);
+        $this->_run_after_callbacks('delete', array( $primary_values, $result ));
+        
+        return $result;
     }
     
     /**
@@ -397,9 +437,13 @@ class MY_Model extends CI_Model
             $value = $args[0];
         }
         
+        $this->_run_before_callbacks('get', array( $key, $value ));
+        
         $result = $this->db->select(array($key, $value))
                            ->get($this->_table)
                            ->result();
+                           
+        $result = $this->_run_after_callbacks('get', array( $key, $value, $result ));
         
         $options = array();
         
@@ -451,77 +495,47 @@ class MY_Model extends CI_Model
         return $this;
     }
     
+    
     /**
-     * Runs the before create actions.
-     *
-     * @param array $data The array of actions
-     * @return void
+     * Run the before_ callbacks, each callback taking a $data
+     * variable and returning it
      */
-    private function _run_before_create($data)
+    private function _run_before_callbacks($type, $params = array())
     {
-        foreach ($this->before_create as $method)
+        $name = 'before_' . $type;
+        
+        if (!empty($this->$name))
         {
-            $data = call_user_func_array(array($this, $method), array($data));
+            $data = (isset($params[0])) ? $params[0] : FALSE;
+        
+            foreach ($this->$name as $method)
+            {
+                $data = call_user_func_array(array($this, $method), $params);
+            }
         }
         
         return $data;
     }
     
     /**
-     * Runs the after create actions.
-     *
-     * @param array $data The array of actions
-     * @return void
+     * Run the after_ callbacks, each callback taking a $data
+     * variable and returning it
      */
-    private function _run_after_create($data, $id)
+    private function _run_after_callbacks($type, $params = array())
     {
-        foreach ($this->after_create as $method)
-        {
-            call_user_func_array(array($this, $method), array($data, $id));
-        }
-    }
-    
-    /**
-     * Runs the before get actions.
-     *
-     * @return void
-     */
-    private function _run_before_get()
-    {
-        foreach ($this->before_get as $method)
-        {
-            $this->$method();
-        }
-    }
-    
-    /**
-     * Runs the after get actions.
-     *
-     * @return void
-     */
-    private function _run_after_get($result)
-    {
-        if($result === FALSE) return;
+        $name = 'after_' . $type;
         
-        if(!is_array($result)) $result = array($result);
-        
-        foreach($result as &$row)
+        if (!empty($this->$name))
         {
-            foreach ($this->after_get as $method)
+            $data = (isset($params[0])) ? $params[0] : FALSE;
+        
+            foreach ($this->$name as $method)
             {
-                call_user_func_array(array($this, $method), array($row));
+                $data = call_user_func_array(array($this, $method), $params);
             }
         }
-    }
-    
-    private function _run_before_callbacks($type, $params)
-    {
-        $name = 'before_' . $type;
         
-        foreach ($this->$name as $method)
-        {
-            $data = call_user_func_array(array($this, $method), $params);
-        }
+        return $data;
     }
     
     /**
