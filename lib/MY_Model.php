@@ -504,7 +504,7 @@ class MY_Model extends CI_Model
     {
         $name = 'before_' . $type;
         
-        if (!empty($this->$name))
+        if (!empty($name))
         {
             $data = (isset($params[0])) ? $params[0] : FALSE;
         
@@ -525,7 +525,7 @@ class MY_Model extends CI_Model
     {
         $name = 'after_' . $type;
         
-        if (!empty($this->$name))
+        if (!empty($name))
         {
             $data = (isset($params[0])) ? $params[0] : FALSE;
         
