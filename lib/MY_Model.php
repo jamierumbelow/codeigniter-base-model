@@ -494,7 +494,21 @@ class MY_Model extends CI_Model
         $this->skip_validation = TRUE;
         return $this;
     }
-    
+
+    /**
+     * Return the next Auto Increment of the table
+     *
+     * @access        public
+     * @param        void
+     * @return        int     next id
+     */
+    public function get_next_id()
+    {
+        return (int) $this->db->select('AUTO_INCREMENT')
+            ->from('information_schema.TABLES')
+            ->where('TABLE_NAME', $this->_table)
+            ->where('TABLE_SCHEMA', $this->db->database)->get()->row()->AUTO_INCREMENT;
+    }
     
     /**
      * Run the before_ callbacks, each callback taking a $data
