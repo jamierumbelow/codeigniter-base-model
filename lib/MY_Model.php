@@ -443,7 +443,7 @@ class MY_Model extends CI_Model
                            ->get($this->_table)
                            ->result();
                            
-        $result = $this->_run_after_callbacks('get', array( $key, $value, $result ));
+        $result = $this->_run_after_callbacks('get', array( $result, $key, $value ));
         
         $options = array();
         
