@@ -220,10 +220,12 @@ class MY_Model extends CI_Model
         if ($valid)
         {
             $data = $this->_run_before_callbacks('create', array( $data ));
-                $this->db->insert($this->_table, $data);
-            $this->_run_after_callbacks('create', array( $data, $this->db->insert_id() ));
+            $this->db->insert($this->_table, $data);
+            $insert_id = $this->db->insert_id();
+
+            $this->_run_after_callbacks('create', array( $data, $insert_id ));
             
-            return $this->db->insert_id();
+            return $insert_id;
         } 
         else 
         {
