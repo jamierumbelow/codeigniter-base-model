@@ -357,8 +357,7 @@ class MY_Model extends CI_Model
         $result = $this->db->select(array($key, $value))
                            ->get($this->_table)
                            ->result();
-
-        $result = $this->_run_after_callbacks('get', array( $key, $value, $result ));
+        $this->_run_after_callbacks('get', array( $key, $value, $result ));
 
         $options = array();
 
@@ -366,7 +365,7 @@ class MY_Model extends CI_Model
         {
             $options[$row->{$key}] = $row->{$value};
         }
-
+        
         return $options;
     }
 
@@ -460,11 +459,10 @@ class MY_Model extends CI_Model
     private function _run_before_callbacks($type, $params = array())
     {
         $name = 'before_' . $type;
+        $data = (isset($params[0])) ? $params[0] : FALSE;
 
-        if (!empty($name))
+        if (!empty($this->$name))
         {
-            $data = (isset($params[0])) ? $params[0] : FALSE;
-
             foreach ($this->$name as $method)
             {
                 $data = call_user_func_array(array($this, $method), $params);
@@ -481,11 +479,10 @@ class MY_Model extends CI_Model
     private function _run_after_callbacks($type, $params = array())
     {
         $name = 'after_' . $type;
+        $data = (isset($params[0])) ? $params[0] : FALSE;
 
-        if (!empty($name))
+        if (!empty($this->$name))
         {
-            $data = (isset($params[0])) ? $params[0] : FALSE;
-
             foreach ($this->$name as $method)
             {
                 $data = call_user_func_array(array($this, $method), $params);

@@ -16,6 +16,7 @@ class MY_Model_Mock_DB
     /**
      * CI_DB
      */
+    public function select() { }
     public function where() { }
     public function where_in() { }
     public function get() { }

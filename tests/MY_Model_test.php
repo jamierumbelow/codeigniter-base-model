@@ -269,10 +269,33 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
                         ->will($this->returnValue(TRUE));
 
         $this->assertEquals($this->model->delete_many(array(1, 2, 3, 4, 5)), TRUE);
-    }    
+    }
 
     /* --------------------------------------------------------------
-     * UTILITIES
+     * UTILITY METHODS
+     * ------------------------------------------------------------ */ 
+
+    public function test_dropdown()
+    {
+        $fake_row_1 = array( 'id' => 1, 'name' => 'Jamie' );
+        $fake_row_2 = array( 'id' => 2, 'name' => 'Laura' );
+
+        $fake_results = array( (object)$fake_row_1, (object)$fake_row_2 );
+
+        $this->model->db->expects($this->once())
+                        ->method('select')
+                        ->with($this->equalTo(array('id', 'name')))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->any())
+                        ->method('result')
+                        ->will($this->returnValue($fake_results));
+
+        $this->assertEquals($this->model->dropdown('name'), array( 1 => 'Jamie', 2 => 'Laura' ));
+    }
+
+    /* --------------------------------------------------------------
+     * TEST UTILITIES
      * ------------------------------------------------------------ */
 
     protected function _expect_get()
