@@ -81,6 +81,8 @@ Unit Tests
 
 MY_Model contains a robust set of unit tests to ensure that the system works as planned. **These are still currently under development, and certain aspects of the library might not be tested yet. I know this is bad, and I should've written the tests first. Sorry. Shit happens.**
 
+**Currently, the tests only run on PHP5.4.**
+
 Install [PHPUnit](https://github.com/sebastianbergmann/phpunit). I'm running version 3.6.10.
 
 Then, simply run the `phpunit` command on the test file:
