@@ -161,6 +161,54 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->insert_many(array(array('new' => 'data'), array('other' => 'data'))), array(123, 123));
     }
 
+    public function test_update()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('set')
+                        ->with($this->equalTo(array('new' => 'data')))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->update(2, array('new' => 'data')), TRUE);
+    }
+
+    // public function test_update_many()
+    // {
+    //     $this->model->db->expects($this->once())
+    //                     ->method('where_in')
+    //                     ->with($this->equalTo('id'), $this->equalTo(array(1, 2, 3, 4, 5)))
+    //                     ->will($this->returnValue($this->model->db));
+    //     $this->model->db->expects($this->once())
+    //                     ->method('set')
+    //                     ->with($this->equalTo(array('new' => 'data')))
+    //                     ->will($this->returnValue($this->model->db));
+    //     $this->model->db->expects($this->once())
+    //                     ->method('update')
+    //                     ->with($this->equalTo('records'))
+    //                     ->will($this->returnValue(TRUE));
+
+    //     $this->assertEquals($this->model->update_many(array(1, 2, 3, 4, 5), array('new' => 'data')), TRUE);
+    // }
+
+    // public function test_insert_many()
+    // {
+    //     $this->model->db->expects($this->exactly(2))
+    //                     ->method('insert')
+    //                     ->with($this->equalTo('records'));
+    //     $this->model->db->expects($this->any())
+    //                     ->method('insert_id')
+    //                     ->will($this->returnValue(123));
+
+    //     $this->assertEquals($this->model->insert_many(array(array('new' => 'data'), array('other' => 'data'))), array(123, 123));
+    // }
+
     /* --------------------------------------------------------------
      * UTILITIES
      * ------------------------------------------------------------ */

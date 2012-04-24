@@ -164,7 +164,7 @@ class MY_Model extends CI_Model
         {
             $valid = $this->_run_validation($data);
         }
-        
+
         if ($valid)
         {
             $data = $this->_run_before_callbacks('create', array( $data ));
@@ -226,7 +226,7 @@ class MY_Model extends CI_Model
     /**
      * Update many records, based on an array of primary values.
      */
-    public function update_many($primary_values, $data, $skip_validation)
+    public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
         $valid = TRUE;
 

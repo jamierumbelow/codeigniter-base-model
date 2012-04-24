@@ -21,6 +21,8 @@ class MY_Model_Mock_DB
     public function get() { }
     public function insert() { }
     public function insert_id() { }
+    public function set() { }
+    public function update() { }
 
     /**
      * CI_DB_Result
