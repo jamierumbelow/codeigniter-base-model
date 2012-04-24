@@ -17,8 +17,12 @@ error_reporting(E_ALL ^ E_STRICT);
 
 // Load our MY_Model and the fakeish record model
 require_once 'lib/MY_Model.php';
-require_once 'tests/support/record_model.php';
+
 require_once 'tests/support/database.php';
+
+require_once 'tests/support/models/record_model.php';
+require_once 'tests/support/models/before_callback_model.php';
+require_once 'tests/support/models/after_callback_model.php';
 
 /**
  * Fake the CodeIgniter base model!
@@ -46,4 +50,20 @@ class CI_Loader
 function plural($name)
 {
     return 'records';
+}
+
+/**
+ * Let our tests know about our callbacks
+ */
+
+class Callback_Test_Exception extends Exception
+{
+    public $passed_object = FALSE;
+
+    public function __construct($passed_object)
+    {
+        parent::__construct('Callback is being successfully thrown');
+
+        $this->passed_object = $passed_object;
+    }
 }

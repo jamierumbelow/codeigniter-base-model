@@ -108,6 +108,34 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($this->model->get_all(), array('fake', 'records', 'here'));
     }
+    
+    public function test_get_callbacks_are_called_appropriately()
+    {
+        $this->model = new Before_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->assertCallbackIsCalled(function(){ $this->model->get(1); });
+        $this->assertCallbackIsCalled(function(){ $this->model->get_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function(){ $this->model->get_many(array(1, 2, 3, 4, 5)); });
+        $this->assertCallbackIsCalled(function(){ $this->model->get_many_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function(){ $this->model->get_all(); });
+
+        $this->model = new After_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->any())->method('where')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('where_in')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('get')->will($this->returnValue($this->model->db));
+
+        $this->model->db->expects($this->any())->method('row')->will($this->returnValue('row_object'));
+        $this->model->db->expects($this->any())->method('result')->will($this->returnValue(array('row_object_array')));
+
+        $this->assertCallbackIsCalled(function(){ $this->model->get(1); }, 'row_object');
+        $this->assertCallbackIsCalled(function(){ $this->model->get_by('some_column', 'some_value'); }, 'row_object');
+        $this->assertCallbackIsCalled(function(){ $this->model->get_many(array(1, 2, 3, 4, 5)); }, 'row_object_array');
+        $this->assertCallbackIsCalled(function(){ $this->model->get_many_by('some_column', 'some_value'); }, 'row_object_array');
+        $this->assertCallbackIsCalled(function(){ $this->model->get_all(); }, 'row_object_array');
+    }
 
     /* --------------------------------------------------------------
      * UTILITIES
@@ -119,5 +147,21 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
                         ->method('get')
                         ->with($this->equalTo('records'))
                         ->will($this->returnValue($this->model->db));
+    }
+
+    /* --------------------------------------------------------------
+     * CUSTOM ASSERTIONS
+     * ------------------------------------------------------------ */
+
+    public function assertCallbackIsCalled($method, $params = FALSE)
+    {
+        try
+        {
+            $method();
+        }
+        catch (Callback_Test_Exception $e)
+        {
+            $this->assertEquals($e->passed_object, $params);
+        }
     }
 }
