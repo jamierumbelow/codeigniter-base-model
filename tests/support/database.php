@@ -19,6 +19,8 @@ class MY_Model_Mock_DB
     public function where() { }
     public function where_in() { }
     public function get() { }
+    public function insert() { }
+    public function insert_id() { }
 
     /**
      * CI_DB_Result

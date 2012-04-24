@@ -137,6 +137,30 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertCallbackIsCalled(function(){ $this->model->get_all(); }, 'row_object_array');
     }
 
+    public function test_insert()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('insert')
+                        ->with($this->equalTo('records'), $this->equalTo(array('new' => 'data')));
+        $this->model->db->expects($this->any())
+                        ->method('insert_id')
+                        ->will($this->returnValue(123));
+
+        $this->assertEquals($this->model->insert(array('new' => 'data')), 123);
+    }
+
+    public function test_insert_many()
+    {
+        $this->model->db->expects($this->exactly(2))
+                        ->method('insert')
+                        ->with($this->equalTo('records'));
+        $this->model->db->expects($this->any())
+                        ->method('insert_id')
+                        ->will($this->returnValue(123));
+
+        $this->assertEquals($this->model->insert_many(array(array('new' => 'data'), array('other' => 'data'))), array(123, 123));
+    }
+
     /* --------------------------------------------------------------
      * UTILITIES
      * ------------------------------------------------------------ */

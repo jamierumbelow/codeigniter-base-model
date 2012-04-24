@@ -164,7 +164,7 @@ class MY_Model extends CI_Model
         {
             $valid = $this->_run_validation($data);
         }
-
+        
         if ($valid)
         {
             $data = $this->_run_before_callbacks('create', array( $data ));
