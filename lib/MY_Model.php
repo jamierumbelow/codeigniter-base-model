@@ -409,6 +409,14 @@ class MY_Model extends CI_Model
             ->where('TABLE_SCHEMA', $this->db->database)->get()->row()->AUTO_INCREMENT;
     }
 
+    /**
+     * Getter for the table name
+     */
+    public function table()
+    {
+        return $this->_table;
+    }
+
     /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS
      * ------------------------------------------------------------ */
