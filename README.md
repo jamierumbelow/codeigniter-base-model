@@ -76,6 +76,18 @@ Then, for each call to `insert()`, the data passed through will be validated acc
 
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
+Unit Tests
+----------
+
+MY_Model contains a robust set of unit tests to ensure that the system works as planned. **These are still currently under development, and certain aspects of the library might not be tested yet. I know this is bad, and I should've written the tests first. Sorry. Shit happens.**
+
+Install [PHPUnit](https://github.com/sebastianbergmann/phpunit). I'm running version 3.6.10.
+
+Then, simply run the `phpunit` command on the test file:
+
+    $ phpunit tests/MY_Model_test.php
+
+
 Other Documentation
 -------------------
 
