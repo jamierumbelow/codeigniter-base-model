@@ -23,6 +23,7 @@ class MY_Model_Mock_DB
     public function insert_id() { }
     public function set() { }
     public function update() { }
+    public function delete() { }
 
     /**
      * CI_DB_Result

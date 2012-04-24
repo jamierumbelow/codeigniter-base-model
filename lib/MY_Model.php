@@ -324,7 +324,7 @@ class MY_Model extends CI_Model
     public function delete_many($primary_values)
     {
         $data = $this->_run_before_callbacks('delete', array( $primary_values ));
-        $result = $this->db->where_in($this->primary_key, $id)
+        $result = $this->db->where_in($this->primary_key, $primary_values)
                            ->delete($this->_table);
         $this->_run_after_callbacks('delete', array( $primary_values, $result ));
 

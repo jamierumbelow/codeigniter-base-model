@@ -215,17 +215,61 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->update_by('some_column', 'some_value', array('new' => 'data')), TRUE);
     }
 
-    // public function test_insert_many()
-    // {
-    //     $this->model->db->expects($this->exactly(2))
-    //                     ->method('insert')
-    //                     ->with($this->equalTo('records'));
-    //     $this->model->db->expects($this->any())
-    //                     ->method('insert_id')
-    //                     ->will($this->returnValue(123));
+    public function test_update_all()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('set')
+                        ->with($this->equalTo(array('new' => 'data')))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(TRUE));
 
-    //     $this->assertEquals($this->model->insert_many(array(array('new' => 'data'), array('other' => 'data'))), array(123, 123));
-    // }
+        $this->assertEquals($this->model->update_all(array('new' => 'data')), TRUE);
+    }
+
+    public function test_delete()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('delete')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete(2), TRUE);
+    }
+
+    public function test_delete_by()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('some_column'), $this->equalTo('some_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('delete')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete_by('some_column', 'some_value'), TRUE);
+    }
+
+    public function test_delete_many()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where_in')
+                        ->with($this->equalTo('id'), array(1, 2, 3, 4, 5))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('delete')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete_many(array(1, 2, 3, 4, 5)), TRUE);
+    }    
 
     /* --------------------------------------------------------------
      * UTILITIES
