@@ -17,10 +17,12 @@ class MY_Model_Mock_DB
      * CI_DB
      */
     public function where() { }
+    public function where_in() { }
     public function get() { }
 
     /**
      * CI_DB_Result
      */
     public function row() { }
+    public function result() { }
 }
