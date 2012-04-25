@@ -161,6 +161,25 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->insert_many(array(array('new' => 'data'), array('other' => 'data'))), array(123, 123));
     }
 
+    public function test_insert_callbacks_are_called_appropriately()
+    {
+        $this->model = new Before_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->assertCallbackIsCalled(function(){ $this->model->insert(array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function(){ $this->model->insert_many(array(array('some' => 'data'))); }, array('some' => 'data'));
+
+        $this->model = new After_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->any())->method('where')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('where_in')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('insert')->will($this->returnValue($this->model->db));
+
+        $this->assertCallbackIsCalled(function(){ $this->model->insert(array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function(){ $this->model->insert_many(array(array('some' => 'data'))); }, array('some' => 'data'));
+    }
+
     public function test_update()
     {
         $this->model->db->expects($this->once())
@@ -229,6 +248,27 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->update_all(array('new' => 'data')), TRUE);
     }
 
+    public function test_update_callbacks_are_called_appropriately()
+    {
+        $this->model = new Before_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->assertCallbackIsCalled(function(){ $this->model->update(1, array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function(){ $this->model->update_by('some_column', 'some_value', array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function(){ $this->model->update_all(array('some' => 'data')); }, array('some' => 'data'));
+
+        $this->model = new After_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->any())->method('where')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('set')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('update')->will($this->returnValue($this->model->db));
+
+        $this->assertCallbackIsCalled(function(){ $this->model->update(1, array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function(){ $this->model->update_by('some_column', 'some_value', array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function(){ $this->model->update_all(array('some' => 'data')); }, array('some' => 'data'));
+    }
+
     public function test_delete()
     {
         $this->model->db->expects($this->once())
@@ -271,6 +311,27 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->delete_many(array(1, 2, 3, 4, 5)), TRUE);
     }
 
+    public function test_delete_callbacks_are_called_appropriately()
+    {
+        $this->model = new Before_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->assertCallbackIsCalled(function(){ $this->model->delete(1); });
+        $this->assertCallbackIsCalled(function(){ $this->model->delete_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function(){ $this->model->delete_many(array(1, 2, 3)); });
+
+        $this->model = new After_callback_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->any())->method('where')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('where_in')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())->method('delete')->will($this->returnValue(TRUE));
+
+        $this->assertCallbackIsCalled(function(){ $this->model->delete(1); });
+        $this->assertCallbackIsCalled(function(){ $this->model->delete_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function(){ $this->model->delete_many(array(1, 2, 3)); });
+    }
+
     /* --------------------------------------------------------------
      * UTILITY METHODS
      * ------------------------------------------------------------ */ 
@@ -294,6 +355,92 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->dropdown('name'), array( 1 => 'Jamie', 2 => 'Laura' ));
     }
 
+    public function test_count_by()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('some_column'), $this->equalTo('some_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('count_all_results')
+                        ->will($this->returnValue(5));
+
+        $this->assertEquals($this->model->count_by('some_column', 'some_value'), 5);
+    }
+
+    public function test_count_all()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('count_all')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(200));
+        $this->assertEquals($this->model->count_all(), 200);
+    }
+
+    public function test_skip_validation()
+    {
+        $ret = $this->model->skip_validation();
+
+        $this->assertEquals($ret, $this->model);
+        $this->assertEquals($this->model->get_skip_validation(), TRUE);
+    }
+
+    public function test_get_next_id()
+    {
+        $this->model->db->database = 'some_database_name';
+
+        $this->model->db->expects($this->once())
+                        ->method('select')
+                        ->with($this->equalTo('AUTO_INCREMENT'))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('from')
+                        ->with($this->equalTo('information_schema.TABLES'))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->any())
+                        ->method('where')
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('get')
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue((object)array( 'AUTO_INCREMENT' => 250 )));
+
+        $this->assertEquals($this->model->get_next_id(), 250);
+    }
+
+    /* --------------------------------------------------------------
+     * QUERY BUILDER DIRECT ACCESS METHODS
+     * ------------------------------------------------------------ */ 
+
+    public function test_order_by_regular()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('order_by')
+                        ->with($this->equalTo('some_column'), $this->equalTo('DESC'));
+
+        $this->assertEquals($this->model->order_by('some_column', 'DESC'), $this->model);
+    }
+
+    public function test_order_by_array()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('order_by')
+                        ->with($this->equalTo('some_column'), $this->equalTo('ASC'));
+
+        $this->assertEquals($this->model->order_by(array('some_column' => 'ASC')), $this->model);
+    }
+
+    public function test_limit()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('limit')
+                        ->with($this->equalTo(10), $this->equalTo(5));
+
+        $this->assertEquals($this->model->limit(10, 5), $this->model);
+    }
+
     /* --------------------------------------------------------------
      * TEST UTILITIES
      * ------------------------------------------------------------ */
@@ -310,15 +457,19 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
      * CUSTOM ASSERTIONS
      * ------------------------------------------------------------ */
 
-    public function assertCallbackIsCalled($method, $params = FALSE)
+    public function assertCallbackIsCalled($method, $params = null)
     {
         try
         {
             $method();
+            $this->fail('Callback wasn\'t called');
         }
         catch (Callback_Test_Exception $e)
         {
-            $this->assertEquals($e->passed_object, $params);
+            if (!is_null($params))
+            {
+                $this->assertEquals($e->passed_object, $params);
+            }
         }
     }
 }

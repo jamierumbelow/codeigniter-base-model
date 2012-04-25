@@ -398,6 +398,14 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Get the skip validation status
+     */
+    public function get_skip_validation()
+    {
+        return $this->skip_validation;
+    }
+
+    /**
      * Return the next auto increment of the table. Only tested on MySQL.
      */
     public function get_next_id()

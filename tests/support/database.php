@@ -20,11 +20,16 @@ class MY_Model_Mock_DB
     public function where() { }
     public function where_in() { }
     public function get() { }
+    public function from() { }
     public function insert() { }
     public function insert_id() { }
     public function set() { }
     public function update() { }
     public function delete() { }
+    public function order_by() { }
+    public function limit() { }
+    public function count_all_results() { }
+    public function count_all() { }
 
     /**
      * CI_DB_Result
