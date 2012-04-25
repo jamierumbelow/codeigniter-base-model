@@ -1,6 +1,8 @@
 codeigniter-base-model
 =====================================
 
+[![Build Status](https://secure.travis-ci.org/jamierumbelow/codeigniter-base-model.png?branch=tests)](http://travis-ci.org/jamierumbelow/codeigniter-base-model)
+
 My CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a full CRUD base to make developing database interactions easier and quicker. It also includes a bunch of other cool stuff, including before and after create callbacks, validation and a some table name guessing.
 
 Synopsis
@@ -75,6 +77,20 @@ This class also includes some excellent validation support. This uses the built-
 Then, for each call to `insert()`, the data passed through will be validated according to the *$validate* rules array. **Unlike the CodeIgniter validation library, this won't validate the POST data, rather, it validates the data passed directly through.**
 
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
+
+Unit Tests
+----------
+
+MY_Model contains a robust set of unit tests to ensure that the system works as planned. **These are still currently under development, and certain aspects of the library might not be tested yet. I know this is bad, and I should've written the tests first. Sorry. Shit happens.**
+
+**Currently, the tests only run on PHP5.4.**
+
+Install [PHPUnit](https://github.com/sebastianbergmann/phpunit). I'm running version 3.6.10.
+
+Then, simply run the `phpunit` command on the test file:
+
+    $ phpunit tests/MY_Model_test.php
+
 
 Other Documentation
 -------------------

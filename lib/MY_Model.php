@@ -226,7 +226,7 @@ class MY_Model extends CI_Model
     /**
      * Update many records, based on an array of primary values.
      */
-    public function update_many($primary_values, $data, $skip_validation)
+    public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
         $valid = TRUE;
 
@@ -324,7 +324,7 @@ class MY_Model extends CI_Model
     public function delete_many($primary_values)
     {
         $data = $this->_run_before_callbacks('delete', array( $primary_values ));
-        $result = $this->db->where_in($this->primary_key, $id)
+        $result = $this->db->where_in($this->primary_key, $primary_values)
                            ->delete($this->_table);
         $this->_run_after_callbacks('delete', array( $primary_values, $result ));
 
@@ -357,8 +357,7 @@ class MY_Model extends CI_Model
         $result = $this->db->select(array($key, $value))
                            ->get($this->_table)
                            ->result();
-
-        $result = $this->_run_after_callbacks('get', array( $key, $value, $result ));
+        $this->_run_after_callbacks('get', array( $key, $value, $result ));
 
         $options = array();
 
@@ -366,7 +365,7 @@ class MY_Model extends CI_Model
         {
             $options[$row->{$key}] = $row->{$value};
         }
-
+        
         return $options;
     }
 
@@ -399,6 +398,14 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Get the skip validation status
+     */
+    public function get_skip_validation()
+    {
+        return $this->skip_validation;
+    }
+
+    /**
      * Return the next auto increment of the table. Only tested on MySQL.
      */
     public function get_next_id()
@@ -407,6 +414,14 @@ class MY_Model extends CI_Model
             ->from('information_schema.TABLES')
             ->where('TABLE_NAME', $this->_table)
             ->where('TABLE_SCHEMA', $this->db->database)->get()->row()->AUTO_INCREMENT;
+    }
+
+    /**
+     * Getter for the table name
+     */
+    public function table()
+    {
+        return $this->_table;
     }
 
     /* --------------------------------------------------------------
@@ -452,11 +467,10 @@ class MY_Model extends CI_Model
     private function _run_before_callbacks($type, $params = array())
     {
         $name = 'before_' . $type;
+        $data = (isset($params[0])) ? $params[0] : FALSE;
 
-        if (!empty($name))
+        if (!empty($this->$name))
         {
-            $data = (isset($params[0])) ? $params[0] : FALSE;
-
             foreach ($this->$name as $method)
             {
                 $data = call_user_func_array(array($this, $method), $params);
@@ -473,11 +487,10 @@ class MY_Model extends CI_Model
     private function _run_after_callbacks($type, $params = array())
     {
         $name = 'after_' . $type;
+        $data = (isset($params[0])) ? $params[0] : FALSE;
 
-        if (!empty($name))
+        if (!empty($this->$name))
         {
-            $data = (isset($params[0])) ? $params[0] : FALSE;
-
             foreach ($this->$name as $method)
             {
                 $data = call_user_func_array(array($this, $method), $params);
