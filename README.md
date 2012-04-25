@@ -107,3 +107,18 @@ Thanks to:
 * [Adam Jackett](http://darkhousemedia.com)
     
 ...who have all contributed a great amount of code and ideas to this MY_Model.
+
+Changelog
+---------
+
+**Version 1.2.0**
+* Bugfix to `update_many()`
+* Added getters for table name and skip validation
+* Fix to callback functionality (thanks [titosemi](https://github.com/titosemi)!)
+* Vastly improved documentation
+* Added a `get_next_id()` method (thanks [gbaldera](https://github.com/gbaldera)!)
+* Added a set of unit tests
+* Added support for [Composer](http://getcomposer.org/)
+
+**Version 1.0.0 - 1.1.0**
+* Initial Releases
