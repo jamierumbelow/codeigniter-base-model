@@ -198,23 +198,23 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->update(2, array('new' => 'data')), TRUE);
     }
 
-    // public function test_update_many()
-    // {
-    //     $this->model->db->expects($this->once())
-    //                     ->method('where_in')
-    //                     ->with($this->equalTo('id'), $this->equalTo(array(1, 2, 3, 4, 5)))
-    //                     ->will($this->returnValue($this->model->db));
-    //     $this->model->db->expects($this->once())
-    //                     ->method('set')
-    //                     ->with($this->equalTo(array('new' => 'data')))
-    //                     ->will($this->returnValue($this->model->db));
-    //     $this->model->db->expects($this->once())
-    //                     ->method('update')
-    //                     ->with($this->equalTo('records'))
-    //                     ->will($this->returnValue(TRUE));
+    public function test_update_many()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where_in')
+                        ->with($this->equalTo('id'), $this->equalTo(array(1, 2, 3, 4, 5)))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('set')
+                        ->with($this->equalTo(array('new' => 'data')))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'))
+                        ->will($this->returnValue(TRUE));
 
-    //     $this->assertEquals($this->model->update_many(array(1, 2, 3, 4, 5), array('new' => 'data')), TRUE);
-    // }
+        $this->assertEquals($this->model->update_many(array(1, 2, 3, 4, 5), array('new' => 'data')), TRUE);
+    }
 
     public function test_update_by()
     {

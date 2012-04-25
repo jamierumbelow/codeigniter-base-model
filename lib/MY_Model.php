@@ -230,7 +230,7 @@ class MY_Model extends CI_Model
     {
         $valid = TRUE;
 
-        $data = $this->_run_before_callbacks('update', array( $data, $primary_value ));
+        $data = $this->_run_before_callbacks('update', array( $data, $primary_values ));
 
         if ($skip_validation === FALSE)
         {
@@ -242,7 +242,7 @@ class MY_Model extends CI_Model
             $result = $this->db->where_in($this->primary_key, $primary_values)
                                ->set($data)
                                ->update($this->_table);
-            $this->_run_after_callbacks('update', array( $data, $primary_value, $result ));
+            $this->_run_after_callbacks('update', array( $data, $primary_values, $result ));
 
             return $result;
         }
