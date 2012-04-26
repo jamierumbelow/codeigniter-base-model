@@ -11,7 +11,7 @@ require_once 'tests/support/test_helper.php';
 
 class MY_Model_tests extends PHPUnit_Framework_TestCase
 {
-    protected $model;
+    public $model;
 
     /* --------------------------------------------------------------
      * TEST INFRASTRUCTURE
@@ -114,11 +114,13 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model = new Before_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
 
-        $this->assertCallbackIsCalled(function(){ $this->model->get(1); });
-        $this->assertCallbackIsCalled(function(){ $this->model->get_by('some_column', 'some_value'); });
-        $this->assertCallbackIsCalled(function(){ $this->model->get_many(array(1, 2, 3, 4, 5)); });
-        $this->assertCallbackIsCalled(function(){ $this->model->get_many_by('some_column', 'some_value'); });
-        $this->assertCallbackIsCalled(function(){ $this->model->get_all(); });
+        $scope =& $this;
+
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get(1); });
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_many(array(1, 2, 3, 4, 5)); });
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_many_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_all(); });
 
         $this->model = new After_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
@@ -130,11 +132,11 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model->db->expects($this->any())->method('row')->will($this->returnValue('row_object'));
         $this->model->db->expects($this->any())->method('result')->will($this->returnValue(array('row_object_array')));
 
-        $this->assertCallbackIsCalled(function(){ $this->model->get(1); }, 'row_object');
-        $this->assertCallbackIsCalled(function(){ $this->model->get_by('some_column', 'some_value'); }, 'row_object');
-        $this->assertCallbackIsCalled(function(){ $this->model->get_many(array(1, 2, 3, 4, 5)); }, 'row_object_array');
-        $this->assertCallbackIsCalled(function(){ $this->model->get_many_by('some_column', 'some_value'); }, 'row_object_array');
-        $this->assertCallbackIsCalled(function(){ $this->model->get_all(); }, 'row_object_array');
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get(1); }, 'row_object');
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_by('some_column', 'some_value'); }, 'row_object');
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_many(array(1, 2, 3, 4, 5)); }, 'row_object_array');
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_many_by('some_column', 'some_value'); }, 'row_object_array');
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->get_all(); }, 'row_object_array');
     }
 
     public function test_insert()
@@ -166,8 +168,10 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model = new Before_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
 
-        $this->assertCallbackIsCalled(function(){ $this->model->insert(array('some' => 'data')); }, array('some' => 'data'));
-        $this->assertCallbackIsCalled(function(){ $this->model->insert_many(array(array('some' => 'data'))); }, array('some' => 'data'));
+        $scope =& $this;
+
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->insert(array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->insert_many(array(array('some' => 'data'))); }, array('some' => 'data'));
 
         $this->model = new After_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
@@ -176,8 +180,8 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model->db->expects($this->any())->method('where_in')->will($this->returnValue($this->model->db));
         $this->model->db->expects($this->any())->method('insert')->will($this->returnValue($this->model->db));
 
-        $this->assertCallbackIsCalled(function(){ $this->model->insert(array('some' => 'data')); }, array('some' => 'data'));
-        $this->assertCallbackIsCalled(function(){ $this->model->insert_many(array(array('some' => 'data'))); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->insert(array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->insert_many(array(array('some' => 'data'))); }, array('some' => 'data'));
     }
 
     public function test_update()
@@ -253,9 +257,11 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model = new Before_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
 
-        $this->assertCallbackIsCalled(function(){ $this->model->update(1, array('some' => 'data')); }, array('some' => 'data'));
-        $this->assertCallbackIsCalled(function(){ $this->model->update_by('some_column', 'some_value', array('some' => 'data')); }, array('some' => 'data'));
-        $this->assertCallbackIsCalled(function(){ $this->model->update_all(array('some' => 'data')); }, array('some' => 'data'));
+        $scope =& $this;
+
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->update(1, array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->update_by('some_column', 'some_value', array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->update_all(array('some' => 'data')); }, array('some' => 'data'));
 
         $this->model = new After_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
@@ -264,9 +270,9 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model->db->expects($this->any())->method('set')->will($this->returnValue($this->model->db));
         $this->model->db->expects($this->any())->method('update')->will($this->returnValue($this->model->db));
 
-        $this->assertCallbackIsCalled(function(){ $this->model->update(1, array('some' => 'data')); }, array('some' => 'data'));
-        $this->assertCallbackIsCalled(function(){ $this->model->update_by('some_column', 'some_value', array('some' => 'data')); }, array('some' => 'data'));
-        $this->assertCallbackIsCalled(function(){ $this->model->update_all(array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->update(1, array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->update_by('some_column', 'some_value', array('some' => 'data')); }, array('some' => 'data'));
+        $this->assertCallbackIsCalled(function() use (&$scope) { $scope->model->update_all(array('some' => 'data')); }, array('some' => 'data'));
     }
 
     public function test_delete()
@@ -316,9 +322,11 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model = new Before_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
 
-        $this->assertCallbackIsCalled(function(){ $this->model->delete(1); });
-        $this->assertCallbackIsCalled(function(){ $this->model->delete_by('some_column', 'some_value'); });
-        $this->assertCallbackIsCalled(function(){ $this->model->delete_many(array(1, 2, 3)); });
+        $scope =& $this;
+
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->delete(1); });
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->delete_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->delete_many(array(1, 2, 3)); });
 
         $this->model = new After_callback_model();
         $this->model->db = $this->getMock('MY_Model_Mock_DB');
@@ -327,9 +335,9 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model->db->expects($this->any())->method('where_in')->will($this->returnValue($this->model->db));
         $this->model->db->expects($this->any())->method('delete')->will($this->returnValue(TRUE));
 
-        $this->assertCallbackIsCalled(function(){ $this->model->delete(1); });
-        $this->assertCallbackIsCalled(function(){ $this->model->delete_by('some_column', 'some_value'); });
-        $this->assertCallbackIsCalled(function(){ $this->model->delete_many(array(1, 2, 3)); });
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->delete(1); });
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->delete_by('some_column', 'some_value'); });
+        $this->assertCallbackIsCalled(function() use(&$scope) { $scope->model->delete_many(array(1, 2, 3)); });
     }
 
     /* --------------------------------------------------------------
