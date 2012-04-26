@@ -94,7 +94,7 @@ class MY_Model extends CI_Model
      */
     public function get_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         $this->_run_before_callbacks('get');
@@ -120,7 +120,7 @@ class MY_Model extends CI_Model
      */
     public function get_many_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         return $this->get_all();
@@ -252,7 +252,7 @@ class MY_Model extends CI_Model
      */
     public function update_by()
     {
-        $args =& func_get_args();
+        $args = func_get_args();
         $data = array_pop($args);
         $this->_set_where($args);
 
@@ -303,7 +303,7 @@ class MY_Model extends CI_Model
      */
     public function delete_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         $data = $this->_run_before_callbacks('delete', array( $where ));
@@ -335,7 +335,7 @@ class MY_Model extends CI_Model
      */
     function dropdown()
     {
-        $args =& func_get_args();
+        $args = func_get_args();
 
         if(count($args) == 2)
         {
@@ -369,7 +369,7 @@ class MY_Model extends CI_Model
      */
     public function count_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         return $this->db->count_all_results($this->_table);
