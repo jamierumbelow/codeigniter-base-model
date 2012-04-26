@@ -56,13 +56,6 @@ class MY_Model extends CI_Model
      * ------------------------------------------------------------ */
 
     /**
-     * A legacy wrapper to __construct for CI < 2.0. Deprecated.
-     *
-     * @deprecated
-     */
-    public function MY_Model() { $this->__construct(); }
-
-    /**
      * Initialise the model, tie into the CodeIgniter superobject and
      * try our best to guess the table name.
      */
