@@ -56,13 +56,6 @@ class MY_Model extends CI_Model
      * ------------------------------------------------------------ */
 
     /**
-     * A legacy wrapper to __construct for CI < 2.0. Deprecated.
-     *
-     * @deprecated
-     */
-    public function MY_Model() { $this->__construct(); }
-
-    /**
      * Initialise the model, tie into the CodeIgniter superobject and
      * try our best to guess the table name.
      */
@@ -101,7 +94,7 @@ class MY_Model extends CI_Model
      */
     public function get_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         $this->_run_before_callbacks('get');
@@ -127,7 +120,7 @@ class MY_Model extends CI_Model
      */
     public function get_many_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         return $this->get_all();
@@ -169,9 +162,11 @@ class MY_Model extends CI_Model
         {
             $data = $this->_run_before_callbacks('create', array( $data ));
                 $this->db->insert($this->_table, $data);
-            $this->_run_after_callbacks('create', array( $data, $this->db->insert_id() ));
 
-            return $this->db->insert_id();
+            $insert_id = $this->db->insert_id();
+            $this->_run_after_callbacks('create', array( $data, $insert_id ));
+
+            return $insert_id;
         }
         else
         {
@@ -257,7 +252,7 @@ class MY_Model extends CI_Model
      */
     public function update_by()
     {
-        $args =& func_get_args();
+        $args = func_get_args();
         $data = array_pop($args);
         $this->_set_where($args);
 
@@ -308,7 +303,7 @@ class MY_Model extends CI_Model
      */
     public function delete_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         $data = $this->_run_before_callbacks('delete', array( $where ));
@@ -340,7 +335,7 @@ class MY_Model extends CI_Model
      */
     function dropdown()
     {
-        $args =& func_get_args();
+        $args = func_get_args();
 
         if(count($args) == 2)
         {
@@ -374,7 +369,7 @@ class MY_Model extends CI_Model
      */
     public function count_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         return $this->db->count_all_results($this->_table);

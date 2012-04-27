@@ -81,9 +81,9 @@ If for some reason you'd like to skip the validation, you can call `skip_validat
 Unit Tests
 ----------
 
-MY_Model contains a robust set of unit tests to ensure that the system works as planned. **These are still currently under development, and certain aspects of the library might not be tested yet. I know this is bad, and I should've written the tests first. Sorry. Shit happens.**
+MY_Model contains a robust set of unit tests to ensure that the system works as planned.
 
-**Currently, the tests only run on PHP5.4.**
+**Currently, the tests only run on PHP5.4 or 5.3.**
 
 Install [PHPUnit](https://github.com/sebastianbergmann/phpunit). I'm running version 3.6.10.
 

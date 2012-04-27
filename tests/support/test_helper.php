@@ -12,9 +12,6 @@
  * appropriate faux-CodeIgniter environment for our tests to run in.
  */
 
-// Turn off strict standards (until we deprecate MY_Model in favour of __construct)
-error_reporting(E_ALL ^ E_STRICT);
-
 // Load our MY_Model and the fakeish record model
 require_once 'lib/MY_Model.php';
 
