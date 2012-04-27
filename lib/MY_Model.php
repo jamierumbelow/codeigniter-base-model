@@ -552,7 +552,34 @@ class MY_Model extends CI_Model
     {
         if (count($params) == 1)
         {
-            $this->db->where($params[0]);
+            // use array with many where arguments
+            if (is_array($params))
+            {
+                foreach ($params[0] as $field => $filter)
+                {
+                    // if value of array use where in
+                    if (is_array($filter))
+                    {
+                        $this->db->where_in($field, $filter);
+                    }
+                    else
+                    {
+                        // if key is int value must hold whole where arguments
+                        if (is_int($field))
+                        {
+                            $this->db->where($filter);
+                        }
+                        else
+                        {
+                            $this->db->where($field, $filter);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                $this->db->where($params[0]);  
+            }
         }
         else
         {

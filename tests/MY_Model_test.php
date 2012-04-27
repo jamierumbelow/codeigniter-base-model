@@ -99,6 +99,48 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->get_many_by('some_column', 'some_value'), array('fake', 'records', 'here'));
     }
 
+    public function test_get_many_by_associative_array()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('some_column'), $this->equalTo('some_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('result')
+                        ->will($this->returnValue(array('fake', 'records', 'here')));
+        
+        $this->assertEquals($this->model->get_many_by(array('some_column' => 'some_value')), array('fake', 'records', 'here'));
+    }
+
+    public function test_get_many_by_associative_array_with_array_as_value()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where_in')
+                        ->with($this->equalTo('some_column'), $this->equalTo(array('some_value', 'another_value', 'one_more_value')))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('result')
+                        ->will($this->returnValue(array('fake', 'records', 'here')));
+        
+        $this->assertEquals($this->model->get_many_by(array('some_column' => array('some_value', 'another_value', 'one_more_value'))), array('fake', 'records', 'here'));
+    }
+
+    public function test_get_many_by_array_with_where_argument_as_value()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('some_column > some_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('result')
+                        ->will($this->returnValue(array('fake', 'records', 'here')));
+        
+        $this->assertEquals($this->model->get_many_by(array('some_column > some_value')), array('fake', 'records', 'here'));
+    }
+
     public function test_get_all()
     {
         $this->_expect_get();
