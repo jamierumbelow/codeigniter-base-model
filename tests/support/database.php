@@ -36,4 +36,6 @@ class MY_Model_Mock_DB
      */
     public function row() { }
     public function result() { }
+    public function row_array() { }
+    public function result_array() { }
 }

@@ -418,6 +418,20 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->get_next_id(), 250);
     }
 
+    public function test_as_array()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row_array')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->as_array()->get(2), 'fake_record_here');
+    }
+
     /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS
      * ------------------------------------------------------------ */ 

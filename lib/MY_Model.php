@@ -51,6 +51,13 @@ class MY_Model extends CI_Model
      */
     protected $skip_validation = FALSE;
 
+    /**
+     * By default we return our results as objects. If we need to override
+     * this, we can, or, we could use the `as_array()` and `as_object()` scopes.
+     */
+    protected $return_type = 'object';
+    protected $_temporary_return_type = NULL;
+
     /* --------------------------------------------------------------
      * GENERIC METHODS
      * ------------------------------------------------------------ */
@@ -66,6 +73,8 @@ class MY_Model extends CI_Model
         $this->load->helper('inflector');
 
         $this->_fetch_table();
+
+        $this->_temporary_return_type = $this->return_type;
     }
 
     /* --------------------------------------------------------------
@@ -81,7 +90,8 @@ class MY_Model extends CI_Model
 
         $row = $this->db->where($this->primary_key, $primary_value)
                         ->get($this->_table)
-                        ->row();
+                        ->{$this->_return_type()}();
+        $this->_temporary_return_type = $this->return_type;
 
         $this->_run_after_callbacks('get', array( $row ));
 
@@ -99,7 +109,9 @@ class MY_Model extends CI_Model
 
         $this->_run_before_callbacks('get');
         $row = $this->db->get($this->_table)
-                        ->row();
+                        ->{$this->_return_type()}();
+        $this->_temporary_return_type = $this->return_type;
+
         $this->_run_after_callbacks('get', array( $row ));
 
         return $row;
@@ -135,7 +147,8 @@ class MY_Model extends CI_Model
         $this->_run_before_callbacks('get');
 
         $result = $this->db->get($this->_table)
-                            ->result();
+                           ->{$this->_return_type(1)}();
+        $this->_temporary_return_type = $this->return_type;
 
         foreach ($result as &$row)
         {
@@ -421,6 +434,28 @@ class MY_Model extends CI_Model
     }
 
     /* --------------------------------------------------------------
+     * GLOBAL SCOPES
+     * ------------------------------------------------------------ */
+
+    /**
+     * Return the next call as an array rather than an object
+     */
+    public function as_array()
+    {
+        $this->_temporary_return_type = 'array';
+        return $this;
+    }
+
+    /**
+     * Return the next call as an object rather than an array
+     */
+    public function as_object()
+    {
+        $this->_temporary_return_type = 'object';
+        return $this;
+    }
+
+    /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS
      * ------------------------------------------------------------ */
 
@@ -558,5 +593,14 @@ class MY_Model extends CI_Model
         {
             $this->db->where($params[0], $params[1]);
         }
+    }
+
+    /**
+     * Return the method name for the current return type
+     */
+    private function _return_type($multi = FALSE)
+    {
+        $method = ($multi) ? 'result' : 'row';
+        return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
     }
 }

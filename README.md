@@ -78,6 +78,26 @@ Then, for each call to `insert()`, the data passed through will be validated acc
 
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
+Arrays vs Objects
+-----------------
+
+By default, MY_Model is setup to return objects using CodeIgniter's QB's `row()` and `result()` methods. If you'd like to use their array counterparts, there are a couple of ways of customising the model.
+
+If you'd like all your calls to use the array methods, you can set the `$return_type` variable to `array`.
+
+    class Book_model extends MY_Model
+    {
+        protected $return_type = 'array';
+    }
+
+If you'd like just your _next_ call to return a specific type, there are two scoping methods you can use:
+
+    $this->book_model->as_array()
+                     ->get(1);
+    $this->book_model->as_object()
+                     ->get_by('column', 'value');
+
+
 Unit Tests
 ----------
 
