@@ -131,6 +131,12 @@ Thanks to:
 Changelog
 ---------
 
+**Version 1.3.0 - IN DEVELOPMENT**
+* Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
+* Added PHP5.3 support for the test suite
+* Removed the deprecated `MY_Model()` constructor
+* Fixed an issue with after_create callbacks (thanks [zbrox](https://github.com/zbrox)!)
+
 **Version 1.2.0**
 * Bugfix to `update_many()`
 * Added getters for table name and skip validation
