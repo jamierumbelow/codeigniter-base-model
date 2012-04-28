@@ -13,7 +13,7 @@
  */
 
 // Load our MY_Model and the fakeish record model
-require_once 'lib/MY_Model.php';
+require_once 'core/MY_Model.php';
 
 require_once 'tests/support/database.php';
 
