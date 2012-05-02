@@ -11,6 +11,7 @@
  * @modified Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified Dan Horrigan <http://dhorrigan.com>
  * @modified Adam Jackett <http://darkhousemedia.com>
+ * @modified Justin Busschau <http://churchworks.com>
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
@@ -600,9 +601,7 @@ class MY_Model extends CI_Model
     {
         if ($this->_table == NULL)
         {
-            $class = preg_replace('/(_m|_model)?$/', '', get_class($this));
-            
-            $this->_table = plural(strtolower($class));
+            $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
         }
     }
 
