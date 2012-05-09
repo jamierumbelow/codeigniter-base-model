@@ -165,22 +165,6 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * Count the number of rows based on a WHERE
-     * criteria
-     *
-     * @param string $key The key to search by
-     * @param string $val The value of that key
-     * @return integer
-     */
-    public function count_by()
-    {
-        $where =& func_get_args();
-        $this->_set_where($where);
-
-        return $this->db->count_all_results($this->_table);
-    }
-
-    /**
      * Return a count of every row in the table
      *
      * @return integer
