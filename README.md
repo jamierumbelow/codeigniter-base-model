@@ -1,6 +1,8 @@
 codeigniter-base-model
 =====================================
 
+[![Build Status](https://secure.travis-ci.org/jamierumbelow/codeigniter-base-model.png?branch=master)](http://travis-ci.org/jamierumbelow/codeigniter-base-model)
+
 My CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a full CRUD base to make developing database interactions easier and quicker. It also includes a bunch of other cool stuff, including before and after create callbacks, validation and a some table name guessing.
 
 Synopsis
@@ -76,6 +78,40 @@ Then, for each call to `insert()`, the data passed through will be validated acc
 
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
+Arrays vs Objects
+-----------------
+
+By default, MY_Model is setup to return objects using CodeIgniter's QB's `row()` and `result()` methods. If you'd like to use their array counterparts, there are a couple of ways of customising the model.
+
+If you'd like all your calls to use the array methods, you can set the `$return_type` variable to `array`.
+
+    class Book_model extends MY_Model
+    {
+        protected $return_type = 'array';
+    }
+
+If you'd like just your _next_ call to return a specific type, there are two scoping methods you can use:
+
+    $this->book_model->as_array()
+                     ->get(1);
+    $this->book_model->as_object()
+                     ->get_by('column', 'value');
+
+
+Unit Tests
+----------
+
+MY_Model contains a robust set of unit tests to ensure that the system works as planned.
+
+**Currently, the tests only run on PHP5.4 or 5.3.**
+
+Install [PHPUnit](https://github.com/sebastianbergmann/phpunit). I'm running version 3.6.10.
+
+Then, simply run the `phpunit` command on the test file:
+
+    $ phpunit tests/MY_Model_test.php
+
+
 Other Documentation
 -------------------
 
@@ -91,3 +127,24 @@ Thanks to:
 * [Adam Jackett](http://darkhousemedia.com)
     
 ...who have all contributed a great amount of code and ideas to this MY_Model.
+
+Changelog
+---------
+
+**Version 1.3.0 - IN DEVELOPMENT**
+* Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
+* Added PHP5.3 support for the test suite
+* Removed the deprecated `MY_Model()` constructor
+* Fixed an issue with after_create callbacks (thanks [zbrox](https://github.com/zbrox)!)
+
+**Version 1.2.0**
+* Bugfix to `update_many()`
+* Added getters for table name and skip validation
+* Fix to callback functionality (thanks [titosemi](https://github.com/titosemi)!)
+* Vastly improved documentation
+* Added a `get_next_id()` method (thanks [gbaldera](https://github.com/gbaldera)!)
+* Added a set of unit tests
+* Added support for [Composer](http://getcomposer.org/)
+
+**Version 1.0.0 - 1.1.0**
+* Initial Releases
