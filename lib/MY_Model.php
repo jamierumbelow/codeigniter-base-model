@@ -11,7 +11,7 @@
  * @modified Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified Dan Horrigan <http://dhorrigan.com>
  * @modified Adam Jackett <http://darkhousemedia.com>
- * @modified Justin Busschau <http://churchworks.com>
+ * @modified Justin Busschau <http://bythepeople.co.uk>
  * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
