@@ -165,16 +165,6 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * Return a count of every row in the table
-     *
-     * @return integer
-     */
-    public function count_all()
-    {
-        return $this->db->count_all($this->_table);
-    }
-
-    /**
      * Insert a new row into the table. $data should be an associative array
      * of data to be inserted. Returns newly created ID.
      */
