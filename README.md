@@ -140,13 +140,13 @@ Other Documentation
 Contributors
 ------------
 
-Thanks to:
+Special thanks to:
     
 * [Phil Sturgeon](http://philsturgeon.co.uk)
 * [Dan Horrigan](http://danhorrigan.com)
 * [Adam Jackett](http://darkhousemedia.com)
     
-...who have all contributed a great amount of code and ideas to this MY_Model.
+...as well as everybody else who has contributed a great amount of code and ideas to this library
 
 Changelog
 ---------
@@ -157,6 +157,7 @@ Changelog
 * Removed the deprecated `MY_Model()` constructor
 * Fixed an issue with after_create callbacks (thanks [zbrox](https://github.com/zbrox)!)
 * Composer package will now autoload the file
+* Fixed the callback example by returning the given/modified data (thanks [druu](https://github.com/druu)!)
 
 **Version 1.2.0**
 * Bugfix to `update_many()`
