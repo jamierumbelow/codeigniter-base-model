@@ -1,6 +1,6 @@
 {
     "name": "jamierumbelow/codeigniter-base-model",
-    "version": "v1.2.0",
+    "version": "v1.3.0",
     "type": "library",
     "description": "CodeIgniter base CRUD model to remove repetition and increase productivity",
     "keywords": ["codeigniter","model","crud","base","scaffold"],
