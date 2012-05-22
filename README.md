@@ -29,10 +29,30 @@ $this->post->update(1, array( 'status' => 'closed' ));
 $this->post->delete(1);
 ```
 
-Usage
------
+Installation/Usage
+------------------
 
-Drag the MY\_Model.php file into your _application/core_ folder. CodeIgniter will load and initialise this class automatically for you. Extend all your model classes from MY_Model and all the functionality will be baked into your models automatically.
+I recommend you use [Composer](http://getcomposer.org/) to install **MY_Model**. Install Composer for your project:
+
+    $ curl -s http://getcomposer.org/installer | php
+
+...and create/edit your `composer.json`:
+
+    {
+        "require": {
+            "jamierumbelow/codeigniter-base-model": "*"
+        }
+    }
+
+...and install it!
+
+    $ php composer.phar install
+
+Remember to include Composer's autoload file in `index.php`:
+
+    require_once './vendor/autoload.php';
+
+Alternatively, download and drag the MY\_Model.php file into your _application/core_ folder. CodeIgniter will load and initialise this class automatically for you. Extend all your model classes from MY_Model and all the functionality will be baked into your models automatically.
 
 Naming Conventions
 ------------------
