@@ -15,5 +15,8 @@
     ],
     "require": {
         "php": ">=5.1.6"
+    },
+    "autoload": {
+        "classmap": ["core/MY_Model.php"]
     }
 }
