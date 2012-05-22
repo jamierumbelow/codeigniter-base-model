@@ -1,10 +1,16 @@
-<?php
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
 /**
  * A base model with a series of CRUD functions (powered by CI's query builder),
  * validation-in-model support, event callbacks and more.
  *
  * @link http://github.com/jamierumbelow/codeigniter-base-model
- * @copyright Copyright (c) 2012, Jamie Rumbelow <http://jamierumbelow.net>
+ * @author Jamie Rumbelow <http://jamierumbelow.net>
+ * @modified Phil Sturgeon <http://philsturgeon.co.uk>
+ * @modified Dan Horrigan <http://dhorrigan.com>
+ * @modified Adam Jackett <http://darkhousemedia.com>
+ * @modified Justin Busschau <http://bythepeople.co.uk>
+ * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
 class MY_Model extends CI_Model
@@ -179,9 +185,9 @@ class MY_Model extends CI_Model
             $insert_id = $this->db->insert_id();
 
             $this->_run_after_callbacks('create', array( $data, $insert_id ));
-            
+
             return $insert_id;
-        } 
+        }
         else
         {
             return FALSE;
@@ -300,6 +306,28 @@ class MY_Model extends CI_Model
     }
 
     /**
+    * Replaces a record
+    * If the record specified by $where can be found, use update,
+    * Else use Insert to add the record
+    *
+    * @param array $where The criteria to find the record we want to replace
+    * @param array $data The data to update/insert
+    * @return bool
+    */
+    public function replace($where, $data)
+    {
+        $row = $this->get_by($where);
+        if ($row)
+        {
+            return $this->update($row->$this->primary_key, $data);
+        }
+        else
+        {
+            return ($this->insert($data) > 0);
+        }
+    }
+
+    /**
      * Delete a row from the table by the primary value
      */
     public function delete($id)
@@ -374,7 +402,7 @@ class MY_Model extends CI_Model
         {
             $options[$row->{$key}] = $row->{$value};
         }
-        
+
         return $options;
     }
 
@@ -574,9 +602,7 @@ class MY_Model extends CI_Model
     {
         if ($this->_table == NULL)
         {
-            $class = preg_replace('/(_m|_model)?$/', '', get_class($this));
-
-            $this->_table = plural(strtolower($class));
+            $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
         }
     }
 
