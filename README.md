@@ -156,6 +156,7 @@ Changelog
 * Added PHP5.3 support for the test suite
 * Removed the deprecated `MY_Model()` constructor
 * Fixed an issue with after_create callbacks (thanks [zbrox](https://github.com/zbrox)!)
+* Composer package will now autoload the file
 
 **Version 1.2.0**
 * Bugfix to `update_many()`
