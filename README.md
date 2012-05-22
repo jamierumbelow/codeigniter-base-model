@@ -158,6 +158,7 @@ Changelog
 * Fixed an issue with after_create callbacks (thanks [zbrox](https://github.com/zbrox)!)
 * Composer package will now autoload the file
 * Fixed the callback example by returning the given/modified data (thanks [druu](https://github.com/druu)!)
+* Change order of operations in `_fetch_table()` (thanks [JustinBusschau](https://github.com/JustinBusschau)!)
 
 **Version 1.2.0**
 * Bugfix to `update_many()`
