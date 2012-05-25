@@ -29,10 +29,30 @@ $this->post->update(1, array( 'status' => 'closed' ));
 $this->post->delete(1);
 ```
 
-Usage
------
+Installation/Usage
+------------------
 
-Drag the MY\_Model.php file into your _application/core_ folder. CodeIgniter will load and initialise this class automatically for you. Extend all your model classes from MY_Model and all the functionality will be baked into your models automatically.
+I recommend you use [Composer](http://getcomposer.org/) to install **MY_Model**. Install Composer for your project:
+
+    $ curl -s http://getcomposer.org/installer | php
+
+...and create/edit your `composer.json`:
+
+    {
+        "require": {
+            "jamierumbelow/codeigniter-base-model": "*"
+        }
+    }
+
+...and install it!
+
+    $ php composer.phar install
+
+Remember to include Composer's autoload file in `index.php`:
+
+    require_once './vendor/autoload.php';
+
+Alternatively, download and drag the MY\_Model.php file into your _application/core_ folder. CodeIgniter will load and initialise this class automatically for you. Extend all your model classes from MY_Model and all the functionality will be baked into your models automatically.
 
 Naming Conventions
 ------------------
@@ -65,6 +85,7 @@ class Book_model extends MY_Model
     protected function timestamps($book)
     {
         $book['created_at'] = $book['updated_at'] = date('Y-m-d H:i:s');
+        return $book;
     }
 }
 ```
@@ -120,13 +141,13 @@ Other Documentation
 Contributors
 ------------
 
-Thanks to:
+Special thanks to:
     
 * [Phil Sturgeon](http://philsturgeon.co.uk)
 * [Dan Horrigan](http://danhorrigan.com)
 * [Adam Jackett](http://darkhousemedia.com)
     
-...who have all contributed a great amount of code and ideas to this MY_Model.
+...as well as everybody else who has contributed a great amount of code and ideas to this library
 
 Changelog
 ---------
@@ -136,6 +157,9 @@ Changelog
 * Added PHP5.3 support for the test suite
 * Removed the deprecated `MY_Model()` constructor
 * Fixed an issue with after_create callbacks (thanks [zbrox](https://github.com/zbrox)!)
+* Composer package will now autoload the file
+* Fixed the callback example by returning the given/modified data (thanks [druu](https://github.com/druu)!)
+* Change order of operations in `_fetch_table()` (thanks [JustinBusschau](https://github.com/JustinBusschau)!)
 
 **Version 1.2.0**
 * Bugfix to `update_many()`
