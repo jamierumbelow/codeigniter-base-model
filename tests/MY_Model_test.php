@@ -71,6 +71,20 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->get_by('some_column', 'some_value'), 'fake_record_here');
     }
 
+    public function test_get_like()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('like')
+                        ->with($this->equalTo('some_column'), $this->equalTo('some_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->get_by('some_column', 'some_value'), 'fake_record_here');
+    }
+
     public function test_get_many()
     {
         $this->model->db->expects($this->once())
@@ -108,7 +122,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($this->model->get_all(), array('fake', 'records', 'here'));
     }
-    
+
     public function test_get_callbacks_are_called_appropriately()
     {
         $this->model = new Before_callback_model();
@@ -342,7 +356,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
 
     /* --------------------------------------------------------------
      * UTILITY METHODS
-     * ------------------------------------------------------------ */ 
+     * ------------------------------------------------------------ */
 
     public function test_dropdown()
     {
@@ -434,7 +448,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
 
     /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS
-     * ------------------------------------------------------------ */ 
+     * ------------------------------------------------------------ */
 
     public function test_order_by_regular()
     {
