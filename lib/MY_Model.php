@@ -160,6 +160,8 @@ class MY_Model extends CI_Model
     {
         $valid = TRUE;
 
+        $data = $this->_run_before_callbacks('create', array( $data ));
+
         if ($skip_validation === FALSE)
         {
             $valid = $this->_run_validation($data);
@@ -167,7 +169,6 @@ class MY_Model extends CI_Model
 
         if ($valid)
         {
-            $data = $this->_run_before_callbacks('create', array( $data ));
                 $this->db->insert($this->_table, $data);
             $this->_run_after_callbacks('create', array( $data, $this->db->insert_id() ));
 
