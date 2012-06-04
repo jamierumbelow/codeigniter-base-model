@@ -1,28 +1,59 @@
 <?php
 /**
- * A base model with a series of CRUD functions (powered by CI's query builder),
- * validation-in-model support, event callbacks and more.
+ * CodeIgniter Base CRUD Model with optional MongoDB support
  *
- * @link http://github.com/jamierumbelow/codeigniter-base-model
- * @copyright Copyright (c) 2012, Jamie Rumbelow <http://jamierumbelow.net>
+ * The library extends (and so replaces) CodeIgniter's native model
+ * class to add common CRUD, validation features with optional MongoDB
+ * support. It's uses V2 branch of "CodeIgniter MongoDB Active Record Library"
+ * by Alex Bilbie as MongoDB interface:
+ * https://github.com/alexbilbie/codeigniter-mongodb-library
+ *
+ * The code is based on Jamie Rumbelow's CRUD model:
+ * http://github.com/jamierumbelow/codeigniter-base-model
+ *
+ * @package     CodeIgniter
+ * @author      Sepehr Lajevardi <me@sepehr.ws>
+ * @copyright   Copyright (c) 2012 Sepehr Lajevardi.
+ * @license     http://codeigniter.com/user_guide/license.html
+ * @link        https://github.com/sepehr/ci-mongodb-base-model
+ * @version     Version 1.0
+ * @filesource
  */
 
-class MY_Model extends CI_Model
-{
+// ------------------------------------------------------------------------
 
-    /* --------------------------------------------------------------
-     * VARIABLES
-     * ------------------------------------------------------------ */
+/**
+ * Base CRUD Model with optional MongoDB support
+ *
+ * @package     CodeIgniter
+ * @subpackage  Models
+ * @category    Models
+ * @author      Sepehr Lajevardi <me@sepehr.ws>
+ * @link        https://github.com/sepehr/ci-mongodb-base-model
+ */
+class MY_Model extends CI_Model {
 
     /**
-     * This model's default database table. Automatically
-     * guessed by pluralising the model name.
+     * Indicates whether it's a MongoDB model or not.
      */
-    protected $_table;
+    protected $_mongodb;
+
+    /**
+     * Model's database interface object name.
+     */
+    protected $_interface;
+
+    /**
+     * Model's default database table/collection.
+     * Automatically guessed by pluralising the model name.
+     */
+    protected $_datasource;
 
     /**
      * This model's default primary key or unique identifier.
      * Used by the get(), update() and delete() functions.
+     *
+     * Using MongoDB it's forced to "_id".
      */
     protected $primary_key = 'id';
 
@@ -31,13 +62,13 @@ class MY_Model extends CI_Model
      * simple lists of method names (methods will be run on $this).
      */
     protected $before_create = array();
-    protected $after_create = array();
+    protected $after_create  = array();
     protected $before_update = array();
-    protected $after_update = array();
-    protected $before_get = array();
-    protected $after_get = array();
+    protected $after_update  = array();
+    protected $before_get    = array();
+    protected $after_get     = array();
     protected $before_delete = array();
-    protected $after_delete = array();
+    protected $after_delete  = array();
 
     /**
      * An array of validation rules. This needs to be the same format
@@ -58,77 +89,102 @@ class MY_Model extends CI_Model
     protected $return_type = 'object';
     protected $_temporary_return_type = NULL;
 
-    /* --------------------------------------------------------------
-     * GENERIC METHODS
-     * ------------------------------------------------------------ */
+    // ------------------------------------------------------------------------
 
     /**
-     * Initialise the model, tie into the CodeIgniter superobject and
-     * try our best to guess the table name.
+     * Initialize the model, tie into the CodeIgniter superobject and
+     * try our best to guess the datasource name.
      */
     public function __construct()
     {
         parent::__construct();
 
+        if ($this->_mongodb)
+        {
+            // Load MongoDB library
+            $this->load->library('mongo_db');
+            // Force _id as primary key if using MongoDB
+            $this->primary_key = '_id';
+            // Set interface object name
+            $this->_interface = 'mongo_db';
+        }
+        else
+        {
+            // Make sure that database driver is present
+            $this->load->database();
+            // Set interface object name
+            $this->_interface = 'db';
+        }
+
+        // Load inflector helper
         $this->load->helper('inflector');
 
-        $this->_fetch_table();
+        // Guess table/collection name
+        $this->_guess_datasource();
 
+        // Set return type of results
         $this->_temporary_return_type = $this->return_type;
     }
 
-    /* --------------------------------------------------------------
-     * CRUD INTERFACE
-     * ------------------------------------------------------------ */
+    // ------------------ CRUD Interface --------------------------------------
 
     /**
-     * Fetch a single record based on the primary key. Returns an object.
+     * Fetch a single record/document based on the primary key. Returns an object.
      */
     public function get($primary_value)
     {
+        // Run registered callbacks
         $this->_run_before_callbacks('get');
 
-        $row = $this->db->where($this->primary_key, $primary_value)
-                        ->get($this->_table)
-                        ->{$this->_return_type()}();
-        $this->_temporary_return_type = $this->return_type;
+        $result = $this->{$this->_interface}
+            ->where($this->primary_key, $this->_prep_primary($primary_value))
+            ->get($this->_datasource);
+        $this->_typecast($result);
 
-        $this->_run_after_callbacks('get', array( $row ));
+        // Run registered callbacks
+        $this->_run_after_callbacks('get', array($result));
 
-        return $row;
+        return $result;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Fetch a single record based on an arbitrary WHERE call. Can be
-     * any valid value to $this->db->where().
+     * Fetch a single record/document based on an arbitrary WHERE call. Can be
+     * any valid value to $this->{$this->_interface}->where().
      */
     public function get_by()
     {
         $where = func_get_args();
         $this->_set_where($where);
 
+        // Run registered callbacks
         $this->_run_before_callbacks('get');
-        $row = $this->db->get($this->_table)
-                        ->{$this->_return_type()}();
-        $this->_temporary_return_type = $this->return_type;
 
-        $this->_run_after_callbacks('get', array( $row ));
+        $results = $this->{$this->_interface}->get($this->_datasource);
+        $this->_typecast($results);
 
-        return $row;
+        // Run registered callbacks
+        $this->_run_after_callbacks('get', array($results));
+
+        return $results;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Fetch an array of records based on an array of primary values.
+     * Fetch an array of records/documents based on an array of primary values.
      */
     public function get_many($values)
     {
-        $this->db->where_in($this->primary_key, $values);
-
+        $this->{$this->_interface}->where_in($this->primary_key, $this->_prep_primary($values));
         return $this->get_all();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Fetch an array of records based on an arbitrary WHERE call.
+     * Fetch an array of records/documents based on an arbitrary WHERE call.
      */
     public function get_many_by()
     {
@@ -138,29 +194,35 @@ class MY_Model extends CI_Model
         return $this->get_all();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Fetch all the records in the table. Can be used as a generic call
-     * to $this->db->get() with scoped methods.
+     * Fetch all the records/documents in the table/collection.
+     * Can be used as a generic call to $this->{$this->_interface}->get() with scoped methods.
      */
     public function get_all()
     {
+        // Run registered callbacks
         $this->_run_before_callbacks('get');
 
-        $result = $this->db->get($this->_table)
-                           ->{$this->_return_type(1)}();
-        $this->_temporary_return_type = $this->return_type;
+        $results = $this->{$this->_interface}->get($this->_datasource);
+        $this->_typecast($results, TRUE);
 
-        foreach ($result as &$row)
+        foreach ($results as &$result)
         {
-            $row = $this->_run_after_callbacks('get', array( $row ));
+            // Run registered callbacks per each result
+            $result = $this->_run_after_callbacks('get', array($result));
         }
 
-        return $result;
+        return $results;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Insert a new row into the table. $data should be an associative array
-     * of data to be inserted. Returns newly created ID.
+     * Insert a new record/document into the table/collection.
+     * $data should be an associative array of data to be inserted.
+     * Returns newly created ID.
      */
     public function insert($data, $skip_validation = FALSE)
     {
@@ -173,28 +235,33 @@ class MY_Model extends CI_Model
 
         if ($valid)
         {
+            // Run registered callbacks
             $data = $this->_run_before_callbacks('create', array( $data ));
 
-            $this->db->insert($this->_table, $data);
-            $insert_id = $this->db->insert_id();
+            $insert_id = $this->{$this->_interface}->insert($this->_datasource, $data);
+            // Update insert_id if not MongoDB
+            !$this->_mongodb AND $insert_id = $this->{$this->_interface}->insert_id();
 
+            // Run registered callbacks
             $this->_run_after_callbacks('create', array( $data, $insert_id ));
-            
+
             return $insert_id;
-        } 
+        }
         else
         {
             return FALSE;
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Insert multiple rows into the table. Returns an array of multiple IDs.
+     * Insert multiple rows/documents into the table/collection.
+     * Returns an array of multiple IDs.
      */
     public function insert_many($data, $skip_validation = FALSE)
     {
         $ids = array();
-
         foreach ($data as $row)
         {
             $ids[] = $this->insert($row, $skip_validation);
@@ -203,13 +270,16 @@ class MY_Model extends CI_Model
         return $ids;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Updated a record based on the primary value.
+     * Updated a record/document based on the primary value.
      */
     public function update($primary_value, $data, $skip_validation = FALSE)
     {
         $valid = TRUE;
 
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('update', array( $data, $primary_value ));
 
         if ($skip_validation === FALSE)
@@ -219,9 +289,12 @@ class MY_Model extends CI_Model
 
         if ($valid)
         {
-            $result = $this->db->where($this->primary_key, $primary_value)
-                               ->set($data)
-                               ->update($this->_table);
+            $result = $this->{$this->_interface}
+                ->where($this->primary_key, $this->_prep_primary($primary_value))
+                ->set($data)
+                ->update($this->_datasource);
+
+            // Run registered callbacks
             $this->_run_after_callbacks('update', array( $data, $primary_value, $result ));
 
             return $result;
@@ -232,13 +305,16 @@ class MY_Model extends CI_Model
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Update many records, based on an array of primary values.
+     * Update many records/documents, based on an array of primary values.
      */
     public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
         $valid = TRUE;
 
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('update', array( $data, $primary_values ));
 
         if ($skip_validation === FALSE)
@@ -248,9 +324,12 @@ class MY_Model extends CI_Model
 
         if ($valid)
         {
-            $result = $this->db->where_in($this->primary_key, $primary_values)
-                               ->set($data)
-                               ->update($this->_table);
+            $result = $this->{$this->_interface}
+                ->where_in($this->primary_key, $this->_prep_primary($primary_values))
+                ->set($data)
+                ->update($this->_datasource);
+
+            // Run registered callbacks
             $this->_run_after_callbacks('update', array( $data, $primary_values, $result ));
 
             return $result;
@@ -261,8 +340,10 @@ class MY_Model extends CI_Model
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Updated a record based on an arbitrary WHERE clause.
+     * Updated a record/document based on an arbitrary WHERE clause.
      */
     public function update_by()
     {
@@ -270,12 +351,16 @@ class MY_Model extends CI_Model
         $data = array_pop($args);
         $this->_set_where($args);
 
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('update', array( $data, $args ));
 
         if ($this->_run_validation($data))
         {
-            $result = $this->db->set($data)
-                               ->update($this->_table);
+            $result = $this->{$this->_interface}
+                ->set($data)
+                ->update($this->_datasource);
+
+            // Run registered callbacks
             $this->_run_after_callbacks('update', array( $data, $args, $result ));
 
             return $result;
@@ -286,63 +371,88 @@ class MY_Model extends CI_Model
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Update all records
+     * Update all records/documents.
      */
     public function update_all($data)
     {
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('update', array( $data ));
-        $result = $this->db->set($data)
-                           ->update($this->_table);
+
+        $result = $this->{$this->_interface}
+            ->set($data)
+            ->update($this->_datasource);
+
+        // Run registered callbacks
         $this->_run_after_callbacks('update', array( $data, $result ));
 
         return $result;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Delete a row from the table by the primary value
+     * Delete a row/document from the table/collection by the primary value
      */
     public function delete($id)
     {
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('delete', array( $id ));
-        $result = $this->db->where($this->primary_key, $id)
-                           ->delete($this->_table);
+
+        $result = $this->{$this->_interface}
+            ->where($this->primary_key, $this->_prep_primary($id))
+            ->delete($this->_datasource);
+
+        // Run registered callbacks
         $this->_run_after_callbacks('delete', array( $id, $result ));
 
         return $result;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Delete a row from the database table by an arbitrary WHERE clause
+     * Delete a row/document from the database by an arbitrary WHERE clause
      */
     public function delete_by()
     {
         $where = func_get_args();
         $this->_set_where($where);
 
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('delete', array( $where ));
-        $result = $this->db->delete($this->_table);
+
+        $result = $this->{$this->_interface}->delete($this->_datasource);
+
+        // Run registered callbacks
         $this->_run_after_callbacks('delete', array( $where, $result ));
 
         return $result;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Delete many rows from the database table by multiple primary values
+     * Delete many rows/documents from the database table by multiple primary values
      */
     public function delete_many($primary_values)
     {
+        // Run registered callbacks
         $data = $this->_run_before_callbacks('delete', array( $primary_values ));
-        $result = $this->db->where_in($this->primary_key, $primary_values)
-                           ->delete($this->_table);
+
+        $result = $this->{$this->_interface}
+            ->where_in($this->primary_key, $this->_prep_primary($primary_values))
+            ->delete($this->_datasource);
+
+        // Run registered callbacks
         $this->_run_after_callbacks('delete', array( $primary_values, $result ));
 
         return $result;
     }
 
-    /* --------------------------------------------------------------
-     * UTILITY METHODS
-     * ------------------------------------------------------------ */
+    // ----------------------- Utility Methods --------------------------------
 
     /**
      * Retrieve and generate a form_dropdown friendly array
@@ -361,41 +471,51 @@ class MY_Model extends CI_Model
             $value = $args[0];
         }
 
+        // Run registered callbacks
         $this->_run_before_callbacks('get', array( $key, $value ));
 
-        $result = $this->db->select(array($key, $value))
-                           ->get($this->_table)
-                           ->result();
+        $result = $this->{$this->_interface}
+            ->select(array($key, $value))
+            ->get($this->_datasource);
+
+        $this->_typecast($result, TRUE);
+
+        // Run registered callbacks
         $this->_run_after_callbacks('get', array( $key, $value, $result ));
 
         $options = array();
-
         foreach ($result as $row)
         {
             $options[$row->{$key}] = $row->{$value};
         }
-        
+
         return $options;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Fetch a count of rows based on an arbitrary WHERE call.
+     * Fetch a count of rows/documents based on an arbitrary WHERE call.
      */
     public function count_by()
     {
         $where = func_get_args();
         $this->_set_where($where);
 
-        return $this->db->count_all_results($this->_table);
+        return $this->_count($where);
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Fetch a total count of rows, disregarding any previous conditions
+     * Fetch a total count of rows/documents, disregarding any previous conditions
      */
     public function count_all()
     {
-        return $this->db->count_all($this->_table);
+        return $this->_count(TRUE);
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Tell the class to skip the insert validation
@@ -406,6 +526,8 @@ class MY_Model extends CI_Model
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Get the skip validation status
      */
@@ -414,28 +536,36 @@ class MY_Model extends CI_Model
         return $this->skip_validation;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Return the next auto increment of the table. Only tested on MySQL.
+     *
+     * NOTE: Not working with MongoDB.
      */
     public function get_next_id()
     {
-        return (int) $this->db->select('AUTO_INCREMENT')
-            ->from('information_schema.TABLES')
-            ->where('TABLE_NAME', $this->_table)
-            ->where('TABLE_SCHEMA', $this->db->database)->get()->row()->AUTO_INCREMENT;
+
+        return $this->_mongodb
+            ? FALSE
+            : (int) $this->{$this->_interface}
+                ->select('AUTO_INCREMENT')
+                ->from('information_schema.TABLES')
+                ->where('TABLE_NAME', $this->_datasource)
+                ->where('TABLE_SCHEMA', $this->{$this->_interface}->database)->get()->row()->AUTO_INCREMENT;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
-     * Getter for the table name
+     * Getter for the table/collection name
      */
-    public function table()
+    public function datasource()
     {
-        return $this->_table;
+        return $this->_datasource;
     }
 
-    /* --------------------------------------------------------------
-     * GLOBAL SCOPES
-     * ------------------------------------------------------------ */
+    // ------------------------------------------------------------------------
 
     /**
      * Return the next call as an array rather than an object
@@ -446,6 +576,8 @@ class MY_Model extends CI_Model
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Return the next call as an object rather than an array
      */
@@ -455,12 +587,10 @@ class MY_Model extends CI_Model
         return $this;
     }
 
-    /* --------------------------------------------------------------
-     * QUERY BUILDER DIRECT ACCESS METHODS
-     * ------------------------------------------------------------ */
+    // ------------------ Query builder direct access methods -----------------
 
     /**
-     * A wrapper to $this->db->order_by()
+     * A wrapper to $this->{$this->_interface}->order_by()
      */
     public function order_by($criteria, $order = 'ASC')
     {
@@ -468,28 +598,36 @@ class MY_Model extends CI_Model
         {
             foreach ($criteria as $key => $value)
             {
-                $this->db->order_by($key, $value);
+                $this->_mongo_db
+                    ? $this->mongo_db->order_by(array($key => $value))
+                    : $this->db->order_by($key, $value);
             }
         }
         else
         {
-            $this->db->order_by($criteria, $order);
+            $this->_mongo_db
+                ? $this->mongo_db->order_by(array($criteria => $order))
+                : $this->db->order_by($criteria, $order);
         }
+
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * A wrapper to $this->db->limit()
+     * A wrapper to $this->{$this->_interface}->limit()
      */
     public function limit($limit, $offset = 0)
     {
-        $this->db->limit($limit, $offset);
+        $this->_mongo_db
+            ? $this->mongo_db->limit($limit)->offset($offset)
+            : $this->db->limit($limit, $offset);
+
         return $this;
     }
 
-    /* --------------------------------------------------------------
-     * INTERNAL METHODS
-     * ------------------------------------------------------------ */
+    // ------------------ Internal Helpers ------------------------------------
 
     /**
      * Run the before_ callbacks, each callback taking a $data
@@ -511,6 +649,8 @@ class MY_Model extends CI_Model
         return $data;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Run the after_ callbacks, each callback taking a $data
      * variable and returning it
@@ -530,6 +670,8 @@ class MY_Model extends CI_Model
 
         return $data;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Run validation on the passed data
@@ -567,38 +709,148 @@ class MY_Model extends CI_Model
         }
     }
 
-    /**
-     * Guess the table name by pluralising the model name
-     */
-    private function _fetch_table()
-    {
-        if ($this->_table == NULL)
-        {
-            $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
-        }
-    }
+    // ------------------------------------------------------------------------
 
     /**
      * Set WHERE parameters, cleverly
      */
     private function _set_where($params)
     {
-        if (count($params) == 1)
-        {
-            $this->db->where($params[0]);
-        }
-        else
-        {
-            $this->db->where($params[0], $params[1]);
-        }
+        count($params) == 1
+            ? $this->{$this->_interface}->where($params[0])
+            : $this->{$this->_interface}->where($params[0], $params[1]);
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Return the method name for the current return type
+     * Fetch count of rows/documents. If $all is set to TRUE is returns
+     * the count of all rows/documents, otherwise it should contains where
+     * conditions.
+     */
+    private function _count($all = TRUE)
+    {
+        if ($all === TRUE)
+        {
+            // Temporarily store buffered conditions
+            $where_cache = $this->mongo_db->wheres;
+            // If requested to count all documents, flush all buffered
+            // conditions. There's no better way to do this at the moment!
+            $this->mongo_db->wheres = array();
+            // Set database driver proper method
+            $method = 'count_all';
+        }
+        // $all contains where conditions:
+        else{
+            // Set conditions
+            $this->_set_where($all);
+            // Set database driver proper method
+            $method = 'count_all_results';
+        }
+
+        $count = $this->_mongodb
+            ? count($this->mongo_db->get($this->_datasource))
+            : $this->db->$method($this->_datasource);
+
+        // Restore MongoDB buffered conditions
+        $this->mongo_db->wheres = $where_cache;
+
+        return $count;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Return the method name for the current return type (non-mongodb):
+     * - result
+     * - result_array
+     * - row
+     * - row_array
      */
     private function _return_type($multi = FALSE)
     {
         $method = ($multi) ? 'result' : 'row';
         return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Guess the table/collection name by pluralising its model name.
+     */
+    private function _guess_datasource()
+    {
+        if ($this->_datasource == NULL)
+        {
+            $this->_datasource = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Prepares passed mongoids for database queries.
+     */
+    private function _prep_primary($primary_value)
+    {
+        // Not using MongoDB?
+        if ( !$this->_mongodb)
+        {
+            return $primary_value;
+        }
+
+        // Array of primary values?
+        if (is_array($primary_value))
+        {
+            foreach ($primary_value as $key => $value)
+            {
+                $primary_value[$key] = $this->_prep_primary($value);
+            }
+        }
+        // Single primary value
+        else
+        {
+            $primary_value = new MongoId($primary_value);
+        }
+
+        return $primary_value;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Typecasts results as desired.
+     */
+    private function _typecast(&$results, $multiple = FALSE)
+    {
+        if ($multiple)
+        {
+            // Typecast each element in the results array
+            foreach ($results as &$result)
+            {
+                $this->_typecast($result);
+            }
+        }
+        else
+        {
+            if ($this->_mongodb)
+            {
+                isset($results[0]) AND $results = $results[0];
+                $results = $this->_temporary_return_type == 'object'
+                    ? (object) $results
+                    : (array)  $results;
+            }
+            else
+            {
+                $results = $results->{$this->_return_type($multiple)}();
+            }
+        }
+
+        $this->_temporary_return_type = $this->return_type;
+    }
+
 }
+// End of MY_Model class
+
+/* End of file MY_Model.php */
+/* Location: ./application/core/MY_Model.php */
