@@ -1,5 +1,0 @@
-language: php
-php:
-  - 5.3
-  - 5.4
-script: phpunit tests/MY_Model_test.php
