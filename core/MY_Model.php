@@ -25,6 +25,14 @@ class MY_Model extends CI_Model
      * Used by the get(), update() and delete() functions.
      */
     protected $primary_key = 'id';
+    
+    /**
+     * Enable soft delete to mark records as deleted rather than deleting them.
+     * Can be used in conjunction with show_deleted() to return deleted records.
+     *
+     * Required a 'deleted' field tinyint(1) unsigned NOT NULL DEFAULT '0'
+     */
+    protected $soft_delete = FALSE;
 
     /**
      * The various callbacks available to the model. Each are
@@ -88,6 +96,11 @@ class MY_Model extends CI_Model
     {
         $this->_run_before_callbacks('get');
 
+        if ($this->soft_delete === TRUE)
+        {
+            $this->db->where('deleted', FALSE);
+        }
+
         $row = $this->db->where($this->primary_key, $primary_value)
                         ->get($this->_table)
                         ->{$this->_return_type()}();
@@ -108,6 +121,12 @@ class MY_Model extends CI_Model
         $this->_set_where($where);
 
         $this->_run_before_callbacks('get');
+
+        if ($this->soft_delete === TRUE)
+        {
+            $this->db->where('deleted', FALSE);
+        }
+
         $row = $this->db->get($this->_table)
                         ->{$this->_return_type()}();
         $this->_temporary_return_type = $this->return_type;
@@ -146,6 +165,11 @@ class MY_Model extends CI_Model
     {
         $this->_run_before_callbacks('get');
 
+        if ($this->soft_delete === TRUE)
+        {
+            $this->db->where('deleted', FALSE);
+        }
+
         $result = $this->db->get($this->_table)
                            ->{$this->_return_type(1)}();
         $this->_temporary_return_type = $this->return_type;
@@ -174,6 +198,11 @@ class MY_Model extends CI_Model
         if ($valid)
         {
             $data = $this->_run_before_callbacks('create', array( $data ));
+
+            if (array_key_exists('deleted', $data) === FALSE && $this->soft_delete === TRUE)
+            {
+                $data['deleted'] = FALSE;
+            }
 
             $this->db->insert($this->_table, $data);
             $insert_id = $this->db->insert_id();
@@ -305,8 +334,19 @@ class MY_Model extends CI_Model
     public function delete($id)
     {
         $data = $this->_run_before_callbacks('delete', array( $id ));
-        $result = $this->db->where($this->primary_key, $id)
-                           ->delete($this->_table);
+
+        if ($this->soft_delete === TRUE)
+        {
+            $result = $this->db->where($this->primary_key, $id)
+                               ->set('deleted', TRUE)
+                               ->update($this->_table);
+        }
+        else
+        {
+            $result = $this->db->where($this->primary_key, $id)
+                               ->delete($this->_table);
+        }
+
         $this->_run_after_callbacks('delete', array( $id, $result ));
 
         return $result;
@@ -321,7 +361,17 @@ class MY_Model extends CI_Model
         $this->_set_where($where);
 
         $data = $this->_run_before_callbacks('delete', array( $where ));
-        $result = $this->db->delete($this->_table);
+
+        if ($this->soft_delete === TRUE)
+        {
+        	$result = $this->db->set('deleted', TRUE)
+        	                   ->update($this->_table);
+        }
+        else
+        {
+        	$result = $this->db->delete($this->_table);
+        }
+
         $this->_run_after_callbacks('delete', array( $where, $result ));
 
         return $result;
@@ -333,8 +383,19 @@ class MY_Model extends CI_Model
     public function delete_many($primary_values)
     {
         $data = $this->_run_before_callbacks('delete', array( $primary_values ));
-        $result = $this->db->where_in($this->primary_key, $primary_values)
-                           ->delete($this->_table);
+
+        if ($this->soft_delete === TRUE)
+        {
+            $result = $this->db->where_in($this->primary_key, $primary_values)
+                               ->set('deleted', TRUE)
+                               ->update($this->_table);
+        }
+        else
+        {
+            $result = $this->db->where_in($this->primary_key, $primary_values)
+                               ->delete($this->_table);
+        }
+
         $this->_run_after_callbacks('delete', array( $primary_values, $result ));
 
         return $result;
@@ -363,6 +424,11 @@ class MY_Model extends CI_Model
 
         $this->_run_before_callbacks('get', array( $key, $value ));
 
+        if ($this->soft_delete === TRUE)
+        {
+            $this->db->where('deleted', FALSE);
+        }
+
         $result = $this->db->select(array($key, $value))
                            ->get($this->_table)
                            ->result();
@@ -386,6 +452,11 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
+        if ($this->soft_delete === TRUE)
+        {
+            $this->db->where('deleted', FALSE);
+        }
+
         return $this->db->count_all_results($this->_table);
     }
 
@@ -394,7 +465,32 @@ class MY_Model extends CI_Model
      */
     public function count_all()
     {
-        return $this->db->count_all($this->_table);
+        if ($this->soft_delete === TRUE)
+        {
+        	return $this->db->where('deleted', FALSE)
+        	                ->count_all_results($this->_table);
+        }
+        else
+        {
+            return $this->db->count_all($this->_table);
+        }
+    }
+
+    /**
+     * Tell the class to return deleted records
+     */
+    public function show_deleted()
+    {
+    	$this->soft_delete = FALSE;
+    	return $this;
+    }
+
+    /**
+     * Get the soft delete status
+     */
+    public function get_soft_delete()
+    {
+        return $this->soft_delete;
     }
 
     /**
