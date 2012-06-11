@@ -90,6 +90,23 @@ class Book_model extends MY_Model
 }
 ```
 
+Soft delete
+-----------
+This class provides the functionality to preform soft deletes. This can be extremely useful if you want admin users to be able to track deleted records, allow users to preform an undo after deleting a record or if you are maintaining relational data when a record has been deleted. For example, if you were tracking order histories but had deleted old products from your stock list.
+
+To enable soft deletes set the `$soft_delete` variable to `TRUE`.
+
+    class Book_model extends MY_Model
+    {
+        protected $soft_delete = TRUE;
+    }
+
+You will also need to add a `deleted` column to your table.
+
+    `deleted` tinyint(1) unsigned NOT NULL DEFAULT '0',
+
+If you want to get all records, including deleted ones, you can call `show_deleted()` before the call to `get()` and deleted records will also be returned for that single call.
+
 Validation
 ----------
 
