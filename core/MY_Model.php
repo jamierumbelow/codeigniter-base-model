@@ -345,6 +345,22 @@ class MY_Model extends CI_Model
      * ------------------------------------------------------------ */
 
     /**
+     * Checks whether a single record based on the primary key exists.
+     * @param   mixed    $primary_value
+     * @return  boolean
+     */
+    public function exists($primary_value)
+    {
+        $row = $this->db->select($this->primary_key)
+                        ->where($this->primary_key, $primary_value)
+                        ->limit(1)
+                        ->get($this->_table)
+                        ->row_array();
+
+        return isset($row[$this->primary_key]);
+    }
+
+    /**
      * Retrieve and generate a form_dropdown friendly array
      */
     function dropdown()
