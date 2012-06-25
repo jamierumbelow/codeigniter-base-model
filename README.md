@@ -23,6 +23,15 @@ class Post_model extends Base_Model {
         'body'   => '',
         // Keys other than these ones are not allowed to be inserted.
     );
+    
+    // Validation rules
+    protected $validate = array(
+        array(
+            'field' => 'title',
+            'label' => 'post title',
+            'rules' => 'trim|min_length[3]|max_length[255]|xss_clean|callback_custom_rule',
+        ),
+    );
 }
 
 // Load model
