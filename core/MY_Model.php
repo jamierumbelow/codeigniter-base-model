@@ -23,15 +23,18 @@
 // ------------------------------------------------------------------------
 
 /**
- * Base CRUD Model with optional MongoDB support
+ * Base CRUD Model with optional MongoDB support.
+ *
+ * You might want to rename this class regarding better semantics.
  *
  * @package     CodeIgniter
  * @subpackage  Models
  * @category    Models
  * @author      Sepehr Lajevardi <me@sepehr.ws>
  * @link        https://github.com/sepehr/ci-mongodb-base-model
+ * @todo        Re-document!
  */
-class MY_Model extends CI_Model {
+class Base_Model extends MY_Model {
 
     /**
      * Indicates whether it's a MongoDB model or not.
@@ -48,6 +51,13 @@ class MY_Model extends CI_Model {
      * Automatically guessed by pluralising the model name.
      */
     protected $_datasource;
+
+    /**
+     * If using MongoDB, this may contain the collection fields with
+     * their default values. If set the model will check new documents
+     * against this array.
+     */
+    protected $_fields = array();
 
     /**
      * This model's default primary key or unique identifier.
@@ -238,7 +248,11 @@ class MY_Model extends CI_Model {
             // Run registered callbacks
             $data = $this->_run_before_callbacks('create', array( $data ));
 
+            // Prepare data if using MongoDB
+            $data = $this->_prep_fields($data);
+
             $insert_id = $this->{$this->_interface}->insert($this->_datasource, $data);
+
             // Update insert_id if not MongoDB
             !$this->_mongodb AND $insert_id = $this->{$this->_interface}->insert_id();
 
@@ -289,6 +303,9 @@ class MY_Model extends CI_Model {
 
         if ($valid)
         {
+            // Prepare data if using MongoDB
+            $data = $this->_prep_fields($data);
+
             $result = $this->{$this->_interface}
                 ->where($this->primary_key, $this->_prep_primary($primary_value))
                 ->set($data)
@@ -789,36 +806,6 @@ class MY_Model extends CI_Model {
     // ------------------------------------------------------------------------
 
     /**
-     * Prepares passed mongoids for database queries.
-     */
-    private function _prep_primary($primary_value)
-    {
-        // Not using MongoDB?
-        if ( !$this->_mongodb)
-        {
-            return $primary_value;
-        }
-
-        // Array of primary values?
-        if (is_array($primary_value))
-        {
-            foreach ($primary_value as $key => $value)
-            {
-                $primary_value[$key] = $this->_prep_primary($value);
-            }
-        }
-        // Single primary value
-        else
-        {
-            $primary_value = new MongoId($primary_value);
-        }
-
-        return $primary_value;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Typecasts results as desired.
      */
     private function _typecast(&$results, $multiple = FALSE)
@@ -849,8 +836,96 @@ class MY_Model extends CI_Model {
         $this->_temporary_return_type = $this->return_type;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Prepares passed mongoids for database queries.
+     */
+    private function _prep_primary($primary_value)
+    {
+        // Not using MongoDB?
+        if ( !$this->_mongodb)
+        {
+            return $primary_value;
+        }
+
+        // Array of primary values?
+        if (is_array($primary_value))
+        {
+            foreach ($primary_value as $key => $value)
+            {
+                $primary_value[$key] = $this->_prep_primary($value);
+            }
+        }
+
+        // Single primary value
+        else
+        {
+            $primary_value = new MongoId($primary_value);
+        }
+
+        return $primary_value;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Prepares a document for MongoDB insert/update operation
+     * using the pre-filled $_fields schema dictionary.
+     *
+     * This will save us from Null-byte and SQL-like injection attacks,
+     * Also ensures that we got default values of unset fields in the
+     * passing document.
+     *
+     * Since MongoDB is a schema-less database, we better do this on the
+     * application side!
+     */
+    public function _prep_fields($fields)
+    {
+        if ( ! $this->_mongodb OR empty($this->_fields))
+        {
+            return $fields;
+        }
+
+        // Remove extra fields from the passing document
+        foreach ($fields as $key => $value)
+        {
+            // Null-byte injection?
+            if (!isset($this->_fields[$key]))
+            {
+                unset($fields[$key]);
+            }
+
+            // SQL-like injection?
+            else
+            {
+                $fields[$key] = (string) $value;
+            }
+        }
+
+        // Ensure default values
+        $fields = array_merge($this->_fields, $fields);
+
+        return $fields;
+    }
+
+}
+// End of Base_Model class
+
+
+/**
+ * For sanity sake of CI conventions.
+ */
+class MY_Model extends CI_Model {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
 }
 // End of MY_Model class
+
 
 /* End of file MY_Model.php */
 /* Location: ./application/core/MY_Model.php */
