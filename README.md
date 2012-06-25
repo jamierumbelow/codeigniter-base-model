@@ -6,10 +6,23 @@ It's based on the work of [Jamie Rumbelow's CRUD model](http://github.com/jamier
 ##Synopsis
 
 ```php
-class Post_model extends MY_Model {
+class Post_model extends Base_Model {
 
     // Indicates that model persists in MongoDB
     protected $_mongodb = TRUE;
+    
+    // Indicates collection/table name (optional)
+    protected $_datasource = 'posts';
+
+    // If using MongoDB, this indicates the collection
+    // field schema to help preventing SQL-like and Null-byte
+    // injection attacks. It also set default values.
+    protected $_fields = array(
+        'title'  => 'No title set',
+        'status' => 'open',
+        'body'   => '',
+        // Keys other than these ones are not allowed to be inserted.
+    );
 }
 
 // Load model
@@ -45,13 +58,13 @@ $this->post->delete('4fc6a54197ab4f194caa4a77');
 
 ##Installation
 * Move `MY_Model.php` file into your `application/core` folder.
-* Alter your models to extend `MY_Model` instead of `CI_Model` class.
+* Alter your models to extend `Base_Model` instead of `CI_Model` class.
 
 ##Naming Conventions
 This class will try to guess the name of the table ot collection to use, by guessing the plural of the model class name. If the table or collection name isn't the plural and you need to set it to something else, just declare the `$_datasource` instance variable and set it to the table or collection name. Some of the CRUD functions also assume that your primary key ID column is called `id`. You can overwrite this functionality by setting the `$primary_key` instance variable. It's forced to `_id` when using MongoDB.
 
 ##Callbacks
-There are many times when you'll need to alter your model data before it's inserted or returned. This could be adding timestamps, pulling in relationships or deleting dependent rows. The MVC pattern states that these sorts of operations need to go in the model. In order to facilitate this, **MY_Model** contains a series of callbacks -- methods that will be called at certain points.
+There are many times when you'll need to alter your model data before it's inserted or returned. This could be adding timestamps, pulling in relationships or deleting dependent rows. The MVC pattern states that these sorts of operations need to go in the model. In order to facilitate this, **Base_Model** contains a series of callbacks -- methods that will be called at certain points.
 
 The full list of callbacks are as follows:
 
@@ -67,7 +80,7 @@ The full list of callbacks are as follows:
 These are instance variables usually defined at the class level. They are arrays of methods on this class to be called at certain points. An example:
 
 ```php
-class Book_model extends MY_Model
+class Book_model extends Base_Model
 {
     public $before_create = array( 'timestamps' );
 
@@ -87,11 +100,11 @@ Then, for each call to `insert()`, the data passed through will be validated acc
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
 ##Arrays vs Objects
-By default, MY_Model is setup to return objects. If you'd like to use their array counterparts, there are a couple of ways of customising the model.
+By default, Base_Model is setup to return objects. If you'd like to use their array counterparts, there are a couple of ways of customising the model.
 
 If you'd like all your calls to use the array methods, you can set the `$return_type` variable to `array`.
 
-    class Book_model extends MY_Model
+    class Book_model extends Base_Model
     {
         protected $return_type = 'array';
     }
