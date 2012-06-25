@@ -7,7 +7,8 @@ It's based on the work of [Jamie Rumbelow's CRUD model](http://github.com/jamier
 
 ```php
 class Post_model extends MY_Model {
-    // Indicates that model persists in MongoDB database
+
+    // Indicates that model persists in MongoDB
     protected $_mongodb = TRUE;
 }
 
@@ -40,7 +41,7 @@ $this->post->delete('4fc6a54197ab4f194caa4a77');
 ```
 
 ##Requirements
-[CodeIgniter MongoDB Active Record Library](https://github.com/alexbilbie/codeigniter-mongodb-library)
+[CodeIgniter MongoDB Active Record Library](https://github.com/alexbilbie/codeigniter-mongodb-library/tree/v2)
 
 ##Installation
 * Move `MY_Model.php` file into your `application/core` folder.
