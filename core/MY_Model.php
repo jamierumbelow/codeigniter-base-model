@@ -504,7 +504,7 @@ class MY_Model extends CI_Model
         {
             foreach ($this->$name as $method)
             {
-                $data = call_user_func_array(array($this, $method), $params);
+              $data = array_merge($data, call_user_func_array(array($this, $method), $params));
             }
         }
 
