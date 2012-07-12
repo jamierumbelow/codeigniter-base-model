@@ -93,7 +93,7 @@ class MY_Model extends CI_Model
                         ->{$this->_return_type()}();
         $this->_temporary_return_type = $this->return_type;
 
-        $this->_run_after_callbacks('get', array( $row ));
+        $row = $this->_run_after_callbacks('get', array( $row ));
 
         return $row;
     }
@@ -112,7 +112,7 @@ class MY_Model extends CI_Model
                         ->{$this->_return_type()}();
         $this->_temporary_return_type = $this->return_type;
 
-        $this->_run_after_callbacks('get', array( $row ));
+        $row = $this->_run_after_callbacks('get', array( $row ));
 
         return $row;
     }
