@@ -20,6 +20,14 @@ class MY_Model extends CI_Model
      */
     protected $_table;
 
+    /** 
+    * Databse will use default unless overridden in extended
+    * model
+    *
+    */
+    protected $_db;
+
+
     /**
      * This model's default primary key or unique identifier.
      * Used by the get(), update() and delete() functions.
@@ -71,6 +79,8 @@ class MY_Model extends CI_Model
         parent::__construct();
 
         $this->load->helper('inflector');
+
+        $this->_set_database();
 
         $this->_fetch_table();
 
@@ -577,6 +587,23 @@ class MY_Model extends CI_Model
             $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
         }
     }
+
+    /* --------------------------------------------------------------
+     * MULTIPLE DB LOADING
+     * ------------------------------------------------------------ */
+
+    private function _set_database()
+    {
+        if ($this->_db == null )
+        {
+            $this->db = $this->load->database('default', TRUE);
+        }    
+        else
+        {
+            $this->db = $this->load->database($this->_db, TRUE);
+        }
+    }
+
 
     /**
      * Set WHERE parameters, cleverly
