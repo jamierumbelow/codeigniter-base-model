@@ -596,7 +596,7 @@ class MY_Model extends CI_Model
     {
         if ($this->_db == null )
         {
-            $this->db = $this->load->database('default', TRUE);
+            $this->db = $this->load->database();
         }    
         else
         {
