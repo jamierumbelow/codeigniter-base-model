@@ -27,6 +27,12 @@ class MY_Model extends CI_Model
     protected $primary_key = 'id';
 
     /**
+     * Support for soft deletes and this model's 'deleted' key
+     */
+    protected $soft_delete = TRUE;
+    protected $soft_delete_key = 'deleted';
+
+    /**
      * The various callbacks available to the model. Each are
      * simple lists of method names (methods will be run on $this).
      */
@@ -305,8 +311,19 @@ class MY_Model extends CI_Model
     public function delete($id)
     {
         $data = $this->_run_before_callbacks('delete', array( $id ));
-        $result = $this->db->where($this->primary_key, $id)
-                           ->delete($this->_table);
+
+        $this->db->where($this->primary_key, $id);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+        }
+        else
+        {
+            $result = $this->db->delete($this->_table);
+        }
+        
+
         $this->_run_after_callbacks('delete', array( $id, $result ));
 
         return $result;
@@ -317,11 +334,20 @@ class MY_Model extends CI_Model
      */
     public function delete_by()
     {
-        $where = func_get_args();
+        $where =& func_get_args();
         $this->_set_where($where);
 
         $data = $this->_run_before_callbacks('delete', array( $where ));
-        $result = $this->db->delete($this->_table);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+        }
+        else
+        {
+            $result = $this->db->delete($this->_table);
+        }
+
         $this->_run_after_callbacks('delete', array( $where, $result ));
 
         return $result;
@@ -333,8 +359,18 @@ class MY_Model extends CI_Model
     public function delete_many($primary_values)
     {
         $data = $this->_run_before_callbacks('delete', array( $primary_values ));
-        $result = $this->db->where_in($this->primary_key, $primary_values)
-                           ->delete($this->_table);
+        
+        $this->db->where_in($this->primary_key, $primary_values);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+        }
+        else
+        {
+            $result = $this->db->delete($this->_table);
+        }
+
         $this->_run_after_callbacks('delete', array( $primary_values, $result ));
 
         return $result;
