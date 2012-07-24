@@ -118,6 +118,29 @@ If you'd like just your _next_ call to return a specific type, there are two sco
     $this->book_model->as_object()
                      ->get_by('column', 'value');
 
+Soft Delete
+-----------
+
+The delete mechanism will work using a `DELETE` SQL statement by default. MY_Model also supports a soft deleting mechanism -- where the deleted row will be marked as `deleted` rather than actually being removed from the database.
+
+Take, for example, a `Book_model`:
+
+    class Book_model extends MY_Model { }
+
+We can enable soft delete by setting the `$this->soft_delete` key:
+
+    class Book_model extends MY_Model
+    { 
+        protected $soft_delete = TRUE;
+    }
+
+By default, the MY_Model expects a `TINYINT` or `INT` column named `deleted`. If you'd like to customise this, you can set `$soft_delete_key`:
+
+    class Book_model extends MY_Model
+    { 
+        protected $soft_delete = TRUE;
+        protected $soft_delete_key = 'book_deleted_status';
+    }
 
 Unit Tests
 ----------
@@ -152,7 +175,10 @@ Special thanks to:
 Changelog
 ---------
 
-**Version 1.3.0 - IN DEVELOPMENT**
+**Version 2.0.0**
+* Added support for soft deletes
+
+**Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
 * Added PHP5.3 support for the test suite
 * Removed the deprecated `MY_Model()` constructor
