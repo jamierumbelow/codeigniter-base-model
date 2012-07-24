@@ -341,6 +341,116 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     }
 
     /* --------------------------------------------------------------
+     * SOFT DELETE
+     * ------------------------------------------------------------ */    
+
+    public function test_soft_delete()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'), $this->equalTo(array( 'deleted' => TRUE )))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete(2), TRUE);
+    }
+
+    public function test_soft_delete_custom_key()
+    {
+        $this->model = new Soft_delete_model('record_deleted');
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'), $this->equalTo(array( 'record_deleted' => TRUE )))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete(2), TRUE);
+    }
+
+    public function test_soft_delete_by()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('key'), $this->equalTo('value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'), $this->equalTo(array( 'deleted' => TRUE )))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete_by('key', 'value'), TRUE);
+    }
+
+    public function test_soft_delete_many()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->once())
+                        ->method('where_in')
+                        ->with($this->equalTo('id'), $this->equalTo(array(2, 4, 6)))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())
+                        ->method('update')
+                        ->with($this->equalTo('records'), $this->equalTo(array( 'deleted' => TRUE )))
+                        ->will($this->returnValue(TRUE));
+
+        $this->assertEquals($this->model->delete_many(array(2, 4, 6)), TRUE);
+    }
+
+    public function test_soft_delete_get()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->at(0))
+                        ->method('where')
+                        ->with($this->equalTo('deleted'), $this->equalTo(FALSE))
+                        ->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->at(1))
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->get(2), 'fake_record_here');
+    }
+
+    public function test_with_deleted()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->db->expects($this->exactly(1))
+                        ->method('where')
+                        ->with($this->equalTo('id'), $this->equalTo(2))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->with_deleted()->get(2), 'fake_record_here');
+    }
+
+    /* --------------------------------------------------------------
      * UTILITY METHODS
      * ------------------------------------------------------------ */ 
 

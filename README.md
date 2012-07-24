@@ -121,7 +121,9 @@ If you'd like just your _next_ call to return a specific type, there are two sco
 Soft Delete
 -----------
 
-The delete mechanism will work using a `DELETE` SQL statement by default. MY_Model also supports a soft deleting mechanism -- where the deleted row will be marked as `deleted` rather than actually being removed from the database.
+By default, the delete mechanism works with an SQL `DELETE` statement. However, you might not want to destroy the data, you might instead want to perform a 'soft delete'.
+
+If you enable soft deleting, the deleted row will be marked as `deleted` rather than actually being removed from the database.
 
 Take, for example, a `Book_model`:
 
@@ -134,13 +136,23 @@ We can enable soft delete by setting the `$this->soft_delete` key:
         protected $soft_delete = TRUE;
     }
 
-By default, the MY_Model expects a `TINYINT` or `INT` column named `deleted`. If you'd like to customise this, you can set `$soft_delete_key`:
+By default, MY_Model expects a `TINYINT` or `INT` column named `deleted`. If you'd like to customise this, you can set `$soft_delete_key`:
 
     class Book_model extends MY_Model
     { 
         protected $soft_delete = TRUE;
         protected $soft_delete_key = 'book_deleted_status';
     }
+
+Now, when you make a call to any of the `get_` methods, a constraint will be added to not withdraw deleted columns:
+
+    => $this->book_model->get_by('user_id', 1);
+    -> SELECT * FROM books WHERE user_id = 1 AND deleted = 0
+
+If you'd like to include deleted columns, you can use the `with_deleted()` scope:
+
+    => $this->book_model->with_deleted()->get_by('user_id', 1);
+    -> SELECT * FROM books WHERE user_id = 1
 
 Unit Tests
 ----------
@@ -175,7 +187,7 @@ Special thanks to:
 Changelog
 ---------
 
-**Version 2.0.0**
+**Version 2.0.0 - IN DEVELOPMENT**
 * Added support for soft deletes
 
 **Version 1.3.0**

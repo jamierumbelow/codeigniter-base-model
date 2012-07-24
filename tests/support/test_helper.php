@@ -20,6 +20,7 @@ require_once 'tests/support/database.php';
 require_once 'tests/support/models/record_model.php';
 require_once 'tests/support/models/before_callback_model.php';
 require_once 'tests/support/models/after_callback_model.php';
+require_once 'tests/support/models/soft_delete_model.php';
 
 /**
  * Fake the CodeIgniter base model!

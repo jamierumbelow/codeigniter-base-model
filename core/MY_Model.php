@@ -31,6 +31,7 @@ class MY_Model extends CI_Model
      */
     protected $soft_delete = FALSE;
     protected $soft_delete_key = 'deleted';
+    protected $_temporary_with_deleted = FALSE;
 
     /**
      * The various callbacks available to the model. Each are
@@ -94,6 +95,11 @@ class MY_Model extends CI_Model
     {
         $this->_run_before_callbacks('get');
 
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
+
         $row = $this->db->where($this->primary_key, $primary_value)
                         ->get($this->_table)
                         ->{$this->_return_type()}();
@@ -113,6 +119,11 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
+
         $this->_run_before_callbacks('get');
         $row = $this->db->get($this->_table)
                         ->{$this->_return_type()}();
@@ -128,6 +139,11 @@ class MY_Model extends CI_Model
      */
     public function get_many($values)
     {
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
+
         $this->db->where_in($this->primary_key, $values);
 
         return $this->get_all();
@@ -140,6 +156,11 @@ class MY_Model extends CI_Model
     {
         $where = func_get_args();
         $this->_set_where($where);
+
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
 
         return $this->get_all();
     }
@@ -488,6 +509,15 @@ class MY_Model extends CI_Model
     public function as_object()
     {
         $this->_temporary_return_type = 'object';
+        return $this;
+    }
+
+    /**
+     * Don't care about soft deleted rows on the next call
+     */
+    public function with_deleted()
+    {
+        $this->_temporary_with_deleted = TRUE;
         return $this;
     }
 
