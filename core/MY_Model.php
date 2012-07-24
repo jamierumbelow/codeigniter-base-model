@@ -29,7 +29,7 @@ class MY_Model extends CI_Model
     /**
      * Support for soft deletes and this model's 'deleted' key
      */
-    protected $soft_delete = TRUE;
+    protected $soft_delete = FALSE;
     protected $soft_delete_key = 'deleted';
 
     /**
@@ -334,7 +334,7 @@ class MY_Model extends CI_Model
      */
     public function delete_by()
     {
-        $where =& func_get_args();
+        $where = func_get_args();
         $this->_set_where($where);
 
         $data = $this->_run_before_callbacks('delete', array( $where ));
