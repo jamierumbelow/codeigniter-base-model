@@ -32,27 +32,9 @@ $this->post->delete(1);
 Installation/Usage
 ------------------
 
-I recommend you use [Composer](http://getcomposer.org/) to install **MY_Model**. Install Composer for your project:
+Download and drag the MY\_Model.php file into your _application/core_ folder. CodeIgniter will load and initialise this class automatically for you.
 
-    $ curl -s http://getcomposer.org/installer | php
-
-...and create/edit your `composer.json`:
-
-    {
-        "require": {
-            "jamierumbelow/codeigniter-base-model": "*"
-        }
-    }
-
-...and install it!
-
-    $ php composer.phar install
-
-Remember to include Composer's autoload file in `index.php`:
-
-    require_once './vendor/autoload.php';
-
-Alternatively, download and drag the MY\_Model.php file into your _application/core_ folder. CodeIgniter will load and initialise this class automatically for you. Extend all your model classes from MY_Model and all the functionality will be baked into your models automatically.
+Extend your model classes from `MY_Model` and all the functionality will be baked in automatically.
 
 Naming Conventions
 ------------------
@@ -189,6 +171,7 @@ Changelog
 
 **Version 2.0.0 - IN DEVELOPMENT**
 * Added support for soft deletes
+* Removed Composer support. Great system, CI makes it difficult to use for MY_ classes
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
