@@ -233,6 +233,7 @@ Changelog
 * Added support for soft deletes
 * Removed Composer support. Great system, CI makes it difficult to use for MY_ classes
 * Fixed up all problems with callbacks and consolidated into single `trigger` method
+* Added support for relationships
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
