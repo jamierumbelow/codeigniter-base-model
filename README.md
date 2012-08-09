@@ -3,7 +3,7 @@ codeigniter-base-model
 
 [![Build Status](https://secure.travis-ci.org/jamierumbelow/codeigniter-base-model.png?branch=master)](http://travis-ci.org/jamierumbelow/codeigniter-base-model)
 
-My CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a full CRUD base to make developing database interactions easier and quicker. It also includes a bunch of other cool stuff, including before and after create callbacks, validation and a some table name guessing.
+My CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a full CRUD base to make developing database interactions easier and quicker, as well as an event-based observer system, in-model data validation, intelligent table name guessing and soft delete.
 
 Synopsis
 --------
@@ -41,12 +41,12 @@ Naming Conventions
 
 This class will try to guess the name of the table to use, by guessing the plural of the class name. If the table name isn't the plural and you need to set it to something else, just declare the _$\_table_ instance variable and set it to the table name. Some of the CRUD functions also assume that your primary key ID column is called _'id'_. You can overwrite this functionality by setting the _$primary\_key_ instance variable.
 
-Callbacks
----------
+Callbacks/Observers
+-------------------
 
-There are many times when you'll need to alter your model data before it's inserted or returned. This could be adding timestamps, pulling in relationships or deleting dependent rows. The MVC pattern states that these sorts of operations need to go in the model. In order to facilitate this, **MY_Model** contains a series of callbacks -- methods that will be called at certain points.
+There are many times when you'll need to alter your model data before it's inserted or returned. This could be adding timestamps, pulling in relationships or deleting dependent rows. The MVC pattern states that these sorts of operations need to go in the model. In order to facilitate this, **MY_Model** contains a series of callbacks/observers -- methods that will be called at certain points.
 
-The full list of callbacks are as follows:
+The full list of observers are as follows:
 
 * $before_create
 * $after_create
@@ -71,6 +71,8 @@ class Book_model extends MY_Model
     }
 }
 ```
+
+**Remember to always always always return the `$row` object you're passed. Each observer overwrites its predecesor's data, sequentially, in the order they're defined.**
 
 Validation
 ----------
@@ -172,6 +174,7 @@ Changelog
 **Version 2.0.0 - IN DEVELOPMENT**
 * Added support for soft deletes
 * Removed Composer support. Great system, CI makes it difficult to use for MY_ classes
+* Fixed up all problems with callbacks and consolidated into single `trigger` method
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
