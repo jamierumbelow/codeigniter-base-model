@@ -83,6 +83,63 @@ Then, for each call to `insert()`, the data passed through will be validated acc
 
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
+Relationships
+-------------
+
+**MY\_Model** now has support for basic _belongs\_to_ and has\_many relationships. These relationships are easy to define:
+
+    class Post_model extends MY_Model
+    {
+        public $belongs_to = array( 'author' );
+        public $has_many = array( 'comments' );
+    }
+
+It will assume that a MY_Model API-compatible model with the singular relationship's name has been defined. By default, this will be `relationship_model`. The above example, for instance, would require two other models:
+
+    class Author_model extends MY_Model { }
+    class Comment_model extends MY_Model { }
+
+If you'd like to customise this, you can pass through the model name as a parameter:
+
+    class Post_model extends MY_Model
+    {
+        public $belongs_to = array( 'author' => array( 'model' => 'author_m' ) );
+        public $has_many = array( 'comments' => array( 'model' => 'model_comments' ) );
+    }
+
+You can then access your related data using the `with()` method:
+
+    $post = $this->post_model->with('author')
+                             ->with('comments')
+                             ->get(1);
+
+The related data will be embedded in the returned value from `get`:
+
+    echo $post->author->name;
+
+    foreach ($post->comments as $comment)
+    {
+        echo $message;
+    }
+
+Separate queries will be run to select the data, so where performance is important, a separate JOIN and SELECT call is recommended.
+
+The primary key can also be configured. For _belongs\_to_ calls, the related key is on the current object, not the foreign one. Pseudocode:
+
+    SELECT * FROM authors WHERE id = $post->author_id
+
+...and for a _has\_many_ call:
+
+    SELECT * FROM comments WHERE post_id = $post->id
+
+To change this, use the `primary_key` value when configuring:
+
+    class Post_model extends MY_Model
+    {
+        public $belongs_to = array( 'author' => array( 'primary_key' => 'post_author_id' ) );
+        public $has_many = array( 'comments' => array( 'primary_key' => 'parent_post_id' ) );
+    }
+
 Arrays vs Objects
 -----------------
 

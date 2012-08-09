@@ -47,6 +47,15 @@ class MY_Model extends CI_Model
     protected $after_delete = array();
 
     /**
+     * Relationship arrays. Use flat strings for defaults or string
+     * => array to customise the class name and primary key
+     */
+    protected $belongs_to = array();
+    protected $has_many = array();
+
+    protected $_with = array();
+
+    /**
      * An array of validation rules. This needs to be the same format
      * as validation rules passed to the Form_validation library.
      */
@@ -397,6 +406,69 @@ class MY_Model extends CI_Model
         $this->trigger('after_delete', $result);
 
         return $result;
+    }
+
+    /* --------------------------------------------------------------
+     * RELATIONSHIPS
+     * ------------------------------------------------------------ */
+
+    public function with($relationship)
+    {
+        $this->_with[] = $relationship;
+
+        if (!in_array('relate', $this->after_get))
+        {
+            $this->after_get[] = 'relate';
+        }
+
+        return $this;
+    }
+
+    public function relate($row)
+    {
+        foreach ($this->belongs_to as $key => $value)
+        {
+            if (is_string($value))
+            {
+                $relationship = $value;
+                $options = array( 'primary_key' => $value . '_id', 'model' => $value . '_model' );
+            }
+            else
+            {
+                $relationship = $key;
+                $options = $value;
+            }
+
+            if (in_array($relationship, $this->_with))
+            {
+                $this->load->model($options['model']);
+                $row->{$relationship} = $this->{$options['model']}->get($row->{$options['primary_key']});
+            }
+        }
+
+        foreach ($this->has_many as $key => $value)
+        {
+            if (is_string($value))
+            {
+                $relationship = $value;
+                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . '_model' );
+            }
+            else
+            {
+                $relationship = $key;
+                $options = $value;
+            }
+
+            if (in_array($relationship, $this->_with))
+            {
+                $this->load->model($options['model']);
+                $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+            }
+        }
+
+        $this->_with = array();
+
+        return $row;
     }
 
     /* --------------------------------------------------------------

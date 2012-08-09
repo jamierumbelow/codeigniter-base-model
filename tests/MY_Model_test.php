@@ -371,6 +371,78 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     }
 
     /* --------------------------------------------------------------
+     * RELATIONSHIPS
+     * ------------------------------------------------------------ */
+
+    public function test_belongs_to()
+    {
+        $object = (object)array( 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43 );
+        $author_object = (object)array( 'id' => 43, 'name' => 'Jamie', 'age' => 20 );
+        $expected_object = (object)array( 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43, 'author' => $author_object );
+
+        $self =& $this;
+
+        $this->model = new Belongs_to_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+        $this->model->load = $this->getMock('MY_Model_Mock_Loader');
+
+        $author_model = new Author_model();
+        $author_model->db = $this->getMockBuilder('MY_Model_Mock_DB')->setMockClassName('Other_Mock_MY_Model_Mock_DB')->getMock();
+
+        $author_model->db->expects($this->once())->method('where')->will($this->returnValue($author_model->db));
+        $author_model->db->expects($this->once())->method('get')->will($this->returnValue($author_model->db));
+
+        $this->model->db->expects($this->once())->method('where')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())->method('get')->will($this->returnValue($this->model->db));
+
+        $this->model->db->expects($this->once())->method('row')->will($this->returnValue($object));
+        $author_model->db->expects($this->once())->method('row')->will($this->returnValue($author_object));
+
+        $this->model->load->expects($this->once())->method('model')->with('author_model')
+                          ->will($this->returnCallback(function() use ($self, $author_model){
+                              $self->model->author_model = $author_model;
+                          }));
+
+        $this->assertEquals($expected_object, $this->model->with('author')->get(1));
+    }
+
+    public function test_has_many()
+    {
+        $object = (object)array( 'id' => 1, 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43 );
+        
+        $comment_object = (object)array( 'id' => 1, 'comment' => 'A comment' );
+        $comment_object_2 = (object)array( 'id' => 2, 'comment' => 'Another comment' );
+
+        $expected_object = (object)array( 'id' => 1, 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43,
+                                          'comments' => array( $comment_object, $comment_object_2 ) );
+
+        $self =& $this;
+
+        $this->model = new Belongs_to_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+        $this->model->load = $this->getMock('MY_Model_Mock_Loader');
+
+        $comment_model = new Author_model();
+        $comment_model->db = $this->getMockBuilder('MY_Model_Mock_DB')->setMockClassName('Another_Mock_MY_Model_Mock_DB')->getMock();
+
+        $comment_model->db->expects($this->once())->method('where')->with('comment_id', 1)->will($this->returnValue($comment_model->db));
+        $comment_model->db->expects($this->once())->method('get')->will($this->returnValue($comment_model->db));
+
+        $this->model->db->expects($this->once())->method('where')->will($this->returnValue($this->model->db));
+        $this->model->db->expects($this->once())->method('get')->will($this->returnValue($this->model->db));
+
+        $this->model->db->expects($this->once())->method('row')->will($this->returnValue($object));
+        $comment_model->db->expects($this->once())->method('result')->will($this->returnValue(array( $comment_object, $comment_object_2 )));
+
+        $this->model->load->expects($this->once())->method('model')->with('comment_model')
+                          ->will($this->returnCallback(function() use ($self, $comment_model){
+                              $self->model->comment_model = $comment_model;
+                          }));
+
+        $this->assertEquals($expected_object, $this->model->with('comments')->get(1));
+    }
+
+    /* --------------------------------------------------------------
      * SOFT DELETE
      * ------------------------------------------------------------ */    
 
