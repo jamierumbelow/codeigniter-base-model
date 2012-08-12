@@ -711,9 +711,9 @@ class MY_Model extends CI_Model
 
     private function _set_database()
     {
-        if ($this->_db == null )
+        if (!$this->_db)
         {
-            $this->db = $this->load->database();
+            $this->load->database();
         }    
         else
         {
