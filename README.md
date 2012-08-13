@@ -195,6 +195,19 @@ If you'd like to include deleted columns, you can use the `with_deleted()` scope
     => $this->book_model->with_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1
 
+Built-in Observers
+-------------------
+
+**MY_Model** contains a few built-in observers for things I've found I've added to most of my models.
+
+The timestamps (MySQL compatible) `created_at` and `updated_at` are now available as built-in observers:
+
+    class Post_model extends MY_Model
+    {
+        public $before_create = array( 'created_at' );
+        public $before_update = array( 'created_at', 'updated_at' );
+    }
+
 Unit Tests
 ----------
 
@@ -234,6 +247,8 @@ Changelog
 * Removed Composer support. Great system, CI makes it difficult to use for MY_ classes
 * Fixed up all problems with callbacks and consolidated into single `trigger` method
 * Added support for relationships
+* Added built-in timestamp observers
+* The DB connection can now be manually set with `$this->_db`, rather than relying on the `$active_group`
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
