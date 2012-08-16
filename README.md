@@ -204,8 +204,8 @@ The timestamps (MySQL compatible) `created_at` and `updated_at` are now availabl
 
     class Post_model extends MY_Model
     {
-        public $before_create = array( 'created_at' );
-        public $before_update = array( 'created_at', 'updated_at' );
+        public $before_create = array( 'created_at', 'updated_at' );
+        public $before_update = array( 'updated_at' );
     }
 
 Unit Tests
