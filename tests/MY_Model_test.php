@@ -370,6 +370,21 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         }, TRUE);
     }
 
+    public function test_callbacks_support_parameters()
+    {
+        $this->model = new Callback_parameter_model();
+
+        $self =& $this;
+        $callback_parameters = array(
+            'some_param', 'another_param'
+        );
+
+        $this->assertCallbackIsCalled(function() use ($self)
+        {
+            $self->model->some_method();
+        }, $callback_parameters);
+    }
+
     /* --------------------------------------------------------------
      * RELATIONSHIPS
      * ------------------------------------------------------------ */

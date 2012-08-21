@@ -21,12 +21,10 @@ class MY_Model extends CI_Model
     protected $_table;
 
     /** 
-    * Databse will use default unless overridden in extended
-    * model
-    *
-    */
+     * Database conn object; will use default connection 
+     * unless overridden
+     */
     protected $_db;
-
 
     /**
      * This model's default primary key or unique identifier.
@@ -53,6 +51,8 @@ class MY_Model extends CI_Model
     protected $after_get = array();
     protected $before_delete = array();
     protected $after_delete = array();
+
+    protected $callback_parameters = array();
 
     /**
      * Relationship arrays. Use flat strings for defaults or string
@@ -664,18 +664,26 @@ class MY_Model extends CI_Model
     /**
      * Trigger an event and call its observers
      */
-	public function trigger($event, $data = FALSE)
-	{
-		if (isset($this->$event) && is_array($this->$event))
-		{
-			foreach ($this->$event as $method)
-			{
-				$data = call_user_func_array(array($this, $method), array($data));
-			}
-		}
-		
-		return $data;
-	}
+    public function trigger($event, $data = FALSE)
+    {
+        if (isset($this->$event) && is_array($this->$event))
+        {
+            foreach ($this->$event as $method)
+            {
+                if (strpos($method, '('))
+                {
+                    preg_match('/([a-zA-Z0-9\_\-]+)(\(([a-zA-Z0-9\_\-\., ]+)\))?/', $method, $matches);
+
+                    $method = $matches[1];
+                    $this->callback_parameters = explode(',', $matches[3]);
+                }
+
+                $data = call_user_func_array(array($this, $method), array($data));
+            }
+        }
+        
+        return $data;
+    }
 
     /**
      * Run validation on the passed data

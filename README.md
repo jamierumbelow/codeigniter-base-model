@@ -74,6 +74,18 @@ class Book_model extends MY_Model
 
 **Remember to always always always return the `$row` object you're passed. Each observer overwrites its predecesor's data, sequentially, in the order they're defined.**
 
+Observers can also take parameters in their name, much like CodeIgniter's Form Validation library. Parameters are then accessed in `$this->callback_parameters`:
+
+    public $before_create = array( 'data_process(name)' );
+    public $before_update = array( 'data_process(date)' );
+
+    protected function data_process($row)
+    {
+        $row[$this->callback_parameters[0]] = $this->_process($row[$this->callback_parameters[0]]);
+
+        return $row;
+    }
+
 Validation
 ----------
 
@@ -249,6 +261,7 @@ Changelog
 * Added support for relationships
 * Added built-in timestamp observers
 * The DB connection can now be manually set with `$this->_db`, rather than relying on the `$active_group`
+* Callbacks can also now take parameters when setting in callback array
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
