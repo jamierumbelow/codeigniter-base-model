@@ -625,6 +625,38 @@ class MY_Model extends CI_Model
         return $row;
     }
 
+    /**
+     * Serialises data for you automatically, allowing you to pass
+     * through objects and let it handle the serialisation in the background
+     */
+    public function serialize($row)
+    {
+        foreach ($this->callback_parameters as $column)
+        {
+            $row[$column] = serialize($row[$column]);
+        }
+
+        return $row;
+    }
+
+    public function unserialize($row)
+    {
+        foreach ($this->callback_parameters as $column)
+        {
+            if (is_array($row))
+            {
+                $row[$column] = unserialize($row[$column]);
+            }
+            else
+            {
+                $row->$column = unserialize($row->$column);
+            }
+        }
+
+        return $row;
+    }
+
+
     /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS
      * ------------------------------------------------------------ */

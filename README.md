@@ -220,6 +220,15 @@ The timestamps (MySQL compatible) `created_at` and `updated_at` are now availabl
         public $before_update = array( 'updated_at' );
     }
 
+**MY_Model** also contains serialisation observers for serialising and unserialising native PHP objects. This allows you to pass complex structures like arrays and objects into rows and have it be serialised automatically in the background. Call the `serialize` and `unserialize` observers with the column name(s) as a parameter:
+
+    class Event_model extends MY_Model
+    {
+        public $before_create = array( 'serialize(seat_types)' );
+        public $before_update = array( 'serialize(seat_types)' );
+        public $after_get = array( 'unserialize(seat_types)' );
+    }
+
 Unit Tests
 ----------
 
@@ -262,6 +271,7 @@ Changelog
 * Added built-in timestamp observers
 * The DB connection can now be manually set with `$this->_db`, rather than relying on the `$active_group`
 * Callbacks can also now take parameters when setting in callback array
+* Added support for column serialisation
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods

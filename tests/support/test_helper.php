@@ -23,6 +23,7 @@ require_once 'tests/support/models/after_callback_model.php';
 require_once 'tests/support/models/callback_parameter_model.php';
 require_once 'tests/support/models/soft_delete_model.php';
 require_once 'tests/support/models/relationship_model.php';
+require_once 'tests/support/models/serialised_data_model.php';
 
 /**
  * Fake the CodeIgniter base model!

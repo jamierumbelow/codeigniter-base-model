@@ -568,6 +568,24 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     }
 
     /* --------------------------------------------------------------
+     * SERIALISATION
+     * ------------------------------------------------------------ */
+
+    public function test_serialize()
+    {
+        $this->model = new Serialised_data_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $data = array( 'name' => 'Jamie', 'awesomeness_level' => 1000000 );
+
+        $this->model->db->expects($this->exactly(1))
+                        ->method('insert')
+                        ->with($this->equalTo('records'), $this->equalTo(array( 'data' => serialize($data) )));
+
+        $this->model->insert(array( 'data' => $data ));
+    }
+
+    /* --------------------------------------------------------------
      * UTILITY METHODS
      * ------------------------------------------------------------ */ 
 
