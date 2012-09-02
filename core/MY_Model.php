@@ -418,6 +418,17 @@ class MY_Model extends CI_Model
         return $result;
     }
 
+
+    /**
+     * Truncates the table
+     */
+    public function truncate()
+    {
+        $result = $this->db->truncate($this->_table);
+
+        return $result;
+    }    
+
     /* --------------------------------------------------------------
      * RELATIONSHIPS
      * ------------------------------------------------------------ */
