@@ -192,6 +192,11 @@ class MY_Model extends CI_Model
     public function get_all()
     {
         $this->trigger('before_get');
+        
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
 
         $result = $this->db->get($this->_table)
                            ->{$this->_return_type(1)}();
