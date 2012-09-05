@@ -731,12 +731,17 @@ class Base_Model extends MY_Model {
     /**
      * Set WHERE parameters, cleverly
      */
-    private function _set_where($params)
-    {
-        count($params) == 1
-            ? $this->{$this->_interface}->where($params[0])
-            : $this->{$this->_interface}->where($params[0], $params[1]);
-    }
+     private function _set_where($params)
+     {
+         if (count($params) == 1) {
+             $this->{$this->_interface}->where($params[0]);
+         } else {
+             if ($this->_mongodb && preg_match("%/.+/%", $params[1])) {
+                 $params[1] = new MongoRegex($params[1]);
+             }
+             $this->{$this->_interface}->where($params[0], $params[1]);
+         }
+     }
 
     // ------------------------------------------------------------------------
 
