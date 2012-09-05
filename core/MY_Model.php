@@ -17,6 +17,7 @@
  * @license     http://codeigniter.com/user_guide/license.html
  * @link        https://github.com/sepehr/ci-mongodb-base-model
  * @version     Version 1.0
+ * @todo        NEEDS REWRITE, CLEANUP.
  * @filesource
  */
 
@@ -32,7 +33,20 @@
  * @category    Models
  * @author      Sepehr Lajevardi <me@sepehr.ws>
  * @link        https://github.com/sepehr/ci-mongodb-base-model
- * @todo        Re-document!
+ * @todo        - Re-document!
+ *              - Add select()
+ *              - Add support for various MongoDB interfaces.
+ *              - IMPORTANT: Using MongoDB, there might be sometimes
+ *              that user pass her data array to insert or update
+ *              a document, but since we're filtering that data array
+ *              using _prep_fields() method, we might endup with an
+ *              empty array which triggers a MongoDB driver exception.
+ *              On the other hand we want to be able to run model callbacks
+ *              even though that the data array is empty, also we
+ *              prefer to return TRUE when the data array is empty, bullshit.
+ *              We worked around the problem by checking $data array when
+ *              returning results: return empty($data) ? TRUE : $result;
+ *              This should be fixed in a far more reasonable manner !!!
  */
 class Base_Model extends MY_Model {
 
@@ -134,9 +148,13 @@ class Base_Model extends MY_Model {
 
         // Set return type of results
         $this->_temporary_return_type = $this->return_type;
+
+        // @TODO: Build validation array out of $_fields if not set
     }
 
-    // ------------------ CRUD Interface --------------------------------------
+    // ------------------------------------------------------------------------
+    // CRUD Interface
+    // ------------------------------------------------------------------------
 
     /**
      * Fetch a single record/document based on the primary key. Returns an object.
@@ -207,6 +225,17 @@ class Base_Model extends MY_Model {
     // ------------------------------------------------------------------------
 
     /**
+     * Fetch an array of records/documents based on an arbitrary WHERE call.
+     */
+    public function get_many_in($field, $values)
+    {
+        $this->{$this->_interface}->where_in($field, $values);
+        return $this->get_all();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Fetch all the records/documents in the table/collection.
      * Can be used as a generic call to $this->{$this->_interface}->get() with scoped methods.
      */
@@ -217,6 +246,11 @@ class Base_Model extends MY_Model {
 
         $results = $this->{$this->_interface}->get($this->_datasource);
         $this->_typecast($results, TRUE);
+
+        if ( ! $results)
+        {
+            return FALSE;
+        }
 
         foreach ($results as &$result)
         {
@@ -245,26 +279,27 @@ class Base_Model extends MY_Model {
 
         if ($valid)
         {
+            $insert_id = FALSE;
+
             // Run registered callbacks
             $data = $this->_run_before_callbacks('create', array( $data ));
 
             // Prepare data if using MongoDB
-            $data = $this->_prep_fields($data);
-
-            $insert_id = $this->{$this->_interface}->insert($this->_datasource, $data);
+            if ($this->_prep_fields($data))
+            {
+                $insert_id = $this->{$this->_interface}->insert($this->_datasource, $data);
+            }
 
             // Update insert_id if not MongoDB
-            !$this->_mongodb AND $insert_id = $this->{$this->_interface}->insert_id();
+            $this->_mongodb OR $insert_id = $this->{$this->_interface}->insert_id();
 
             // Run registered callbacks
             $this->_run_after_callbacks('create', array( $data, $insert_id ));
 
-            return $insert_id;
+            return empty($data) ? TRUE : $insert_id;
         }
-        else
-        {
-            return FALSE;
-        }
+
+        return FALSE;
     }
 
     // ------------------------------------------------------------------------
@@ -303,18 +338,21 @@ class Base_Model extends MY_Model {
 
         if ($valid)
         {
-            // Prepare data if using MongoDB
-            $data = $this->_prep_fields($data);
+            $result = FALSE;
 
-            $result = $this->{$this->_interface}
-                ->where($this->primary_key, $this->_prep_primary($primary_value))
-                ->set($data)
-                ->update($this->_datasource);
+            // Prepare data if using MongoDB
+            if ($this->_prep_fields($data, TRUE))
+            {
+                $result = $this->{$this->_interface}
+                    ->where($this->primary_key, $this->_prep_primary($primary_value))
+                    ->set($data)
+                    ->update($this->_datasource);
+            }
 
             // Run registered callbacks
             $this->_run_after_callbacks('update', array( $data, $primary_value, $result ));
 
-            return $result;
+            return empty($data) ? TRUE : $result;
         }
         else
         {
@@ -341,15 +379,21 @@ class Base_Model extends MY_Model {
 
         if ($valid)
         {
-            $result = $this->{$this->_interface}
-                ->where_in($this->primary_key, $this->_prep_primary($primary_values))
-                ->set($data)
-                ->update($this->_datasource);
+            $result = FALSE;
+
+            // Prepare data if using MongoDB
+            if ($this->_prep_fields($data, TRUE))
+            {
+                $result = $this->{$this->_interface}
+                    ->where_in($this->primary_key, $this->_prep_primary($primary_values))
+                    ->set($data)
+                    ->update($this->_datasource);
+            }
 
             // Run registered callbacks
             $this->_run_after_callbacks('update', array( $data, $primary_values, $result ));
 
-            return $result;
+            return empty($data) ? TRUE : $result;
         }
         else
         {
@@ -373,14 +417,20 @@ class Base_Model extends MY_Model {
 
         if ($this->_run_validation($data))
         {
-            $result = $this->{$this->_interface}
-                ->set($data)
-                ->update($this->_datasource);
+            $result = FALSE;
+
+            // Prepare data if using MongoDB
+            if ($this->_prep_fields($data, TRUE))
+            {
+                $result = $this->{$this->_interface}
+                    ->set($data)
+                    ->update($this->_datasource);
+            }
 
             // Run registered callbacks
             $this->_run_after_callbacks('update', array( $data, $args, $result ));
 
-            return $result;
+            return empty($data) ? TRUE : $result;
         }
         else
         {
@@ -395,17 +445,23 @@ class Base_Model extends MY_Model {
      */
     public function update_all($data)
     {
+        $result = FALSE;
+
         // Run registered callbacks
         $data = $this->_run_before_callbacks('update', array( $data ));
 
-        $result = $this->{$this->_interface}
-            ->set($data)
-            ->update($this->_datasource);
+        // Prepare data if using MongoDB
+        if ($this->_prep_fields($data, TRUE))
+        {
+            $result = $this->{$this->_interface}
+                ->set($data)
+                ->update($this->_datasource);
+        }
 
         // Run registered callbacks
         $this->_run_after_callbacks('update', array( $data, $result ));
 
-        return $result;
+        return empty($data) ? TRUE : $result;
     }
 
     // ------------------------------------------------------------------------
@@ -469,7 +525,9 @@ class Base_Model extends MY_Model {
         return $result;
     }
 
-    // ----------------------- Utility Methods --------------------------------
+    // ------------------------------------------------------------------------
+    // Utility Methods
+    // ------------------------------------------------------------------------
 
     /**
      * Retrieve and generate a form_dropdown friendly array
@@ -604,7 +662,22 @@ class Base_Model extends MY_Model {
         return $this;
     }
 
-    // ------------------ Query builder direct access methods -----------------
+    // ------------------------------------------------------------------------
+    // Query builder direct access methods
+    // ------------------------------------------------------------------------
+
+    /**
+     * Sets where portion of the query.
+     */
+    public function where()
+    {
+        $where = func_get_args();
+        $this->_set_where($where);
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
 
     /**
      * A wrapper to $this->{$this->_interface}->order_by()
@@ -615,14 +688,14 @@ class Base_Model extends MY_Model {
         {
             foreach ($criteria as $key => $value)
             {
-                $this->_mongo_db
+                $this->_mongodb
                     ? $this->mongo_db->order_by(array($key => $value))
                     : $this->db->order_by($key, $value);
             }
         }
         else
         {
-            $this->_mongo_db
+            $this->_mongodb
                 ? $this->mongo_db->order_by(array($criteria => $order))
                 : $this->db->order_by($criteria, $order);
         }
@@ -637,14 +710,16 @@ class Base_Model extends MY_Model {
      */
     public function limit($limit, $offset = 0)
     {
-        $this->_mongo_db
+        $this->_mongodb
             ? $this->mongo_db->limit($limit)->offset($offset)
             : $this->db->limit($limit, $offset);
 
         return $this;
     }
 
-    // ------------------ Internal Helpers ------------------------------------
+    // ------------------------------------------------------------------------
+    // Internal Helpers
+    // ------------------------------------------------------------------------
 
     /**
      * Run the before_ callbacks, each callback taking a $data
@@ -659,7 +734,7 @@ class Base_Model extends MY_Model {
         {
             foreach ($this->$name as $method)
             {
-                $data += call_user_func_array(array($this, $method), $params);
+                $data = call_user_func_array(array($this, $method), $params);
             }
         }
 
@@ -739,10 +814,11 @@ class Base_Model extends MY_Model {
          }
          else
          {
-             if ($this->_mongodb && preg_match("%/.+/%", $params[1]))
+             if ($this->_mongodb && preg_match("%/./%", $params[1]))
              {
                  $params[1] = new MongoRegex($params[1]);
              }
+
              $this->{$this->_interface}->where($params[0], $params[1]);
          }
      }
@@ -760,16 +836,20 @@ class Base_Model extends MY_Model {
         {
             // Temporarily store buffered conditions
             $where_cache = $this->mongo_db->wheres;
+
             // If requested to count all documents, flush all buffered
             // conditions. There's no better way to do this at the moment!
             $this->mongo_db->wheres = array();
+
             // Set database driver proper method
             $method = 'count_all';
         }
         // $all contains where conditions:
-        else{
+        else
+        {
             // Set conditions
             $this->_set_where($all);
+
             // Set database driver proper method
             $method = 'count_all_results';
         }
@@ -779,7 +859,7 @@ class Base_Model extends MY_Model {
             : $this->db->$method($this->_datasource);
 
         // Restore MongoDB buffered conditions
-        $this->mongo_db->wheres = $where_cache;
+        $all === TRUE AND $this->mongo_db->wheres = $where_cache;
 
         return $count;
     }
@@ -819,6 +899,14 @@ class Base_Model extends MY_Model {
      */
     private function _typecast(&$results, $multiple = FALSE)
     {
+        // No results?
+        if (empty($results))
+        {
+            $results = FALSE;
+            return;
+        }
+
+        // Multiple values to typecast?
         if ($multiple)
         {
             // Typecast each element in the results array
@@ -827,6 +915,7 @@ class Base_Model extends MY_Model {
                 $this->_typecast($result);
             }
         }
+        // Single value to typecast
         else
         {
             if ($this->_mongodb)
@@ -853,7 +942,7 @@ class Base_Model extends MY_Model {
     private function _prep_primary($primary_value)
     {
         // Not using MongoDB?
-        if ( !$this->_mongodb)
+        if ( ! $this->_mongodb)
         {
             return $primary_value;
         }
@@ -889,7 +978,7 @@ class Base_Model extends MY_Model {
      * Since MongoDB is a schema-less database, we better do this on the
      * application side!
      */
-    public function _prep_fields($fields)
+    public function _prep_fields(&$fields, $update = FALSE)
     {
         if ( ! $this->_mongodb OR empty($this->_fields))
         {
@@ -906,21 +995,25 @@ class Base_Model extends MY_Model {
             }
 
             // SQL-like injection?
-            else
-            {
-                $fields[$key] = (string) $value;
-            }
+            // else
+            // {
+            //     $fields[$key] = (string) $value;
+            // }
         }
 
         // Ensure default values
-        $fields = array_merge($this->_fields, $fields);
+        $update OR $fields = array_merge($this->_fields, $fields);
 
-        return $fields;
+        return ! empty($fields);
     }
 
 }
 // End of Base_Model class
 
+
+// ------------------------------------------------------------------------
+// MY_Model Class
+// ------------------------------------------------------------------------
 
 /**
  * For sanity sake of CI conventions.
