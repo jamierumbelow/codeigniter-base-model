@@ -39,7 +39,31 @@ Extend your model classes from `MY_Model` and all the functionality will be bake
 Naming Conventions
 ------------------
 
-This class will try to guess the name of the table to use, by guessing the plural of the class name. If the table name isn't the plural and you need to set it to something else, just declare the _$\_table_ instance variable and set it to the table name. Some of the CRUD functions also assume that your primary key ID column is called _'id'_. You can overwrite this functionality by setting the _$primary\_key_ instance variable.
+This class will try to guess the name of the table to use, by finding the plural of the class name. 
+
+For instance:
+
+    class Post_model extends MY_Model { }
+
+...will guess a table name of `posts`. It also works with `_m`:
+
+    class Book_m extends MY_Model { }
+
+...will guess `books`.
+
+If you need to set it to something else, you can declare the _$\_table_ instance variable and set it to the table name:
+
+    class Post_model extends MY_Model
+    {
+        public $_table = 'blogposts';
+    }
+
+Some of the CRUD functions also assume that your primary key ID column is called _'id'_. You can overwrite this functionality by setting the _$primary\_key_ instance variable:
+
+    class Post_model extends MY_Model
+    {
+        public $primary_key = 'post_id';
+    }
 
 Callbacks/Observers
 -------------------
@@ -242,10 +266,23 @@ Then, simply run the `phpunit` command on the test file:
 
     $ phpunit tests/MY_Model_test.php
 
+Contributing to MY_Model
+------------------------
+
+If you find a bug or want to add a feature to MY_Model, great! In order to make it easier and quicker for me to verify and merge changes in, it would be amazing if you could follow these few basic steps:
+
+1. Fork the project.
+2. **Branch out into a new branch. `git checkout -b name_of_new_feature_or_bug`**
+3. Make your feature addition or bug fix.
+4. **Add tests for it. This is important so I don’t break it in a future version unintentionally.**
+5. Commit.
+6. Send me a pull request!
+
 
 Other Documentation
 -------------------
 
+* My book, The CodeIgniter Handbook, talks about the techniques used in MY_Model and lots of other interesting useful stuff. [Get a copy now.](https://efendibooks.com/books/codeigniter-handbook/vol-1)
 * Jeff Madsen has written an excellent tutorial about the basics (and triggered me updating the documentation here). [Read it now, you lovely people.](http://www.codebyjeff.com/blog/2012/01/using-jamie-rumbelows-my_model)
 * Rob Allport wrote a post about MY_Model and his experiences with it. [Check it out!](http://www.web-design-talk.co.uk/493/codeigniter-base-models-rock/)
 
