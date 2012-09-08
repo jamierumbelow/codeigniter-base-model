@@ -615,13 +615,29 @@ class MY_Model extends CI_Model
      */
     public function created_at($row)
     {
-        $row['created_at'] = date('Y-m-d H:i:s');
+        if (is_object($row))
+        {
+            $row->created_at = date('Y-m-d H:i:s');
+        }
+        else
+        {
+            $row['created_at'] = date('Y-m-d H:i:s');
+        }
+        
         return $row;
     }
 
     public function updated_at($row)
     {
-        $row['updated_at'] = date('Y-m-d H:i:s');
+        if (is_object($row))
+        {
+            $row->updated_at = date('Y-m-d H:i:s');
+        }
+        else
+        {
+            $row['updated_at'] = date('Y-m-d H:i:s');
+        }
+
         return $row;
     }
 
