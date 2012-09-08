@@ -568,7 +568,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     }
 
     /* --------------------------------------------------------------
-     * SERIALISATION
+     * CALLBACKS
      * ------------------------------------------------------------ */
 
     public function test_serialize()
@@ -583,6 +583,28 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
                         ->with($this->equalTo('records'), $this->equalTo(array( 'data' => serialize($data) )));
 
         $this->model->insert(array( 'data' => $data ));
+    }
+
+    public function test_timestamps()
+    {
+        $this->model = new Record_model();
+
+        $data = array( 'name' => 'Jamie' );
+        $obj = (object)array( 'name' => 'Jamie' );
+        
+        $data = $this->model->created_at($data);
+        $obj = $this->model->created_at($obj);
+        $data = $this->model->updated_at($data);
+        $obj = $this->model->updated_at($obj);
+
+        $this->assertTrue(isset($data['created_at']));
+        $this->assertRegExp("/[0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/", $data['created_at']);
+        $this->assertTrue(isset($obj->created_at));
+        $this->assertRegExp("/[0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/", $obj->created_at);
+        $this->assertTrue(isset($data['updated_at']));
+        $this->assertRegExp("/[0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/", $data['updated_at']);
+        $this->assertTrue(isset($obj->updated_at));
+        $this->assertRegExp("/[0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/", $obj->updated_at);
     }
 
     /* --------------------------------------------------------------
