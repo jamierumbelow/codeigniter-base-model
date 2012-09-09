@@ -815,7 +815,7 @@ class MY_Model extends CI_Model
     /**
      * Return the method name for the current return type
      */
-    private function _return_type($multi = FALSE)
+    protected function _return_type($multi = FALSE)
     {
         $method = ($multi) ? 'result' : 'row';
         return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
