@@ -800,7 +800,7 @@ class MY_Model extends CI_Model
     /**
      * Set WHERE parameters, cleverly
      */
-    private function _set_where($params)
+    protected function _set_where($params)
     {
         if (count($params) == 1)
         {
