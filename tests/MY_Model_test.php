@@ -754,6 +754,15 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->limit(10, 5), $this->model);
     }
 
+    public function test_truncate()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('truncate')
+                        ->with($this->equalTo('records'));
+
+        $this->model->truncate();
+    }
+
     /* --------------------------------------------------------------
      * TEST UTILITIES
      * ------------------------------------------------------------ */

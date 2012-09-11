@@ -334,6 +334,7 @@ Changelog
 * Callbacks can also now take parameters when setting in callback array
 * Added support for column serialisation
 * Added support for protected attributes
+* Added a `truncate()` method
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
