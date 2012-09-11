@@ -509,6 +509,11 @@ class MY_Model extends CI_Model
             $value = $args[0];
         }
 
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        } 
+
         $this->trigger('before_dropdown', array( $key, $value ));
 
         $result = $this->db->select(array($key, $value))
