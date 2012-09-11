@@ -309,17 +309,7 @@ Other Documentation
 * My book, The CodeIgniter Handbook, talks about the techniques used in MY_Model and lots of other interesting useful stuff. [Get a copy now.](https://efendibooks.com/books/codeigniter-handbook/vol-1)
 * Jeff Madsen has written an excellent tutorial about the basics (and triggered me updating the documentation here). [Read it now, you lovely people.](http://www.codebyjeff.com/blog/2012/01/using-jamie-rumbelows-my_model)
 * Rob Allport wrote a post about MY_Model and his experiences with it. [Check it out!](http://www.web-design-talk.co.uk/493/codeigniter-base-models-rock/)
-
-Contributors
-------------
-
-Special thanks to:
-    
-* [Phil Sturgeon](http://philsturgeon.co.uk)
-* [Dan Horrigan](http://danhorrigan.com)
-* [Adam Jackett](http://darkhousemedia.com)
-    
-...as well as everybody else who has contributed a great amount of code and ideas to this library
+* I've written a write up of the new 2.0.0 features [over at my blog, Jamie On Software.](http://jamieonsoftware.com/journal/2012/9/11/my_model-200-at-a-glance.html)
 
 Changelog
 ---------
