@@ -324,7 +324,7 @@ Special thanks to:
 Changelog
 ---------
 
-**Version 2.0.0 - IN DEVELOPMENT**
+**Version 2.0.0**
 * Added support for soft deletes
 * Removed Composer support. Great system, CI makes it difficult to use for MY_ classes
 * Fixed up all problems with callbacks and consolidated into single `trigger` method
