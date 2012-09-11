@@ -386,6 +386,30 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     }
 
     /* --------------------------------------------------------------
+     * PROTECTED ATTRIBUTES
+     * ------------------------------------------------------------ */ 
+
+    public function test_protected_attributes()
+    {
+        $this->model = new Protected_attributes_model();
+        
+        $author = array(
+            'id' => 123,
+            'hash' => 'dlkadflsdasdsadsds',
+            'title' => 'A new post'
+        );
+        $author_obj = (object)$author;
+
+        $author = $this->model->protect_attributes($author);
+        $author_obj = $this->model->protect_attributes($author_obj);
+
+        $this->assertFalse(isset($author['id']));
+        $this->assertFalse(isset($author['hash']));
+        $this->assertFalse(isset($author_obj->id));
+        $this->assertFalse(isset($author_obj->hash));
+    }
+
+    /* --------------------------------------------------------------
      * RELATIONSHIPS
      * ------------------------------------------------------------ */
 

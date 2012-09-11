@@ -55,6 +55,11 @@ class MY_Model extends CI_Model
     protected $callback_parameters = array();
 
     /**
+     * Protected, non-modifiable attributes
+     */
+    protected $protected_attributes = array();
+
+    /**
      * Relationship arrays. Use flat strings for defaults or string
      * => array to customise the class name and primary key
      */
@@ -97,8 +102,10 @@ class MY_Model extends CI_Model
         $this->load->helper('inflector');
 
         $this->_set_database();
-
         $this->_fetch_table();
+
+        array_unshift($this->before_create, 'protect_attributes');
+        array_unshift($this->before_update, 'protect_attributes');
 
         $this->_temporary_return_type = $this->return_type;
     }
@@ -672,6 +679,25 @@ class MY_Model extends CI_Model
         return $row;
     }
 
+    /**
+     * Protect attributes by removing them from $row array
+     */
+    public function protect_attributes($row)
+    {
+        foreach ($this->protected_attributes as $attr)
+        {
+            if (is_object($row))
+            {
+                unset($row->$attr);
+            }
+            else
+            {
+                unset($row[$attr]);
+            }
+        }
+
+        return $row;
+    }
 
     /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS

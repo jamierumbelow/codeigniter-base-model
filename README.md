@@ -119,6 +119,30 @@ Then, for each call to `insert()`, the data passed through will be validated acc
 
 If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
 
+Protected Attributes
+--------------------
+
+If you're lazy like me, you'll be grabbing the data from the form and throwing it straight into the model. While some of the pitfalls of this can be avoided with validation, it's a very dangerous way of entering data; any attribute on the model (any column in the table) could be modified, including the ID.
+
+To prevent this from happening, MY_Model supports protected attributes. These are columns of data that cannot be modified.
+
+You can set protected attributes with the `$protected_attributes` array:
+
+    class Post_model extends MY_Model
+    {
+        public $protected_attributes = array( 'id', 'hash' );
+    }
+
+Now, when `insert` or `update` is called, the attributes will automatically be removed from the array, and, thus, protected:
+
+    $this->post_model->insert(array(
+        'id' => 2,
+        'hash' => 'aqe3fwrga23fw243fWE',
+        'title' => 'A new post'
+    ));
+
+    // SQL: INSERT INTO posts (title) VALUES ('A new post')
+
 Relationships
 -------------
 
@@ -309,6 +333,7 @@ Changelog
 * The DB connection can now be manually set with `$this->_db`, rather than relying on the `$active_group`
 * Callbacks can also now take parameters when setting in callback array
 * Added support for column serialisation
+* Added support for protected attributes
 
 **Version 1.3.0**
 * Added support for array return types using `$return_type` variable and `as_array()` and `as_object()` methods
