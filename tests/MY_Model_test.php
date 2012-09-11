@@ -574,6 +574,32 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->get(2), 'fake_record_here');
     }
 
+    public function test_soft_delete_dropdown()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->db = $this->getMock('MY_Model_Mock_DB');
+
+        $fake_row_1 = array( 'id' => 1, 'name' => 'Jamie' );
+        $fake_row_2 = array( 'id' => 2, 'name' => 'Laura' );
+        $fake_results = array( (object)$fake_row_1, (object)$fake_row_2 );
+
+        $this->model->db->expects($this->at(0))
+                        ->method('where')
+                        ->with($this->equalTo('deleted'), $this->equalTo(FALSE))
+                        ->will($this->returnValue($this->model->db));
+        
+        $this->model->db->expects($this->once())
+                        ->method('select')
+                        ->with($this->equalTo(array('id', 'name')))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->any())
+                        ->method('result')
+                        ->will($this->returnValue($fake_results));
+        
+        $this->model->dropdown('name');
+    }
+
     public function test_with_deleted()
     {
         $this->model = new Soft_delete_model();
