@@ -867,4 +867,13 @@ class MY_Model extends CI_Model
         $method = ($multi) ? 'result' : 'row';
         return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
     }
+	
+	/**
+	 * Allow overloading of private and protected properties to allow them to be read by outside classes
+	 */
+	public function __get($name)
+	{
+		return $name;
+	}
+
 }
