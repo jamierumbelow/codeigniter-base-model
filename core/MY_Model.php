@@ -227,10 +227,10 @@ class MY_Model extends CI_Model
 
         if ($skip_validation === FALSE)
         {
-            $valid = $this->_run_validation($data);
+            $data = $this->_run_validation($data);
         }
 
-        if ($valid)
+        if ($data !== FALSE)
         {
             $data = $this->trigger('before_create', $data);
 
@@ -273,10 +273,10 @@ class MY_Model extends CI_Model
 
         if ($skip_validation === FALSE)
         {
-            $valid = $this->_run_validation($data);
+            $data = $this->_run_validation($data);
         }
 
-        if ($valid)
+        if ($data !== FALSE)
         {
             $result = $this->db->where($this->primary_key, $primary_value)
                                ->set($data)
@@ -297,16 +297,14 @@ class MY_Model extends CI_Model
      */
     public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
-        $valid = TRUE;
-
         $data = $this->trigger('before_update', $data);
 
         if ($skip_validation === FALSE)
         {
-            $valid = $this->_run_validation($data);
+            $data = $this->_run_validation($data);
         }
 
-        if ($valid)
+        if ($data !== FALSE)
         {
             $result = $this->db->where_in($this->primary_key, $primary_values)
                                ->set($data)
@@ -333,7 +331,7 @@ class MY_Model extends CI_Model
 
         $data = $this->trigger('before_update', $data);
 
-        if ($this->_run_validation($data))
+        if ($this->_run_validation($data) !== FALSE)
         {
             $result = $this->db->set($data)
                                ->update($this->_table);
@@ -787,7 +785,7 @@ class MY_Model extends CI_Model
     {
         if($this->skip_validation)
         {
-            return TRUE;
+            return $data;
         }
 
         if(!empty($this->validate))
@@ -803,16 +801,30 @@ class MY_Model extends CI_Model
             {
                 $this->form_validation->set_rules($this->validate);
 
-                return $this->form_validation->run();
+                if ($this->form_validation->run() === TRUE)
+                {
+                    return $_POST;
+                }
+                else
+                {
+                    return FALSE;
+                }
             }
             else
             {
-                return $this->form_validation->run($this->validate);
+                if ($this->form_validation->run($this->validate) === TRUE)
+                {
+                    return $_POST;
+                }
+                else
+                {
+                    return FALSE;
+                }
             }
         }
         else
         {
-            return TRUE;
+            return $data;
         }
     }
 
