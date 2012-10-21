@@ -497,8 +497,6 @@ class MY_Model extends CI_Model
             }
         }
 
-        $this->_with = array();
-
         return $row;
     }
 
