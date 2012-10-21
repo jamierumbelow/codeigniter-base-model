@@ -20,8 +20,8 @@ class MY_Model extends CI_Model
      */
     protected $_table;
 
-    /** 
-     * Database conn object; will use default connection 
+    /**
+     * Database conn object; will use default connection
      * unless overridden
      */
     protected $_db;
@@ -133,6 +133,7 @@ class MY_Model extends CI_Model
 
         $row = $this->trigger('after_get', $row);
 
+        $this->_with = array();
         return $row;
     }
 
@@ -158,6 +159,7 @@ class MY_Model extends CI_Model
 
         $row = $this->trigger('after_get', $row);
 
+        $this->_with = array();
         return $row;
     }
 
@@ -199,7 +201,7 @@ class MY_Model extends CI_Model
     public function get_all()
     {
         $this->trigger('before_get');
-        
+
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->db->where($this->soft_delete_key, FALSE);
@@ -214,6 +216,7 @@ class MY_Model extends CI_Model
             $row = $this->trigger('after_get', $row);
         }
 
+        $this->_with = array();
         return $result;
     }
 
@@ -238,9 +241,9 @@ class MY_Model extends CI_Model
             $insert_id = $this->db->insert_id();
 
             $this->trigger('after_create', $insert_id);
-            
+
             return $insert_id;
-        } 
+        }
         else
         {
             return FALSE;
@@ -281,7 +284,7 @@ class MY_Model extends CI_Model
             $result = $this->db->where($this->primary_key, $primary_value)
                                ->set($data)
                                ->update($this->_table);
-            
+
             $this->trigger('after_update', array($data, $result));
 
             return $result;
@@ -309,7 +312,7 @@ class MY_Model extends CI_Model
             $result = $this->db->where_in($this->primary_key, $primary_values)
                                ->set($data)
                                ->update($this->_table);
-            
+
             $this->trigger('after_update', array($data, $result));
 
             return $result;
@@ -411,7 +414,7 @@ class MY_Model extends CI_Model
     public function delete_many($primary_values)
     {
         $primary_values = $this->trigger('before_delete', $primary_values);
-        
+
         $this->db->where_in($this->primary_key, $primary_values);
 
         if ($this->soft_delete)
@@ -437,7 +440,7 @@ class MY_Model extends CI_Model
         $result = $this->db->truncate($this->_table);
 
         return $result;
-    }    
+    }
 
     /* --------------------------------------------------------------
      * RELATIONSHIPS
@@ -540,7 +543,7 @@ class MY_Model extends CI_Model
         }
 
         $options = $this->trigger('after_dropdown', $options);
-        
+
         return $options;
     }
 
@@ -647,7 +650,7 @@ class MY_Model extends CI_Model
         {
             $row['created_at'] = date('Y-m-d H:i:s');
         }
-        
+
         return $row;
     }
 
@@ -772,7 +775,7 @@ class MY_Model extends CI_Model
                 $data = call_user_func_array(array($this, $method), array($data));
             }
         }
-        
+
         return $data;
     }
 
@@ -846,7 +849,7 @@ class MY_Model extends CI_Model
         if (!$this->_db)
         {
             $this->load->database();
-        }    
+        }
         else
         {
             $this->db = $this->load->database($this->_db, TRUE);
