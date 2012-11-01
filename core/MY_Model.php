@@ -363,6 +363,28 @@ class MY_Model extends CI_Model
     }
 
     /**
+    * Replaces a record
+    * If the record specified by $where can be found, use update,
+    * Else use Insert to add the record
+    *
+    * @param array $where The criteria to find the record we want to replace
+    * @param array $data The data to update/insert
+    * @return bool
+    */
+    public function replace($where, $data)
+    {
+        $row = $this->get_by($where);
+        if ($row)
+        {
+            return $this->update($row->$this->primary_key, $data);
+        }
+        else
+        {
+            return ($this->insert($data) > 0);
+        }
+    }
+
+    /**
      * Delete a row from the table by the primary value
      */
     public function delete($id)
