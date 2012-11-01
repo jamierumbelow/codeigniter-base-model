@@ -14,15 +14,25 @@
 
 class After_callback_model extends MY_Model
 {
-    protected $after_create = array('test_callback');
-    protected $after_update = array('test_callback');
-    protected $after_get = array('test_callback');
-    protected $after_delete = array('test_callback');
+    protected $after_create = array('test_throw');
+    protected $after_update = array('test_throw');
+    protected $after_get = array('test_data_callback', 'test_data_callback_two');
+    protected $after_delete = array('test_throw');
 
-    protected function test_callback($row = FALSE)
+    protected function test_throw($row)
     {
-        throw new Callback_Test_Exception($row);
+    	throw new Callback_Test_Exception($row);
+    }
 
+    protected function test_data_callback($row)
+    {
+    	$row['key'] = 'Value';
+    	return $row;
+    }
+
+    protected function test_data_callback_two($row)
+    {
+        $row['another_key'] = '123 Value';
         return $row;
     }
 }

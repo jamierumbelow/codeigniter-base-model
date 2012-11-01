@@ -1,16 +1,9 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
 /**
  * A base model with a series of CRUD functions (powered by CI's query builder),
  * validation-in-model support, event callbacks and more.
  *
  * @link http://github.com/jamierumbelow/codeigniter-base-model
- * @author Jamie Rumbelow <http://jamierumbelow.net>
- * @modified Phil Sturgeon <http://philsturgeon.co.uk>
- * @modified Dan Horrigan <http://dhorrigan.com>
- * @modified Adam Jackett <http://darkhousemedia.com>
- * @modified Justin Busschau <http://bythepeople.co.uk>
- * @copyright Copyright (c) 2011, Jamie Rumbelow <http://jamierumbelow.net>
+ * @copyright Copyright (c) 2012, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
 class MY_Model extends CI_Model
@@ -27,10 +20,23 @@ class MY_Model extends CI_Model
     protected $_table;
 
     /**
+     * Database conn object; will use default connection
+     * unless overridden
+     */
+    protected $_db;
+
+    /**
      * This model's default primary key or unique identifier.
      * Used by the get(), update() and delete() functions.
      */
     protected $primary_key = 'id';
+
+    /**
+     * Support for soft deletes and this model's 'deleted' key
+     */
+    protected $soft_delete = FALSE;
+    protected $soft_delete_key = 'deleted';
+    protected $_temporary_with_deleted = FALSE;
 
     /**
      * The various callbacks available to the model. Each are
@@ -44,6 +50,22 @@ class MY_Model extends CI_Model
     protected $after_get = array();
     protected $before_delete = array();
     protected $after_delete = array();
+
+    protected $callback_parameters = array();
+
+    /**
+     * Protected, non-modifiable attributes
+     */
+    protected $protected_attributes = array();
+
+    /**
+     * Relationship arrays. Use flat strings for defaults or string
+     * => array to customise the class name and primary key
+     */
+    protected $belongs_to = array();
+    protected $has_many = array();
+
+    protected $_with = array();
 
     /**
      * An array of validation rules. This needs to be the same format
@@ -78,7 +100,11 @@ class MY_Model extends CI_Model
 
         $this->load->helper('inflector');
 
+        $this->_set_database();
         $this->_fetch_table();
+
+        array_unshift($this->before_create, 'protect_attributes');
+        array_unshift($this->before_update, 'protect_attributes');
 
         $this->_temporary_return_type = $this->return_type;
     }
@@ -92,15 +118,21 @@ class MY_Model extends CI_Model
      */
     public function get($primary_value)
     {
-        $this->_run_before_callbacks('get');
+        $this->trigger('before_get');
+
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
 
         $row = $this->db->where($this->primary_key, $primary_value)
                         ->get($this->_table)
                         ->{$this->_return_type()}();
         $this->_temporary_return_type = $this->return_type;
 
-        $this->_run_after_callbacks('get', array( $row ));
+        $row = $this->trigger('after_get', $row);
 
+        $this->_with = array();
         return $row;
     }
 
@@ -113,13 +145,20 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
-        $this->_run_before_callbacks('get');
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
+
+        $this->trigger('before_get');
+
         $row = $this->db->get($this->_table)
                         ->{$this->_return_type()}();
         $this->_temporary_return_type = $this->return_type;
 
-        $this->_run_after_callbacks('get', array( $row ));
+        $row = $this->trigger('after_get', $row);
 
+        $this->_with = array();
         return $row;
     }
 
@@ -128,6 +167,11 @@ class MY_Model extends CI_Model
      */
     public function get_many($values)
     {
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
+
         $this->db->where_in($this->primary_key, $values);
 
         return $this->get_all();
@@ -141,6 +185,11 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
+
         return $this->get_all();
     }
 
@@ -150,7 +199,12 @@ class MY_Model extends CI_Model
      */
     public function get_all()
     {
-        $this->_run_before_callbacks('get');
+        $this->trigger('before_get');
+
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
 
         $result = $this->db->get($this->_table)
                            ->{$this->_return_type(1)}();
@@ -158,9 +212,10 @@ class MY_Model extends CI_Model
 
         foreach ($result as &$row)
         {
-            $row = $this->_run_after_callbacks('get', array( $row ));
+            $row = $this->trigger('after_get', $row);
         }
 
+        $this->_with = array();
         return $result;
     }
 
@@ -174,17 +229,17 @@ class MY_Model extends CI_Model
 
         if ($skip_validation === FALSE)
         {
-            $valid = $this->_run_validation($data);
+            $data = $this->_run_validation($data);
         }
 
-        if ($valid)
+        if ($data !== FALSE)
         {
-            $data = $this->_run_before_callbacks('create', array( $data ));
+            $data = $this->trigger('before_create', $data);
 
             $this->db->insert($this->_table, $data);
             $insert_id = $this->db->insert_id();
 
-            $this->_run_after_callbacks('create', array( $data, $insert_id ));
+            $this->trigger('after_create', $insert_id);
 
             return $insert_id;
         }
@@ -216,19 +271,20 @@ class MY_Model extends CI_Model
     {
         $valid = TRUE;
 
-        $data = $this->_run_before_callbacks('update', array( $data, $primary_value ));
+        $data = $this->trigger('before_update', $data);
 
         if ($skip_validation === FALSE)
         {
-            $valid = $this->_run_validation($data);
+            $data = $this->_run_validation($data);
         }
 
-        if ($valid)
+        if ($data !== FALSE)
         {
             $result = $this->db->where($this->primary_key, $primary_value)
                                ->set($data)
                                ->update($this->_table);
-            $this->_run_after_callbacks('update', array( $data, $primary_value, $result ));
+
+            $this->trigger('after_update', array($data, $result));
 
             return $result;
         }
@@ -243,21 +299,20 @@ class MY_Model extends CI_Model
      */
     public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
-        $valid = TRUE;
-
-        $data = $this->_run_before_callbacks('update', array( $data, $primary_values ));
+        $data = $this->trigger('before_update', $data);
 
         if ($skip_validation === FALSE)
         {
-            $valid = $this->_run_validation($data);
+            $data = $this->_run_validation($data);
         }
 
-        if ($valid)
+        if ($data !== FALSE)
         {
             $result = $this->db->where_in($this->primary_key, $primary_values)
                                ->set($data)
                                ->update($this->_table);
-            $this->_run_after_callbacks('update', array( $data, $primary_values, $result ));
+
+            $this->trigger('after_update', array($data, $result));
 
             return $result;
         }
@@ -276,13 +331,13 @@ class MY_Model extends CI_Model
         $data = array_pop($args);
         $this->_set_where($args);
 
-        $data = $this->_run_before_callbacks('update', array( $data, $args ));
+        $data = $this->trigger('before_update', $data);
 
-        if ($this->_run_validation($data))
+        if ($this->_run_validation($data) !== FALSE)
         {
             $result = $this->db->set($data)
                                ->update($this->_table);
-            $this->_run_after_callbacks('update', array( $data, $args, $result ));
+            $this->trigger('after_update', array($data, $result));
 
             return $result;
         }
@@ -297,34 +352,12 @@ class MY_Model extends CI_Model
      */
     public function update_all($data)
     {
-        $data = $this->_run_before_callbacks('update', array( $data ));
+        $data = $this->trigger('before_update', $data);
         $result = $this->db->set($data)
                            ->update($this->_table);
-        $this->_run_after_callbacks('update', array( $data, $result ));
+        $this->trigger('after_update', array($data, $result));
 
         return $result;
-    }
-
-    /**
-    * Replaces a record
-    * If the record specified by $where can be found, use update,
-    * Else use Insert to add the record
-    *
-    * @param array $where The criteria to find the record we want to replace
-    * @param array $data The data to update/insert
-    * @return bool
-    */
-    public function replace($where, $data)
-    {
-        $row = $this->get_by($where);
-        if ($row)
-        {
-            return $this->update($row->$this->primary_key, $data);
-        }
-        else
-        {
-            return ($this->insert($data) > 0);
-        }
     }
 
     /**
@@ -332,10 +365,20 @@ class MY_Model extends CI_Model
      */
     public function delete($id)
     {
-        $data = $this->_run_before_callbacks('delete', array( $id ));
-        $result = $this->db->where($this->primary_key, $id)
-                           ->delete($this->_table);
-        $this->_run_after_callbacks('delete', array( $id, $result ));
+        $this->trigger('before_delete', $id);
+
+        $this->db->where($this->primary_key, $id);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+        }
+        else
+        {
+            $result = $this->db->delete($this->_table);
+        }
+
+        $this->trigger('after_delete', $result);
 
         return $result;
     }
@@ -348,9 +391,18 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
-        $data = $this->_run_before_callbacks('delete', array( $where ));
-        $result = $this->db->delete($this->_table);
-        $this->_run_after_callbacks('delete', array( $where, $result ));
+        $where = $this->trigger('before_delete', $where);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+        }
+        else
+        {
+            $result = $this->db->delete($this->_table);
+        }
+
+        $this->trigger('after_delete', $result);
 
         return $result;
     }
@@ -360,12 +412,94 @@ class MY_Model extends CI_Model
      */
     public function delete_many($primary_values)
     {
-        $data = $this->_run_before_callbacks('delete', array( $primary_values ));
-        $result = $this->db->where_in($this->primary_key, $primary_values)
-                           ->delete($this->_table);
-        $this->_run_after_callbacks('delete', array( $primary_values, $result ));
+        $primary_values = $this->trigger('before_delete', $primary_values);
+
+        $this->db->where_in($this->primary_key, $primary_values);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+        }
+        else
+        {
+            $result = $this->db->delete($this->_table);
+        }
+
+        $this->trigger('after_delete', $result);
 
         return $result;
+    }
+
+
+    /**
+     * Truncates the table
+     */
+    public function truncate()
+    {
+        $result = $this->db->truncate($this->_table);
+
+        return $result;
+    }
+
+    /* --------------------------------------------------------------
+     * RELATIONSHIPS
+     * ------------------------------------------------------------ */
+
+    public function with($relationship)
+    {
+        $this->_with[] = $relationship;
+
+        if (!in_array('relate', $this->after_get))
+        {
+            $this->after_get[] = 'relate';
+        }
+
+        return $this;
+    }
+
+    public function relate($row)
+    {
+        foreach ($this->belongs_to as $key => $value)
+        {
+            if (is_string($value))
+            {
+                $relationship = $value;
+                $options = array( 'primary_key' => $value . '_id', 'model' => $value . '_model' );
+            }
+            else
+            {
+                $relationship = $key;
+                $options = $value;
+            }
+
+            if (in_array($relationship, $this->_with))
+            {
+                $this->load->model($options['model']);
+                $row->{$relationship} = $this->{$options['model']}->get($row->{$options['primary_key']});
+            }
+        }
+
+        foreach ($this->has_many as $key => $value)
+        {
+            if (is_string($value))
+            {
+                $relationship = $value;
+                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . '_model' );
+            }
+            else
+            {
+                $relationship = $key;
+                $options = $value;
+            }
+
+            if (in_array($relationship, $this->_with))
+            {
+                $this->load->model($options['model']);
+                $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+            }
+        }
+
+        return $row;
     }
 
     /* --------------------------------------------------------------
@@ -389,12 +523,16 @@ class MY_Model extends CI_Model
             $value = $args[0];
         }
 
-        $this->_run_before_callbacks('get', array( $key, $value ));
+        $this->trigger('before_dropdown', array( $key, $value ));
+
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->db->where($this->soft_delete_key, FALSE);
+        }
 
         $result = $this->db->select(array($key, $value))
                            ->get($this->_table)
                            ->result();
-        $this->_run_after_callbacks('get', array( $key, $value, $result ));
 
         $options = array();
 
@@ -402,6 +540,8 @@ class MY_Model extends CI_Model
         {
             $options[$row->{$key}] = $row->{$value};
         }
+
+        $options = $this->trigger('after_dropdown', $options);
 
         return $options;
     }
@@ -483,6 +623,101 @@ class MY_Model extends CI_Model
         return $this;
     }
 
+    /**
+     * Don't care about soft deleted rows on the next call
+     */
+    public function with_deleted()
+    {
+        $this->_temporary_with_deleted = TRUE;
+        return $this;
+    }
+
+    /* --------------------------------------------------------------
+     * OBSERVERS
+     * ------------------------------------------------------------ */
+
+    /**
+     * MySQL DATETIME created_at and updated_at
+     */
+    public function created_at($row)
+    {
+        if (is_object($row))
+        {
+            $row->created_at = date('Y-m-d H:i:s');
+        }
+        else
+        {
+            $row['created_at'] = date('Y-m-d H:i:s');
+        }
+
+        return $row;
+    }
+
+    public function updated_at($row)
+    {
+        if (is_object($row))
+        {
+            $row->updated_at = date('Y-m-d H:i:s');
+        }
+        else
+        {
+            $row['updated_at'] = date('Y-m-d H:i:s');
+        }
+
+        return $row;
+    }
+
+    /**
+     * Serialises data for you automatically, allowing you to pass
+     * through objects and let it handle the serialisation in the background
+     */
+    public function serialize($row)
+    {
+        foreach ($this->callback_parameters as $column)
+        {
+            $row[$column] = serialize($row[$column]);
+        }
+
+        return $row;
+    }
+
+    public function unserialize($row)
+    {
+        foreach ($this->callback_parameters as $column)
+        {
+            if (is_array($row))
+            {
+                $row[$column] = unserialize($row[$column]);
+            }
+            else
+            {
+                $row->$column = unserialize($row->$column);
+            }
+        }
+
+        return $row;
+    }
+
+    /**
+     * Protect attributes by removing them from $row array
+     */
+    public function protect_attributes($row)
+    {
+        foreach ($this->protected_attributes as $attr)
+        {
+            if (is_object($row))
+            {
+                unset($row->$attr);
+            }
+            else
+            {
+                unset($row[$attr]);
+            }
+        }
+
+        return $row;
+    }
+
     /* --------------------------------------------------------------
      * QUERY BUILDER DIRECT ACCESS METHODS
      * ------------------------------------------------------------ */
@@ -520,39 +755,23 @@ class MY_Model extends CI_Model
      * ------------------------------------------------------------ */
 
     /**
-     * Run the before_ callbacks, each callback taking a $data
-     * variable and returning it
+     * Trigger an event and call its observers
      */
-    private function _run_before_callbacks($type, $params = array())
+    public function trigger($event, $data = FALSE)
     {
-        $name = 'before_' . $type;
-        $data = (isset($params[0])) ? $params[0] : FALSE;
-
-        if (!empty($this->$name))
+        if (isset($this->$event) && is_array($this->$event))
         {
-            foreach ($this->$name as $method)
+            foreach ($this->$event as $method)
             {
-                $data = call_user_func_array(array($this, $method), $params);
-            }
-        }
+                if (strpos($method, '('))
+                {
+                    preg_match('/([a-zA-Z0-9\_\-]+)(\(([a-zA-Z0-9\_\-\., ]+)\))?/', $method, $matches);
 
-        return $data;
-    }
+                    $method = $matches[1];
+                    $this->callback_parameters = explode(',', $matches[3]);
+                }
 
-    /**
-     * Run the after_ callbacks, each callback taking a $data
-     * variable and returning it
-     */
-    private function _run_after_callbacks($type, $params = array())
-    {
-        $name = 'after_' . $type;
-        $data = (isset($params[0])) ? $params[0] : FALSE;
-
-        if (!empty($this->$name))
-        {
-            foreach ($this->$name as $method)
-            {
-                $data = call_user_func_array(array($this, $method), $params);
+                $data = call_user_func_array(array($this, $method), array($data));
             }
         }
 
@@ -566,7 +785,7 @@ class MY_Model extends CI_Model
     {
         if($this->skip_validation)
         {
-            return TRUE;
+            return $data;
         }
 
         if(!empty($this->validate))
@@ -582,16 +801,30 @@ class MY_Model extends CI_Model
             {
                 $this->form_validation->set_rules($this->validate);
 
-                return $this->form_validation->run();
+                if ($this->form_validation->run() === TRUE)
+                {
+                    return $_POST;
+                }
+                else
+                {
+                    return FALSE;
+                }
             }
             else
             {
-                return $this->form_validation->run($this->validate);
+                if ($this->form_validation->run($this->validate) === TRUE)
+                {
+                    return $_POST;
+                }
+                else
+                {
+                    return FALSE;
+                }
             }
         }
         else
         {
-            return TRUE;
+            return $data;
         }
     }
 
@@ -606,10 +839,27 @@ class MY_Model extends CI_Model
         }
     }
 
+    /* --------------------------------------------------------------
+     * MULTIPLE DB LOADING
+     * ------------------------------------------------------------ */
+
+    private function _set_database()
+    {
+        if (!$this->_db)
+        {
+            $this->load->database();
+        }
+        else
+        {
+            $this->db = $this->load->database($this->_db, TRUE);
+        }
+    }
+
+
     /**
      * Set WHERE parameters, cleverly
      */
-    private function _set_where($params)
+    protected function _set_where($params)
     {
         if (count($params) == 1)
         {
@@ -624,7 +874,7 @@ class MY_Model extends CI_Model
     /**
      * Return the method name for the current return type
      */
-    private function _return_type($multi = FALSE)
+    protected function _return_type($multi = FALSE)
     {
         $method = ($multi) ? 'result' : 'row';
         return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
