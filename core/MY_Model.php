@@ -1,4 +1,3 @@
-<?php
 /**
  * A base model with a series of CRUD functions (powered by CI's query builder),
  * validation-in-model support, event callbacks and more.
@@ -37,6 +36,8 @@ class MY_Model extends CI_Model
      */
     protected $soft_delete = FALSE;
     protected $soft_delete_key = 'deleted';
+    protected $soft_delete_deleted_value = TRUE;
+    protected $soft_delete_default_value = FALSE;
     protected $_temporary_with_deleted = FALSE;
 
     /**
@@ -123,7 +124,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->db->where($this->soft_delete_key, FALSE);
+            $this->db->where($this->soft_delete_key, $this->soft_delete_default_value);
         }
 
         $row = $this->db->where($this->primary_key, $primary_value)
@@ -148,7 +149,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->db->where($this->soft_delete_key, FALSE);
+            $this->db->where($this->soft_delete_key, $this->soft_delete_default_value);
         }
 
         $this->trigger('before_get');
@@ -170,7 +171,7 @@ class MY_Model extends CI_Model
     {
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->db->where($this->soft_delete_key, FALSE);
+            $this->db->where($this->soft_delete_key, $this->soft_delete_default_value);
         }
 
         $this->db->where_in($this->primary_key, $values);
@@ -188,7 +189,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->db->where($this->soft_delete_key, FALSE);
+            $this->db->where($this->soft_delete_key, $this->soft_delete_default_value);
         }
 
         return $this->get_all();
@@ -204,7 +205,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->db->where($this->soft_delete_key, FALSE);
+            $this->db->where($this->soft_delete_key, $this->soft_delete_default_value);
         }
 
         $result = $this->db->get($this->_table)
@@ -362,6 +363,28 @@ class MY_Model extends CI_Model
     }
 
     /**
+    * Replaces a record
+    * If the record specified by $where can be found, use update,
+    * Else use Insert to add the record
+    *
+    * @param array $where The criteria to find the record we want to replace
+    * @param array $data The data to update/insert
+    * @return bool
+    */
+    public function replace($where, $data)
+    {
+        $row = $this->get_by($where);
+        if ($row)
+        {
+            return $this->update($row->$this->primary_key, $data);
+        }
+        else
+        {
+            return ($this->insert($data) > 0);
+        }
+    }
+
+    /**
      * Delete a row from the table by the primary value
      */
     public function delete($id)
@@ -372,7 +395,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete)
         {
-            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => $this->soft_delete_deleted_value ));
         }
         else
         {
@@ -396,7 +419,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete)
         {
-            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => $this->soft_delete_deleted_value ));
         }
         else
         {
@@ -419,7 +442,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete)
         {
-            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+            $result = $this->db->update($this->_table, array( $this->soft_delete_key => $this->soft_delete_deleted_value ));
         }
         else
         {
@@ -528,7 +551,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->db->where($this->soft_delete_key, FALSE);
+            $this->db->where($this->soft_delete_key, $this->soft_delete_default_value);
         }
 
         $result = $this->db->select(array($key, $value))
