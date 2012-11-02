@@ -788,7 +788,7 @@ class MY_Model extends CI_Model
         {
             return $data;
         }
-
+        
         if(!empty($this->validate))
         {
             foreach($data as $key => $val)

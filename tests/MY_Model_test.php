@@ -484,6 +484,40 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     }
 
     /* --------------------------------------------------------------
+     * VALIDATION
+     * ------------------------------------------------------------ */    
+
+    public function test_validate_correctly_returns_the_data_on_success_and_FALSE_on_failure()
+    {
+        $this->model = $this->_validatable_model();
+        $data = array( 'name' => 'Jamie', 'sexyness' => 'loads' );
+
+        $this->assertEquals($this->model->validate($data), $data);
+
+        $this->model = $this->_validatable_model(FALSE);
+        $this->assertEquals($this->model->validate($data), FALSE);
+    }
+
+    public function test_skip_validation()
+    {
+        $ret = $this->model->skip_validation();
+
+        $this->assertEquals($ret, $this->model);
+        $this->assertEquals($this->model->get_skip_validation(), TRUE);
+    }
+
+    protected function _validatable_model($validate_pass_or_fail = TRUE)
+    {
+        $model = new Validated_model();
+        $model->form_validation = m::mock('form validation class');
+        $model->form_validation->shouldIgnoreMissing();
+        $model->form_validation->shouldReceive('run')
+                                     ->andReturn($validate_pass_or_fail);
+
+        return $model;
+    }
+
+    /* --------------------------------------------------------------
      * SOFT DELETE
      * ------------------------------------------------------------ */    
 
@@ -702,28 +736,6 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
                         ->with($this->equalTo('records'))
                         ->will($this->returnValue(200));
         $this->assertEquals($this->model->count_all(), 200);
-    }
-
-    public function test_validate_correctly_returns_the_data_on_success_and_FALSE_on_failure()
-    {
-        $data = array( 1, 2, 3 );
-
-        $this->model->form_validation = m::mock('form validation class');
-        $this->model->form_validation->shouldReceive('run')
-                                     ->andReturn(TRUE);
-
-        $this->assertEquals($this->model->validate($data), $data);
-
-        
-        $this->assertEquals($this->model->validate($data), $data);
-    }
-
-    public function test_skip_validation()
-    {
-        $ret = $this->model->skip_validation();
-
-        $this->assertEquals($ret, $this->model);
-        $this->assertEquals($this->model->get_skip_validation(), TRUE);
     }
 
     public function test_get_next_id()
