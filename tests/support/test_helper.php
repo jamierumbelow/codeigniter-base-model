@@ -13,18 +13,10 @@
  */
 
 // Load our MY_Model and the fakeish record model
-require_once 'core/MY_Model.php';
+require_once 'vendor/autoload.php';
 
 require_once 'tests/support/database.php';
 
-require_once 'tests/support/models/record_model.php';
-require_once 'tests/support/models/before_callback_model.php';
-require_once 'tests/support/models/after_callback_model.php';
-require_once 'tests/support/models/callback_parameter_model.php';
-require_once 'tests/support/models/soft_delete_model.php';
-require_once 'tests/support/models/protected_attributes_model.php';
-require_once 'tests/support/models/relationship_model.php';
-require_once 'tests/support/models/serialised_data_model.php';
 
 /**
  * Fake the CodeIgniter base model!
