@@ -804,7 +804,7 @@ class MY_Model extends CI_Model
 
                 if ($this->form_validation->run() === TRUE)
                 {
-                    return $_POST;
+                    return $data;
                 }
                 else
                 {
@@ -815,7 +815,7 @@ class MY_Model extends CI_Model
             {
                 if ($this->form_validation->run($this->validate) === TRUE)
                 {
-                    return $_POST;
+                    return $data;
                 }
                 else
                 {
