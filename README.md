@@ -113,11 +113,39 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
 Validation
 ----------
 
-This class also includes some excellent validation support. This uses the built-in Form Validation library and provides a wrapper around it to make validation automatic on insert. To enable, set the *$validate* instance variable to the rules array that you would pass into `$this->form_validation->set_rules()`. To find out more about the rules array, please [view the library's documentation](http://codeigniter.com/user_guide/libraries/form_validation.html#validationrulesasarray).
+MY_Model uses CodeIgniter's built in form validation to validate data on insert.
 
-Then, for each call to `insert()`, the data passed through will be validated according to the *$validate* rules array. **Unlike the CodeIgniter validation library, this won't validate the POST data, rather, it validates the data passed directly through.**
+You can enable validation by setting the `$validate` instance to the usual form validation library rules array:
 
-If for some reason you'd like to skip the validation, you can call `skip_validation()` before the call to `insert()` and validation won't be performed on the data for that single call.
+    class User_model extends MY_Model
+    {
+        public $validate = array(
+            array( 'field' => 'email', 
+                   'label' => 'email',
+                   'rules' => 'required|valid_email|is_unique[users.email]' ),
+            array( 'field' => 'password',
+                   'label' => 'password',
+                   'rules' => 'required' ),
+            array( 'field' => 'password_confirmation',
+                   'label' => 'confirm password',
+                   'rules' => 'required|matches[password]' ),
+        );
+    }
+
+Anything valid in the form validation library can be used here. To find out more about the rules array, please [view the library's documentation](http://codeigniter.com/user_guide/libraries/form_validation.html#validationrulesasarray).
+
+With this array set, each call to `insert()` or `update()` will validate the data before allowing  the query to be run. **Unlike the CodeIgniter validation library, this won't validate the POST data, rather, it validates the data passed directly through.**
+
+You can skip the validation with `skip_validation()`:
+
+    $this->user_model->skip_validation();
+    $this->user_model->insert(array( 'email' => 'blah' ));
+
+Alternatively, pass through a `TRUE` to `insert()`:
+
+    $this->user_model->insert(array( 'email' => 'blah' ), TRUE);
+
+Under the hood, this calls `validate()`.
 
 Protected Attributes
 --------------------
@@ -282,13 +310,15 @@ Unit Tests
 
 MY_Model contains a robust set of unit tests to ensure that the system works as planned.
 
-**Currently, the tests only run on PHP5.4 or 5.3.**
+Install the testing framework (PHPUnit) with Composer:
 
-Install [PHPUnit](https://github.com/sebastianbergmann/phpunit). I'm running version 3.6.10.
+    $ curl -s https://getcomposer.org/installer | php
+    $ php composer.phar install
 
-Then, simply run the `phpunit` command on the test file:
+You can then run the tests using the `vendor/bin/phpunit` binary and specify the tests file:
 
-    $ phpunit tests/MY_Model_test.php
+    $ vendor/bin/phpunit tests/MY_Model_test.php
+
 
 Contributing to MY_Model
 ------------------------
