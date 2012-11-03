@@ -512,7 +512,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $model->form_validation = m::mock('form validation class');
         $model->form_validation->shouldIgnoreMissing();
         $model->form_validation->shouldReceive('run')
-                                     ->andReturn($validate_pass_or_fail);
+                               ->andReturn($validate_pass_or_fail);
 
         return $model;
     }
