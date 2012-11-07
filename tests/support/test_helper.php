@@ -13,13 +13,10 @@
  */
 
 // Load our MY_Model and the fakeish record model
-require_once 'core/MY_Model.php';
+require_once 'vendor/autoload.php';
 
 require_once 'tests/support/database.php';
 
-require_once 'tests/support/models/record_model.php';
-require_once 'tests/support/models/before_callback_model.php';
-require_once 'tests/support/models/after_callback_model.php';
 
 /**
  * Fake the CodeIgniter base model!
@@ -42,8 +39,21 @@ class CI_Loader
 }
 
 /**
+ * ...but relationships load models, so fake that
+ */
+class MY_Model_Mock_Loader
+{
+    public function model($name, $assigned_name = '') { }
+}
+
+/**
  * We also need to fake the inflector
  */
+function singular($name)
+{
+    return 'comment';
+}
+
 function plural($name)
 {
     return 'records';

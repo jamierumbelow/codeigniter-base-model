@@ -2,4 +2,9 @@ language: php
 php:
   - 5.3
   - 5.4
-script: phpunit tests/MY_Model_test.php
+
+before_script:
+  - curl -s https://getcomposer.org/installer | php
+  - php composer.phar install --dev
+
+script: vendor/bin/phpunit tests/MY_Model_test.php

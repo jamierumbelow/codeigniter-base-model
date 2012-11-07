@@ -14,15 +14,25 @@
 
 class Before_callback_model extends MY_Model
 {
-    protected $before_create = array('test_callback');
-    protected $before_update = array('test_callback');
-    protected $before_get = array('test_callback');
-    protected $before_delete = array('test_callback');
+    protected $before_create = array('test_data_callback', 'test_data_callback_two');
+    protected $before_update = array('test_data_callback', 'test_data_callback_two');
+    protected $before_get = array('test_throw');
+    protected $before_delete = array('test_throw');
 
-    protected function test_callback($row = FALSE)
+    protected function test_throw($row)
     {
         throw new Callback_Test_Exception($row);
-
-        return $row;
     }
+
+    protected function test_data_callback($row)
+    {
+    	$row['key'] = 'Value';
+    	return $row;
+    }
+
+    protected function test_data_callback_two($row)
+    {
+        $row['another_key'] = '123 Value';
+        return $row;
+    }    
 }
