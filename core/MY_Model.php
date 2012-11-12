@@ -862,37 +862,41 @@ class MY_Model extends CI_Model
      */
     protected function _set_where($params)
     {
-        if (count($params) == 1)
+        if (count($params) == 1 && is_array($params[0]))
         {
-            if (is_array($params))
+            foreach ($params[0] as $field => $filter)
             {
-                foreach ($params[0] as $field => $filter)
+                if (is_array($filter))
                 {
-                    if (is_array($filter))
+                    $this->db->where_in($field, $filter);
+                }
+                else
+                {
+                    if (is_int($field))
                     {
-                        $this->db->where_in($field, $filter);
+                        $this->db->where($filter);
                     }
                     else
                     {
-                        if (is_int($field))
-                        {
-                            $this->db->where($filter);
-                        }
-                        else
-                        {
-                            $this->db->where($field, $filter);
-                        }
+                        $this->db->where($field, $filter);
                     }
                 }
             }
-            else
-            {
-                $this->db->where($params[0]);  
-            }
+        } 
+        else if (count($params) == 1)
+        {
+            $this->db->where($filter);
         }
         else
         {
-            $this->db->where($params[0], $params[1]);
+            if (is_array($params[1]))
+            {
+                $this->db->where_in($params[0], $params[1]);    
+            }
+            else
+            {
+                $this->db->where($params[0], $params[1]);
+            }
         }
     }
 
