@@ -616,6 +616,14 @@ class MY_Model extends CI_Model
         return $this->_table;
     }
 
+    /**
+     * Getter for the primary_key
+     */
+    public function primary_key()
+    {
+        return $this->primary_key;
+    }
+
     /* --------------------------------------------------------------
      * GLOBAL SCOPES
      * ------------------------------------------------------------ */
