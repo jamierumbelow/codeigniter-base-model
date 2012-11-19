@@ -41,6 +41,11 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->table(), 'records');
     }
 
+    public function test_get_primary_key()
+    {
+        $this->assertEquals($this->model->primary_key(), 'id');
+    }
+
     /* --------------------------------------------------------------
      * CRUD INTERFACE
      * ------------------------------------------------------------ */
