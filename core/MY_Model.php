@@ -362,16 +362,24 @@ class MY_Model extends CI_Model
 
     /**
      * Delete a row from the table by the primary value
+     * Add 2nd parameter to real delete if osft delete is true
      */
-    public function delete($id)
+    public function delete($id, $real_delete = FALSE)
     {
         $this->trigger('before_delete', $id);
 
         $this->db->where($this->primary_key, $id);
-
+        
         if ($this->soft_delete)
         {
-            $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+            if ($real_delete === TRUE)
+            {
+                $result = $this->db->delete($this->_table);
+            }
+            else
+            {
+                $result = $this->db->update($this->_table, array( $this->soft_delete_key => TRUE ));
+            }
         }
         else
         {
@@ -601,6 +609,19 @@ class MY_Model extends CI_Model
     public function table()
     {
         return $this->_table;
+    }
+
+    /**
+     * Restore
+     * Set 'deleted' field to 0
+     */
+    public function restore( $id )
+    {
+        if ($this->soft_delete === TRUE)
+        {
+            return $this->update($id, array($this->soft_delete_key => FALSE));
+        }
+        return FALSE;
     }
 
     /* --------------------------------------------------------------
