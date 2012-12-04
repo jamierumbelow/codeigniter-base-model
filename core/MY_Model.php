@@ -774,7 +774,7 @@ class MY_Model extends CI_Model
      * (which looks for an instance variable $this->event_name), an array of
      * parameters to pass through and an optional 'last in interation' boolean
      */
-    public function trigger($event, $data = FALSE, $last = FALSE)
+    public function trigger($event, $data = FALSE, $last = TRUE)
     {
         if (isset($this->$event) && is_array($this->$event))
         {
