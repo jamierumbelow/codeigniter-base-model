@@ -211,9 +211,9 @@ class MY_Model extends CI_Model
                            ->{$this->_return_type(1)}();
         $this->_temporary_return_type = $this->return_type;
 
-        foreach ($result as &$row)
+        foreach ($result as $key => &$row)
         {
-            $row = $this->trigger('after_get', $row);
+            $row = $this->trigger('after_get', $row, ($key == count($result) - 1));
         }
 
         $this->_with = array();
@@ -257,9 +257,9 @@ class MY_Model extends CI_Model
     {
         $ids = array();
 
-        foreach ($data as $row)
+        foreach ($data as $key => $row)
         {
-            $ids[] = $this->insert($row, $skip_validation);
+            $ids[] = $this->insert($row, $skip_validation, ($key == count($data) - 1));
         }
 
         return $ids;
@@ -770,9 +770,11 @@ class MY_Model extends CI_Model
      * ------------------------------------------------------------ */
 
     /**
-     * Trigger an event and call its observers
+     * Trigger an event and call its observers. Pass through the event name
+     * (which looks for an instance variable $this->event_name), an array of
+     * parameters to pass through and an optional 'last in interation' boolean
      */
-    public function trigger($event, $data = FALSE)
+    public function trigger($event, $data = FALSE, $last = FALSE)
     {
         if (isset($this->$event) && is_array($this->$event))
         {
@@ -786,7 +788,7 @@ class MY_Model extends CI_Model
                     $this->callback_parameters = explode(',', $matches[3]);
                 }
 
-                $data = call_user_func_array(array($this, $method), array($data));
+                $data = call_user_func_array(array($this, $method), array($data, $last));
             }
         }
 

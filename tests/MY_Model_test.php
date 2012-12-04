@@ -387,6 +387,16 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         }, $callback_parameters);
     }
 
+    /**
+     * Callbacks, if called in an array, should receive a "last" boolean
+     * when they're in the last iteration of triggering - the last row in a result
+     * array, for instance - for clearing things up
+     */
+    public function test_callbacks_in_iteration_have_last_variable()
+    {
+        // stub
+    }
+
     /* --------------------------------------------------------------
      * PROTECTED ATTRIBUTES
      * ------------------------------------------------------------ */ 
