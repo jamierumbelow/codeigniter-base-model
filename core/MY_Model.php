@@ -593,9 +593,7 @@ class MY_Model extends CI_Model
         }    	
     }
         
-    }
-
-    /**
+     /**
      * Tell the class to skip the insert validation
      */
     public function skip_validation()
