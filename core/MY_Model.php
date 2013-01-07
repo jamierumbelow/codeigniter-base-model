@@ -822,7 +822,47 @@ class Base_Model extends MY_Model {
              $this->{$this->_interface}->where($params[0], $params[1]);
          }
      }
+    
+    // ------------------------------------------------------------------------
+    /**
+     * Fetch multiple records/documents based on the Like provided.
+     * $wildcard can be "before" -> "%$value", "after" -> "$value%" or "both" -> "%$value%"
+     */
 
+     public function like($field, $value, $wildcard = "both")
+     {
+        if ($value == "")
+          return FALSE;
+        if($this->_mongodb)
+        {
+          return $this->{$this->_interface}->like($field, $value)->get($this->_datasource);
+        }
+        else
+        {
+          return $this->{$this->_interface}->like($field, $value, $wildcard)->get($this->_datasource);
+        }
+     }
+
+     // ------------------------------------------------------------------------
+
+    /**
+     * Fetch multiple records/documents based on the ORed likes provided.
+     */
+     public function multiple_like($array)
+     {
+        if($this->_mongodb)
+        {
+            return $this->{$this->_interface}->or_like($array)->get($this->_datasource);
+        }
+        else
+        {
+          foreach ($array as $key => $value) {
+            $this->{$this->_interface}->or_like($key, $value);
+          }
+          return $this->{$this->_interface}->get($this->_datasource);
+        }
+     }
+     
     // ------------------------------------------------------------------------
 
     /**
