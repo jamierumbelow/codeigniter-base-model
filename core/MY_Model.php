@@ -846,6 +846,52 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Insert or Update depending on if Primary is empty
+     * You can't exactly update without the primary key
+     * (well you can but... you get the point)
+     */
+		public function upsert($data, $skip_validation = FALSE)
+		{
+			$responds = null;
+			if (empty($data[$this->primary_key]))
+			{
+				/* make sure it's really empty */
+				unset($data[$this->primary_key]); 
+				$responds = $this->insert($data,$skip_validation);
+			}
+			else
+			{
+				$primary = $data[$this->primary_key];
+				unset($data[$this->primary_key]); 				
+				$responds = $this->update($primary,$data,$skip_validation);
+			}
+			
+			return $responds;
+		}
+
+		/**
+		 * Capture form elements into model array
+		 * $data = array('form element name'=>'model row name','form element name & model row name match');
+		 * second option either custom array to map or $_POST by default
+		 */
+		public function map($data,$input=NULL)
+		{
+			$input = ($input) ? $input : $_POST;
+
+			$mapped = array();
+			foreach ($data as $key=>$value)
+			{
+				/**
+				 * if the key is a integer then they either 
+				 * named the form element with a integer or 
+				 * they want us to use the model name
+				 */
+				$mapped[$value] = (is_integer($key)) ? $input[$value] : $input[$key];
+			}
+			return $mapped;
+		}
+
+    /**
      * Guess the table name by pluralising the model name
      */
     private function _fetch_table()
