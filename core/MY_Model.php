@@ -30,7 +30,7 @@ class MY_Model extends CI_Model
      * Local Database conn object; will use instead of $this->db
      * so that we don't override current database connection
      */
-    protected $_database;
+    public $_database;
 
     /**
      * This model's default primary key or unique identifier.
