@@ -476,7 +476,14 @@ class MY_Model extends CI_Model
             if (in_array($relationship, $this->_with))
             {
                 $this->load->model($options['model']);
-                $row->{$relationship} = $this->{$options['model']}->get($row->{$options['primary_key']});
+                if (is_object($row))
+                {
+                    $row->{$relationship} = $this->{$options['model']}->get($row->{$options['primary_key']});
+                }
+                else
+                {
+                    $row[$relationship] = $this->{$options['model']}->get($row[$options['primary_key']]);
+                }
             }
         }
 
@@ -496,7 +503,14 @@ class MY_Model extends CI_Model
             if (in_array($relationship, $this->_with))
             {
                 $this->load->model($options['model']);
-                $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+                if (is_object($row))
+                {
+                    $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+                }
+                else
+                {
+                    $row[$relationship] = $this->{$options['model']}->get_many_by($options['primary_key'], $row[$this->primary_key]);
+                }
             }
         }
 

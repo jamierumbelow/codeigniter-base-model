@@ -483,6 +483,27 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected_object, $this->model->with('comments')->get(1));
     }
 
+    public function test_relate_works_with_objects_and_arrays()
+    {
+        $data = array( 'name' => 'Jamie', 'author_id' => 1 );
+        $author = 'related object';
+
+        $this->model = new Belongs_to_model();
+        $this->model->author_model = m::mock(new Author_model());
+        $this->model->author_model->shouldReceive('get')
+                                  ->andReturn($author);
+
+        $obj = $this->model->with('author')->relate((object)$data);
+        $arr = $this->model->with('author')->relate($data);
+        
+        $this->assertInternalType('object', $obj);
+        $this->assertInternalType('array', $arr);
+        $this->assertTrue(isset($obj->author));
+        $this->assertTrue(isset($arr['author']));
+        $this->assertEquals($author, $obj->author);
+        $this->assertEquals($author, $arr['author']);
+    }
+
     /* --------------------------------------------------------------
      * VALIDATION
      * ------------------------------------------------------------ */    
