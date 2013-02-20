@@ -899,7 +899,7 @@ class MY_Model extends CI_Model
         } 
         else if (count($params) == 1)
         {
-            $this->db->where($filter);
+            $this->db->where($params[0]);
         }
         else
         {
