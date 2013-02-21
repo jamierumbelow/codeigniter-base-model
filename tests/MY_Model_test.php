@@ -73,6 +73,65 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->get_by('some_column', 'some_value'), 'fake_record_here');
     }
 
+    public function test_get_by_using_array()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where_in')
+                        ->with($this->equalTo('some_column'), array('some_value', 'some_other_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->get_by('some_column', array('some_value', 'some_other_value')), 'fake_record_here');
+    }
+
+    public function test_get_by_using_string()
+    {
+        $this->model->db->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('some_column != some_value'))
+                        ->will($this->returnValue($this->model->db));
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->get_by('some_column != some_value'), 'fake_record_here');
+    }
+
+    public function test_get_by_using_mixed_params()
+    {
+        $where = array(
+            'some_column == some_value',
+            'some_other_column' => array('some_value', 'some_other_value'),
+            'another_column'    => 'some_value',
+        );
+
+        $this->model->db->expects($this->at(0))
+                        ->method('where')
+                        ->with('some_column == some_value')
+                        ->will($this->returnValue($this->model->db));
+
+        $this->model->db->expects($this->once())
+                        ->method('where_in')
+                        ->with($this->equalTo('some_other_column'), array('some_value', 'some_other_value'))
+                        ->will($this->returnValue($this->model->db));
+
+        $this->model->db->expects($this->at(2))
+                        ->method('where')
+                        ->with($this->equalTo('another_column'), $this->equalTo('some_value'))
+                        ->will($this->returnValue($this->model->db));
+
+        $this->_expect_get();
+        $this->model->db->expects($this->once())
+                        ->method('row')
+                        ->will($this->returnValue('fake_record_here'));
+
+        $this->assertEquals($this->model->get_by($where), 'fake_record_here');
+    }
+
     public function test_get_many()
     {
         $this->model->db->expects($this->once())
