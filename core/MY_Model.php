@@ -93,6 +93,12 @@ class MY_Model extends CI_Model
     protected $return_type = 'object';
     protected $_temporary_return_type = NULL;
 
+    /**
+     * Variables for the eager loading of relationships
+     */
+    protected $_ids = array();
+    protected $_eager_cache = array();
+
     /* --------------------------------------------------------------
      * GENERIC METHODS
      * ------------------------------------------------------------ */
@@ -215,7 +221,13 @@ class MY_Model extends CI_Model
 
         $result = $this->_database->get($this->_table)
                            ->{$this->_return_type(1)}();
+
         $this->_temporary_return_type = $this->return_type;
+
+        foreach ($result as $key => &$row)
+        {
+            $this->_ids = is_object($row) ? $row->{$this->primary_key} : $row[$this->primary_key];
+        }
 
         foreach ($result as $key => &$row)
         {
@@ -223,6 +235,7 @@ class MY_Model extends CI_Model
         }
 
         $this->_with = array();
+
         return $result;
     }
 
@@ -464,60 +477,110 @@ class MY_Model extends CI_Model
         return $this;
     }
 
-    public function relate($row)
+    protected function retrieve_relation_as_array($row, $options)
     {
-        foreach ($this->belongs_to as $key => $value)
+        if ( ! in_array($options['relationship'], $this->_with))
         {
-            if (is_string($value))
-            {
-                $relationship = $value;
-                $options = array( 'primary_key' => $value . '_id', 'model' => $value . '_model' );
-            }
-            else
-            {
-                $relationship = $key;
-                $options = $value;
-            }
+            return $row;
+        }
 
-            if (in_array($relationship, $this->_with))
+        if ( ! isset($this->_eager_cache[$options['relationship']][$row[$this->primary_key]])  )
+        {
+            $row[$options['relationship']] = FALSE;
+            return $row;    
+        }
+
+        $row[$options['relationship']] = $this->_eager_cache[$options['relationship']][$row[$this->primary_key]];
+        return $row;
+    }
+
+    protected function retrieve_relation_as_object($row, $options)
+    {
+        if ( ! in_array($options['relationship'], $this->_with))
+        {
+            return $row;
+        }
+
+        if ( ! isset($this->_eager_cache[$options['relationship']][$row[$this->primary_key]])  )
+        {
+            $row->{$options['relationship']} = FALSE;
+            return $row;    
+        }
+
+        $row->{$options['relationship']} = $this->_eager_cache[$options['relationship']][$row->{$this->primary_key}];
+        return $row;
+    }
+
+    protected function eager_load($options)
+    {
+        if (isset($this->_eager_cache[$options['relationship']]))
+        {
+            return;
+        }
+
+        $this->load->model($options['model']);
+
+        $result = $this->{$options['model']}->get_many_by($options['primary_key'], $this->_ids);
+
+        if ($result)
+        {
+            foreach ($result as $row)
             {
-                $this->load->model($options['model']);
-                if (is_object($row))
+                settype($row, $this->_temporary_return_type);
+                $id = is_object($row) ? $row->{$options['primary_key']} : $row[$options['primary_key']];
+
+                if ($options['relationship_type'] == 'belongs_to')
                 {
-                    $row->{$relationship} = $this->{$options['model']}->get($row->{$options['primary_key']});
+                    $this->_eager_cache[$options['relationship']][$id] = $row;
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$options['model']}->get($row[$options['primary_key']]);
+                    $this->_eager_cache[$options['relationship']][$id][] = $row;    
                 }
             }
+        }
+    }
+
+    protected function relationship_options($type, $key, $value)
+    {
+        if (is_string($value))
+        {
+            $options = array(
+                'primary_key'  => $type == 'belongs_to' ? $value . '_id' : singular($this->_table) . '_id',
+                'model'        => $type == 'belongs_to' ? $value . '_model' : singular($value) . '_model', 
+                'relationship' => $value
+            );
+        }
+        else
+        {
+            $options = $value;
+            $options['relationship'] = $key;
+        }
+
+        $options['relationship_type'] = $type;
+
+        return $options;
+    }
+
+    public function relate($row, $last = FALSE)
+    {
+        foreach ($this->belongs_to as $key => $value)
+        {
+            $options = $this->relationship_options('belongs_to', $key, $value);
+            $this->eager_load($options);
+            $row = $this->{'retrieve_relation_as_'.gettype($row)}($row, $options);
         }
 
         foreach ($this->has_many as $key => $value)
         {
-            if (is_string($value))
-            {
-                $relationship = $value;
-                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . '_model' );
-            }
-            else
-            {
-                $relationship = $key;
-                $options = $value;
-            }
+            $options = $this->relationship_options('has_many', $key, $value);
+            $this->eager_load($options);
+            $row = $this->{'retrieve_relation_as_'.gettype($row)}($row, $options);
+        }
 
-            if (in_array($relationship, $this->_with))
-            {
-                $this->load->model($options['model']);
-                if (is_object($row))
-                {
-                    $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});
-                }
-                else
-                {
-                    $row[$relationship] = $this->{$options['model']}->get_many_by($options['primary_key'], $row[$this->primary_key]);
-                }
-            }
+        if ($last)
+        {
+            unset($this->_eager_cache);
         }
 
         return $row;
