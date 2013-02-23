@@ -485,43 +485,43 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
      * RELATIONSHIPS
      * ------------------------------------------------------------ */
 
-    // public function test_belongs_to()
-    // {
-    //     $object          = (object)array( 'id' => 1, 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43 );
-    //     $author_object   = (object)array( 'id' => 43, 'name' => 'Jamie', 'age' => 20 );
-    //     $expected_object = (object)array( 'id' => 1, 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43, 'author' => $author_object );
+    public function test_belongs_to()
+    {
+        $object          = (object)array( 'id' => 1, 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43 );
+        $author_object   = (object)array( 'id' => 43, 'name' => 'Jamie', 'age' => 20 );
+        $expected_object = (object)array( 'id' => 1, 'title' => 'A Post', 'created_at' => time(), 'author_id' => 43, 'author' => $author_object );
 
-    //     $this->model = new Belongs_to_model();
-    //     $this->model->_database = m::mock(new MY_Model_Mock_DB());
-    //     $this->model->load = m::mock(new MY_Model_Mock_Loader());
+        $this->model = new Belongs_to_model();
+        $this->model->_database = m::mock(new MY_Model_Mock_DB());
+        $this->model->load = m::mock(new MY_Model_Mock_Loader());
         
-    //     $this->model->author_model = new Author_model();
-    //     $this->model->author_model->_database = m::mock(new MY_Model_Mock_DB());
+        $this->model->author_model = new Author_model();
+        $this->model->author_model->_database = m::mock(new MY_Model_Mock_DB());
 
-    //     $this->model->_database
-    //         ->shouldReceive('where')
-    //         ->with('id', 1)
-    //         ->andReturn($this->model->_database);
-    //     $this->model->_database
-    //         ->shouldReceive('get')
-    //         ->andReturn($this->model->_database);
-    //     $this->model->_database
-    //         ->shouldReceive('row')
-    //         ->andReturn($object);
+        $this->model->_database
+            ->shouldReceive('where')
+            ->with('id', 1)
+            ->andReturn($this->model->_database);
+        $this->model->_database
+            ->shouldReceive('get')
+            ->andReturn($this->model->_database);
+        $this->model->_database
+            ->shouldReceive('row')
+            ->andReturn($object);
 
-    //     $this->model->author_model->_database
-    //         ->shouldReceive('where_in')
-    //         ->with('id', array(43))
-    //         ->andReturn($this->model->author_model->_database);
-    //     $this->model->author_model->_database
-    //         ->shouldReceive('get')
-    //         ->andReturn($this->model->author_model->_database);
-    //     $this->model->author_model->_database
-    //         ->shouldReceive('result')
-    //         ->andReturn(array($author_object));
+        $this->model->author_model->_database
+            ->shouldReceive('where_in')
+            ->with('id', array(43))
+            ->andReturn($this->model->author_model->_database);
+        $this->model->author_model->_database
+            ->shouldReceive('get')
+            ->andReturn($this->model->author_model->_database);
+        $this->model->author_model->_database
+            ->shouldReceive('result')
+            ->andReturn(array($author_object));
 
-    //     $this->assertEquals($expected_object, $this->model->with('author')->get(1));
-    // }
+        $this->assertEquals($expected_object, $this->model->with('author')->get(1));
+    }
 
     public function test_has_many()
     {
