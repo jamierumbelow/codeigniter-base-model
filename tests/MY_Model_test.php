@@ -511,6 +511,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
 
         $this->model->author_model->_database
             ->shouldReceive('where_in')
+            ->once()
             ->with('id', array(43))
             ->andReturn($this->model->author_model->_database);
         $this->model->author_model->_database
@@ -553,6 +554,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
 
         $this->model->comment_model->_database
             ->shouldReceive('where_in')
+            ->once()
             ->with('thing_id', array(1))
             ->andReturn($this->model->comment_model->_database);
         $this->model->comment_model->_database
