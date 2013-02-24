@@ -49,8 +49,12 @@ class MY_Model_Mock_Loader
 /**
  * We also need to fake the inflector
  */
-function singular($name)
+function singular($name = 'comments')
 {
+    if ($name == 'things')
+    {
+        return 'thing';
+    }
     return 'comment';
 }
 

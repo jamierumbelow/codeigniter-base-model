@@ -13,11 +13,17 @@
 
 class Belongs_to_model extends MY_Model
 {
+    protected $_table  = 'things';
     public $belongs_to = array( 'author' );
-    public $has_many = array( 'comments' );
+    public $has_many   = array( 'comments' );
 }
 
 class Author_model extends MY_Model
 {
     protected $_table = 'authors';
+}
+
+class Comment_model extends MY_Model
+{
+    protected $_table = 'comments';
 }
