@@ -21,14 +21,20 @@ class MY_Model extends CI_Model
     protected $_table;
 
     /**
-     * Database conn object; will use default connection
-     * unless overridden
+     * Specify a database group to manually connect this model
+     * to the specified DB. You can pass either the group name
+     * as defined in application/config/database.php, or a
+     * config array of the same format (basically the same thing
+     * you can pass to $this->load->database()). If left empty,
+     * the default DB will be used.
      */
-    protected $_db;
+    protected $_db_group;
     
     /**
-     * Local Database conn object; will use instead of $this->db
-     * so that we don't override current database connection
+     * The database connection object. Will be set to the default
+     * connection unless $this->_db_group is specified. This allows
+     * individual models to use different DBs without overwriting
+     * CI's global $this->db connection.
      */
     public $_database;
 
@@ -862,22 +868,28 @@ class MY_Model extends CI_Model
         }
     }
 
-    /* --------------------------------------------------------------
-     * MULTIPLE DB LOADING
-     * ------------------------------------------------------------ */
-
+    /**
+     * Establish the database connection.
+     */
     private function _set_database()
     {
-        if (!$this->_db)
+        // Was a DB group specified by the user?
+        if ($this->_db_group !== NULL)
         {
-            $this->_database = $this->load->database();
+            $this->_database = $this->load->database($this->_db_group, TRUE, TRUE);
         }
+        // No DB group specified, use the default connection.
         else
         {
-            $this->_database = $this->load->database($this->_db, TRUE);
+            // Has the default connection been loaded yet?
+            if ( ! isset($this->db) OR ! is_object($this->db))
+            {
+                $this->load->database('', FALSE, TRUE);
+            }
+
+            $this->_database = $this->db;
         }
     }
-
 
     /**
      * Set WHERE parameters, cleverly

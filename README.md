@@ -305,6 +305,22 @@ The timestamps (MySQL compatible) `created_at` and `updated_at` are now availabl
         public $after_get = array( 'unserialize(seat_types)' );
     }
 
+Database Connection
+-------------------
+
+The class will automatically use the default database connection, and even load it for you if you haven't yet.
+
+You can specify a database connection on a per-model basis by declaring the _$\_db\_group_ instance variable. This is equivalent to calling `$this->db->database($this->_db_group, TRUE)`.
+
+See ["Connecting to your Database"](http://ellislab.com/codeigniter/user-guide/database/connecting.html) for more information.
+
+```php
+class Post_model extends MY_Model
+{
+    public $_db_group = 'group_name';
+}
+```
+
 Unit Tests
 ----------
 
