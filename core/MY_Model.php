@@ -523,6 +523,50 @@ class MY_Model extends CI_Model
         return $row;
     }
 
+    public function with_count($relationship)
+    {
+        $this->_with_count[] = $relationship;
+
+        if (!in_array('relate_count', $this->after_get))
+        {
+            $this->after_get[] = 'relate_count';
+        }
+
+        return $this;
+    }
+
+    public function relate_count($row)
+    {
+        foreach ($this->has_many as $key => $value)
+        {
+            if (is_string($value))
+            {
+                $relationship = $value;
+                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . '_model' );
+            }
+            else
+            {
+                $relationship = $key;
+                $options = $value;
+            }
+
+            if (in_array($relationship, $this->_with_count))
+            {
+                $this->load->model($options['model']);
+                if (is_object($row))
+                {
+                    $row->{$relationship} = $this->{$options['model']}->count_by($options['primary_key'], $row->{$this->primary_key});
+                }
+                else
+                {
+                    $row[$relationship] = $this->{$options['model']}->count_by($options['primary_key'], $row[$this->primary_key]);
+                }
+            }
+        }
+
+        return $row;
+    }
+
     /* --------------------------------------------------------------
      * UTILITY METHODS
      * ------------------------------------------------------------ */
