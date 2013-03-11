@@ -870,7 +870,8 @@ class MY_Model extends CI_Model
     {
         if (!$this->_db)
         {
-            $this->_database = $this->load->database();
+	    $this->load->database();
+            $this->_database = $this->db;
         }
         else
         {
