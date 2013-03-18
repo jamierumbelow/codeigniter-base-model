@@ -26,6 +26,9 @@ class CI_Model
     public function __construct()
     {
         $this->load = new CI_Loader();
+
+        // Pretend CI has a loaded DB already.
+        $this->db = new MY_Model_Mock_DB();
     }
 }
 
