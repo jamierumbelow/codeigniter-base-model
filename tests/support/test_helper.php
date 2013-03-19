@@ -14,7 +14,6 @@
 
 // Load our MY_Model and the fakeish record model
 require_once 'vendor/autoload.php';
-
 require_once 'tests/support/database.php';
 
 
