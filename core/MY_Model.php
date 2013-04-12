@@ -57,6 +57,8 @@ class MY_Model extends CI_Model
      */
     protected $before_validate_create = array();
     protected $before_validate_update = array();
+    protected $after_validate_create = array();
+    protected $after_validate_update = array();
     protected $before_create = array();
     protected $after_create = array();
     protected $before_update = array();
@@ -247,11 +249,13 @@ class MY_Model extends CI_Model
         {
             $this->trigger('before_validate_create', $data);
             $data = $this->validate($data);
+            $this->trigger('after_validate_create', $data);
         }
 
         if ($data !== FALSE)
         {
             $data = $this->trigger('before_create', $data);
+            echo "DATA: <pre>" . print_r($data, true) . "<pre>";
 
             $this->_database->insert($this->_table, $data);
             $insert_id = $this->_database->insert_id();
@@ -292,6 +296,7 @@ class MY_Model extends CI_Model
         {
             $this->trigger('before_validate_update', $data);
             $data = $this->validate($data);
+            $this->trigger('after_validate_update', $data);
         }
 
         $data = $this->trigger('before_update', $data);
