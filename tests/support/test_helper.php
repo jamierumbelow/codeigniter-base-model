@@ -16,6 +16,7 @@
 require_once 'vendor/autoload.php';
 
 require_once 'tests/support/database.php';
+require_once 'tests/support/validation.php';
 
 
 /**
