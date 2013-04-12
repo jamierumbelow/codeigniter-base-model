@@ -55,6 +55,10 @@ class MY_Model extends CI_Model
      * The various callbacks available to the model. Each are
      * simple lists of method names (methods will be run on $this).
      */
+    protected $before_validate_create = array();
+    protected $before_validate_update = array();
+    protected $after_validate_create = array();
+    protected $after_validate_update = array();
     protected $before_create = array();
     protected $after_create = array();
     protected $before_update = array();
@@ -141,6 +145,7 @@ class MY_Model extends CI_Model
         $row = $this->_database->where($this->primary_key, $primary_value)
                         ->get($this->_table)
                         ->{$this->_return_type()}();
+        if(!$row) return $row;
         $this->_temporary_return_type = $this->return_type;
 
         $row = $this->trigger('after_get', $row);
@@ -242,12 +247,15 @@ class MY_Model extends CI_Model
 
         if ($skip_validation === FALSE)
         {
+            $this->trigger('before_validate_create', $data);
             $data = $this->validate($data);
+            $this->trigger('after_validate_create', $data);
         }
 
         if ($data !== FALSE)
         {
             $data = $this->trigger('before_create', $data);
+            echo "DATA: <pre>" . print_r($data, true) . "<pre>";
 
             $this->_database->insert($this->_table, $data);
             $insert_id = $this->_database->insert_id();
@@ -284,12 +292,14 @@ class MY_Model extends CI_Model
     {
         $valid = TRUE;
 
-        $data = $this->trigger('before_update', $data);
-
         if ($skip_validation === FALSE)
         {
+            $this->trigger('before_validate_update', $data);
             $data = $this->validate($data);
+            $this->trigger('after_validate_update', $data);
         }
+
+        $data = $this->trigger('before_update', $data);
 
         if ($data !== FALSE)
         {
@@ -515,6 +525,7 @@ class MY_Model extends CI_Model
             if (in_array($relationship, $this->_with))
             {
                 $this->load->model($options['model']);
+                if(isset($options['order_by'])) $this->{$options['model']}->order_by($options['order_by']);
                 if (is_object($row))
                 {
                     $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});

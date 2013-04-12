@@ -540,7 +540,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     protected function _validatable_model($validate_pass_or_fail = TRUE)
     {
         $model = new Validated_model();
-        $model->form_validation = m::mock('form validation class');
+        $model->form_validation = m::mock(new Mock_Form_Validation());
         $model->form_validation->shouldIgnoreMissing();
         $model->form_validation->shouldReceive('run')
                                ->andReturn($validate_pass_or_fail);
