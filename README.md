@@ -72,6 +72,10 @@ There are many times when you'll need to alter your model data before it's inser
 
 The full list of observers are as follows:
 
+* $before_validate_create
+* $after_validate_create
+* $before_validate_update
+* $after_validate_update
 * $before_create
 * $after_create
 * $before_update
@@ -226,6 +230,13 @@ To change this, use the `primary_key` value when configuring:
     {
         public $belongs_to = array( 'author' => array( 'primary_key' => 'post_author_id' ) );
         public $has_many = array( 'comments' => array( 'primary_key' => 'parent_post_id' ) );
+    }
+
+You can also change the order of your _has\_many_ objects with the 'order_by' option.
+
+    class Host_model extends MY_Model
+    {
+        public $has_many = array( 'guests' => array( 'order_by' => 'last_name, first_name' ) );
     }
 
 Arrays vs Objects
