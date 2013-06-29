@@ -882,7 +882,9 @@ class MY_Model extends CI_Model
         else
         {
             // Has the default connection been loaded yet?
-            if ( ! isset($this->db) OR ! is_object($this->db))
+            // we can't test isset($this->db) here, because it's in $CI object
+            // isset will not call __get and always return false
+            if ( ! is_object($this->db))
             {
                 $this->load->database('', FALSE, TRUE);
             }
