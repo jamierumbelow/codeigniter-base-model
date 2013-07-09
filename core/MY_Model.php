@@ -472,6 +472,9 @@ class MY_Model extends CI_Model
 
     public function relate($row)
     {
+		if (empty($row))
+		    return $row;
+		
         foreach ($this->belongs_to as $key => $value)
         {
             if (is_string($value))
