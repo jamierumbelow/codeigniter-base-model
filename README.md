@@ -282,6 +282,11 @@ If you'd like to include deleted columns, you can use the `with_deleted()` scope
 
     => $this->book_model->with_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1
+    
+If you'd like to include only the columns that have been deleted, you can use the `only_deleted()` scope:
+
+    => $this->book_model->only_deleted()->get_by('user_id', 1);
+    -> SELECT * FROM books WHERE user_id = 1 AND deleted = 1
 
 Built-in Observers
 -------------------
