@@ -139,7 +139,7 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, FALSE);
         }
         
-        if ($this->soft_delete && $this->_temporary_only_deleted === TRUE)
+        if ($this->soft_delete && $this->_temporary_only_deleted)
         {
             $this->_database->where($this->soft_delete_key, TRUE);
         }
@@ -169,7 +169,7 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, FALSE);
         }
         
-        if ($this->soft_delete && $this->_temporary_only_deleted === TRUE)
+        if ($this->soft_delete && $this->_temporary_only_deleted)
         {
             $this->_database->where($this->soft_delete_key, TRUE);
         }
@@ -196,7 +196,7 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, FALSE);
         }
         
-        if ($this->soft_delete && $this->_temporary_only_deleted === TRUE)
+        if ($this->soft_delete && $this->_temporary_only_deleted)
         {
             $this->_database->where($this->soft_delete_key, TRUE);
         }
@@ -219,7 +219,7 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, FALSE);
         }
         
-        if ($this->soft_delete && $this->_temporary_only_deleted === TRUE)
+        if ($this->soft_delete && $this->_temporary_only_deleted)
         {
             $this->_database->where($this->soft_delete_key, TRUE);
         }
@@ -240,7 +240,7 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, FALSE);
         }
         
-        if ($this->soft_delete && $this->_temporary_only_deleted === TRUE)
+        if ($this->soft_delete && $this->_temporary_only_deleted)
         {
             $this->_database->where($this->soft_delete_key, TRUE);
         }
