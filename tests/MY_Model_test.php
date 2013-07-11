@@ -449,7 +449,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model->_database->expects($this->once())->method('row')->will($this->returnValue($object));
         $author_model->_database->expects($this->once())->method('row')->will($this->returnValue($author_object));
 
-        $this->model->load->expects($this->once())->method('model')->with('author_model')
+        $this->model->load->expects($this->once())->method('model')->with('author_model', 'author_model')
                           ->will($this->returnCallback(function() use ($self, $author_model){
                               $self->model->author_model = $author_model;
                           }));
@@ -485,9 +485,9 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model->_database->expects($this->once())->method('row')->will($this->returnValue($object));
         $comment_model->_database->expects($this->once())->method('result')->will($this->returnValue(array( $comment_object, $comment_object_2 )));
 
-        $this->model->load->expects($this->once())->method('model')->with('comment_model')
+        $this->model->load->expects($this->once())->method('model')->with('comment_model', 'comments_model')
                           ->will($this->returnCallback(function() use ($self, $comment_model){
-                              $self->model->comment_model = $comment_model;
+                              $self->model->comments_model = $comment_model;
                           }));
 
         $this->assertEquals($expected_object, $this->model->with('comments')->get(1));
