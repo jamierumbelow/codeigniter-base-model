@@ -883,6 +883,7 @@ class MY_Model extends CI_Model
      */
     private function _set_database()
     {
+        $CI =& get_instance();
         // Was a DB group specified by the user?
         if ($this->_db_group !== NULL)
         {
@@ -892,12 +893,14 @@ class MY_Model extends CI_Model
         else
         {
             // Has the default connection been loaded yet?
-            if ( ! isset($this->db) OR ! is_object($this->db))
+            // we can't test isset($this->db) here, because it's in $CI object
+            // isset will not call __get and always return false
+            if ( ! isset($CI->db) OR ! is_object($CI->db))
             {
                 $this->load->database('', FALSE, TRUE);
             }
 
-            $this->_database = $this->db;
+            $this->_database = $CI->db;
         }
     }
 
