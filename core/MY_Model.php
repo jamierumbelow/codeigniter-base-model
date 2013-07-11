@@ -197,6 +197,19 @@ class MY_Model extends CI_Model
     }
 
     /**
+    *   Fetch table records corresponding to a value array
+    *   Get table records WHERE value IN $array = (arrayval1, arrayval2, ... arrayva$
+    *
+    */
+
+    public function get_where_in($col, $in_array) {
+       
+        $this->db->where_in($col,$in_array);
+        return $this->get_all();
+
+    }
+
+    /**
      * Fetch all the records in the table. Can be used as a generic call
      * to $this->_database->get() with scoped methods.
      */
