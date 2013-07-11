@@ -332,12 +332,12 @@ class MY_Model extends CI_Model
     {
         $args = func_get_args();
         $data = array_pop($args);
-        $this->_set_where($args);
 
         $data = $this->trigger('before_update', $data);
 
         if ($this->validate($data) !== FALSE)
         {
+            $this->_set_where($args);
             $result = $this->_database->set($data)
                                ->update($this->_table);
             $this->trigger('after_update', array($data, $result));
