@@ -1,0 +1,339 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"te",
+				"text-align"
+			],
+			[
+				"esc",
+				"escalera"
+			],
+			[
+				"B",
+				"Bancaria"
+			],
+			[
+				"he",
+				"helper"
+			],
+			[
+				"reco",
+				"record"
+			],
+			[
+				"po",
+				"post"
+			],
+			[
+				"pa",
+				"pasivos"
+			],
+			[
+				"su",
+				"sucur"
+			],
+			[
+				"pas",
+				"pasivo"
+			],
+			[
+				"strp",
+				"strpos"
+			],
+			[
+				"email",
+				"exif_thumbnail"
+			],
+			[
+				"pre",
+				"prevision"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"sub",
+				"substr_count"
+			],
+			[
+				"s",
+				"style"
+			],
+			[
+				"f",
+				"file"
+			],
+			[
+				"var",
+				"var_dump"
+			],
+			[
+				"ex",
+				"exit"
+			],
+			[
+				"a",
+				"array	$… = array (…)"
+			],
+			[
+				"g",
+				"group"
+			],
+			[
+				"for",
+				"foreach	foreach …"
+			],
+			[
+				"va",
+				"var_dump"
+			],
+			[
+				"do",
+				"documentos"
+			],
+			[
+				"th",
+				"this"
+			],
+			[
+				"is",
+				"is_array"
+			],
+			[
+				"border-s",
+				"border-style"
+			],
+			[
+				"ba",
+				"base64_encode"
+			],
+			[
+				"base",
+				"base64_decode"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 311.0,
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Discover Packages"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/carlos/Sites/helpdesk/helpdesk.sublime-project",
+		"/C/wamp/www/helpdesk/application/models/Tecnicos_emp_Model.php",
+		"/C/wamp/www/helpdesk/application/core/MY_Model.php",
+		"/C/wamp/www/helpdesk/application/libraries/User_Controller.php",
+		"/C/wamp/www/helpdesk/application/models/Empresas_model.php",
+		"/C/wamp/www/helpdesk/application/models/Users_Model.php",
+		"/C/wamp/www/helpdesk/application/controllers/admin/empresas.php",
+		"/C/wamp/www/helpdesk/application/views/admin/empresas/index.php",
+		"/C/wamp/www/www.tuxteam.com.ar/www/css/base-admin.css",
+		"/C/wamp/www/www.tuxteam.com.ar/www/css/main.css",
+		"/C/wamp/www/www.tuxteam.com.ar/application/views/layout/navigation.php",
+		"/C/Users/Carlos.GRUPOATISA/Documents/personal/pruebas.ep",
+		"/C/wamp/www/www.tuxteam.com.ar/application/config/config.php",
+		"/C/wamp/www/www.tuxteam.com.ar/application/config/database.php",
+		"/C/wamp/www/www.tuxteam.com.ar/application/config/autoload.php",
+		"/C/Users/Carlos.GRUPOATISA/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Carlos.GRUPOATISA/AppData/Roaming/Sublime Text 2/Packages/User/PHP.sublime-settings",
+		"/C/wamp/www/endesa/application/core/MY_Model.php",
+		"/C/wamp/www/endesa/application/views/solicitudes/bancos_ok.php",
+		"/C/wamp/www/endesa/application/models/pasivos_model.php",
+		"/C/wamp/www/endesa/application/views/solicitudes/domicilio.php",
+		"/C/wamp/www/endesa/application/views/container/menu.php",
+		"/C/wamp/www/endesa/application/controllers/solicitudes.php",
+		"/C/wamp/www/endesa/application/models/prevision_model.php",
+		"/C/wamp/www/endesa/application/models/documentos_model.php",
+		"/C/wamp/www/endesa/application/views/solicitudes/bancos.php",
+		"/C/wamp/www/endesa/application/config/config.php",
+		"/C/wamp/www/endesa/application/views/solicitudes/pendientes.php",
+		"/C/wamp/www/endesa/application/controllers/auth.php",
+		"/C/wamp/www/endesa/application/views/auth/login.php",
+		"/C/Users/Carlos/AppData/Roaming/Sublime Text 2/Packages/User/phpcs.sublime-settings",
+		"/C/wamp/www/endesa/application/views/solicitudes/domicilio_ok.php",
+		"//webserver2/www/prejubiladosypasivosendesa.es/www/.htaccess",
+		"/C/wamp/www/endesa/application/controllers/documentos.php",
+		"/C/wamp/www/endesa/application/controllers/pasivos.php",
+		"/C/wamp/www/endesa/application/views/pasivos/prevision.php",
+		"/C/wamp/www/endesa/application/views/pasivos/fluido.php",
+		"/C/wamp/www/endesa/application/views/documentos/documentos.php",
+		"/C/wamp/www/endesa/www/css/endesa/bootstrap/less/bootstrap.less",
+		"/C/wamp/www/endesa/application/views/pasivos/view.php",
+		"/C/wamp/www/endesa/application/views/pasivos/beneficios.php",
+		"/C/wamp/www/endesa/application/views/pasivos/sevillana.php",
+		"/C/wamp/www/endesa/application/models/beneficios_model.php",
+		"/C/wamp/www/endesa/application/models/personas_model.php",
+		"/C/wamp/www/endesa/www/css/endesa/bootstrap/less/font-awesome.less",
+		"/C/wamp/www/endesa/application/views/personas/view.php",
+		"/C/wamp/www/endesa/application/views/pasivos/password.php",
+		"/C/wamp/www/endesa/application/views/documentos/fichero.php",
+		"/C/wamp/www/endesa/application/models/rf_calculos_traba_model.php",
+		"/C/wamp/www/endesa/application/models/ion_auth_model.php",
+		"/C/wamp/www/endesa/www/css/endesa/bootstrap/less/variables.less",
+		"/C/wamp/www/endesa/application/models/auth_model.php",
+		"/C/wamp/www/endesa/application/views/container.php",
+		"/C/wamp/www/endesa/application/controllers/personas.php",
+		"/C/wamp/www/endesa/application/views/auth/alta.php",
+		"/C/wamp/www/endesa/application/views/container/footer.php",
+		"/C/wamp/www/endesa/application/models/captcha_model.php",
+		"/C/wamp/www/endesa/application/views/documentos/download.php",
+		"/C/wamp/www/endesa/application/views/documentos/mod145blanco.php",
+		"/C/wamp/www/endesa/application/views/auth/testigo.php",
+		"/C/wamp/www/endesa/application/views/documentos/list.php",
+		"/C/wamp/www/endesa/application/views/welcome/view.php",
+		"/C/temp/tt/entropillc-bootstrap-verticaltabs-b08174f/index.html",
+		"/C/wamp/www/endesa/application/views/container/meta.php",
+		"/C/wamp/www/endesa/application/controllers/welcome.php",
+		"/C/wamp/www/endesa/www/css/dev204/footer.less",
+		"/C/wamp/www/endesa/www/css/endesa/bootstrap/less/bootstrap0.less",
+		"/C/wamp/www/endesa/www/css/endesa/base.less",
+		"/C/wamp/www/endesa/application/abstracts/AB_Base_Controller.php",
+		"/C/wamp/www/endesa/application/models/menu_model.php",
+		"/C/wamp/www/endesa/application/models/usuarios_model.php",
+		"/C/wamp/www/endesa/application/controllers/cambiar_clave.php",
+		"/C/wamp/www/endesa/application/config/database.php",
+		"/C/wamp/www/endesa/application/controllers/styles.php",
+		"/C/Users/Carlos/Desktop/5452_000001155424_25092012.n43"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"_with",
+			"with",
+			"]?></span>",
+			"]?>\"/>",
+			" uneditable-input\"",
+			"$record[",
+			"/bootstrap220/",
+			"@import \"",
+			"/bootstrap/"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			", $actual[])?>\"/>",
+			"\" value=\"",
+			"set_value(",
+			"$actual[",
+			"/bootstrap220/less/",
+			"@import \"../../../comun/bootstrap220/",
+			"/bootstrap220/"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 235.0,
+	"status_bar_visible": true
+}

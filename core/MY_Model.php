@@ -526,6 +526,50 @@ class MY_Model extends CI_Model
         return $row;
     }
 
+    public function with_count($relationship)
+    {
+        $this->_with_count[] = $relationship;
+
+        if (!in_array('relate_count', $this->after_get))
+        {
+            $this->after_get[] = 'relate_count';
+        }
+
+        return $this;
+    }
+
+    public function relate_count($row)
+    {
+        foreach ($this->has_many as $key => $value)
+        {
+            if (is_string($value))
+            {
+                $relationship = $value;
+                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . '_model' );
+            }
+            else
+            {
+                $relationship = $key;
+                $options = $value;
+            }
+
+            if (in_array($relationship, $this->_with_count))
+            {
+                $this->load->model($options['model']);
+                if (is_object($row))
+                {
+                    $row->{$relationship} = $this->{$options['model']}->count_by($options['primary_key'], $row->{$this->primary_key});
+                }
+                else
+                {
+                    $row[$relationship] = $this->{$options['model']}->count_by($options['primary_key'], $row[$this->primary_key]);
+                }
+            }
+        }
+
+        return $row;
+    }
+
     /* --------------------------------------------------------------
      * UTILITY METHODS
      * ------------------------------------------------------------ */
@@ -578,6 +622,11 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->_database->where($this->soft_delete_key, FALSE);
+        }
+
         return $this->_database->count_all_results($this->_table);
     }
 
@@ -586,10 +635,18 @@ class MY_Model extends CI_Model
      */
     public function count_all()
     {
-        return $this->_database->count_all($this->_table);
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->_database->where($this->soft_delete_key, FALSE);
+        	return $this->_database->count_all_results($this->_table);
+        }
+        else
+        {
+       		return $this->_database->count_all($this->_table);
+        }    	
     }
-
-    /**
+        
+     /**
      * Tell the class to skip the insert validation
      */
     public function skip_validation()
