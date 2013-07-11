@@ -684,6 +684,23 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->with_deleted()->get(2), 'fake_record_here');
     }
 
+    public function test_only_deleted()
+    {
+        $this->model = new Soft_delete_model();
+        $this->model->_database = $this->getMock('MY_Model_Mock_DB');
+
+        $this->model->_database->expects($this->once())
+                        ->method('where')
+                        ->with($this->equalTo('deleted'), $this->equalTo(TRUE))
+                        ->will($this->returnValue($this->model->_database));
+        $this->_expect_get();
+        $this->model->_database->expects($this->once())
+                        ->method('result')
+                        ->will($this->returnValue(array('fake_record_here')));
+        
+        $this->assertEquals($this->model->only_deleted()->get_all(), array('fake_record_here'));
+    }
+
     /* --------------------------------------------------------------
      * CALLBACKS
      * ------------------------------------------------------------ */
