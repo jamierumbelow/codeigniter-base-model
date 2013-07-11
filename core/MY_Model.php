@@ -462,6 +462,9 @@ class MY_Model extends CI_Model
 
     public function relate($row)
     {
+		if (empty($row))
+		    return $row;
+		
         foreach ($this->belongs_to as $key => $value)
         {
             if (is_string($value))
@@ -477,14 +480,14 @@ class MY_Model extends CI_Model
 
             if (in_array($relationship, $this->_with))
             {
-                $this->load->model($options['model']);
+                $this->load->model($options['model'],$relationship);
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$options['model']}->get($row->{$options['primary_key']});
+                    $row->{$relationship} = $this->{$relationship}->get($row->{$options['primary_key']});
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$options['model']}->get($row[$options['primary_key']]);
+                    $row[$relationship] = $this->{$relationship}->get($row[$options['primary_key']]);
                 }
             }
         }
@@ -504,14 +507,14 @@ class MY_Model extends CI_Model
 
             if (in_array($relationship, $this->_with))
             {
-                $this->load->model($options['model']);
+                $this->load->model($options['model'],$relationship);
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$options['model']}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+                    $row->{$relationship} = $this->{$relationship}->get_many_by($options['primary_key'], $row->{$this->primary_key});
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$options['model']}->get_many_by($options['primary_key'], $row[$this->primary_key]);
+                    $row[$relationship] = $this->{$relationship}->get_many_by($options['primary_key'], $row[$this->primary_key]);
                 }
             }
         }
