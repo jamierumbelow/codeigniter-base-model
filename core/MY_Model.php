@@ -136,12 +136,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
-        
-        if ($this->soft_delete && $this->_temporary_only_deleted)
-        {
-            $this->_database->where($this->soft_delete_key, TRUE);
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         $row = $this->_database->where($this->primary_key, $primary_value)
@@ -166,12 +161,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
-        
-        if ($this->soft_delete && $this->_temporary_only_deleted)
-        {
-            $this->_database->where($this->soft_delete_key, TRUE);
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         $this->trigger('before_get');
@@ -193,12 +183,7 @@ class MY_Model extends CI_Model
     {
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
-        
-        if ($this->soft_delete && $this->_temporary_only_deleted)
-        {
-            $this->_database->where($this->soft_delete_key, TRUE);
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         $this->_database->where_in($this->primary_key, $values);
@@ -216,12 +201,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
-        
-        if ($this->soft_delete && $this->_temporary_only_deleted)
-        {
-            $this->_database->where($this->soft_delete_key, TRUE);
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         return $this->get_all();
@@ -234,17 +214,12 @@ class MY_Model extends CI_Model
     public function get_all()
     {
         $this->trigger('before_get');
-
+        
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, FALSE);
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
         
-        if ($this->soft_delete && $this->_temporary_only_deleted)
-        {
-            $this->_database->where($this->soft_delete_key, TRUE);
-        }
-
         $result = $this->_database->get($this->_table)
                            ->{$this->_return_type(1)}();
         $this->_temporary_return_type = $this->return_type;
