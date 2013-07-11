@@ -19,22 +19,11 @@ class MY_Model extends CI_Model
      * guessed by pluralising the model name.
      */
     protected $_table;
-
-    /**
-     * Specify a database group to manually connect this model
-     * to the specified DB. You can pass either the group name
-     * as defined in application/config/database.php, or a
-     * config array of the same format (basically the same thing
-     * you can pass to $this->load->database()). If left empty,
-     * the default DB will be used.
-     */
-    protected $_db_group;
     
     /**
      * The database connection object. Will be set to the default
-     * connection unless $this->_db_group is specified. This allows
-     * individual models to use different DBs without overwriting
-     * CI's global $this->db connection.
+     * connection. This allows individual models to use different DBs 
+     * without overwriting CI's global $this->db connection.
      */
     public $_database;
 
@@ -114,8 +103,8 @@ class MY_Model extends CI_Model
 
         $this->load->helper('inflector');
 
-        $this->_set_database();
         $this->_fetch_table();
+        $this->_database = $this->db;
 
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
@@ -875,29 +864,6 @@ class MY_Model extends CI_Model
         if ($this->_table == NULL)
         {
             $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
-        }
-    }
-
-    /**
-     * Establish the database connection.
-     */
-    private function _set_database()
-    {
-        // Was a DB group specified by the user?
-        if ($this->_db_group !== NULL)
-        {
-            $this->_database = $this->load->database($this->_db_group, TRUE, TRUE);
-        }
-        // No DB group specified, use the default connection.
-        else
-        {
-            // Has the default connection been loaded yet?
-            if ( ! isset($this->db) OR ! is_object($this->db))
-            {
-                $this->load->database('', FALSE, TRUE);
-            }
-
-            $this->_database = $this->db;
         }
     }
 
