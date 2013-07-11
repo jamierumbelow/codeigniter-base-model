@@ -883,9 +883,17 @@ class MY_Model extends CI_Model
         {
             $this->_database->where($params[0]);
         }
+    	else if(count($params) == 2)
+		{
+			$this->_database->where($params[0], $params[1]);
+		}
+		else if(count($params) == 3)
+		{
+			$this->_database->where($params[0], $params[1], $params[2]);
+		}
         else
         {
-            $this->_database->where($params[0], $params[1]);
+            $this->_database->where($params);
         }
     }
 
