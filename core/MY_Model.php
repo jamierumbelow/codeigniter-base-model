@@ -388,9 +388,11 @@ class MY_Model extends CI_Model
     public function delete_by()
     {
         $where = func_get_args();
+
+	    $where = $this->trigger('before_delete', $where);
+
         $this->_set_where($where);
 
-        $where = $this->trigger('before_delete', $where);
 
         if ($this->soft_delete)
         {
