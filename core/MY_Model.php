@@ -228,8 +228,6 @@ class MY_Model extends CI_Model
      */
     public function insert($data, $skip_validation = FALSE)
     {
-        $valid = TRUE;
-
         if ($skip_validation === FALSE)
         {
             $data = $this->validate($data);
@@ -272,8 +270,6 @@ class MY_Model extends CI_Model
      */
     public function update($primary_value, $data, $skip_validation = FALSE)
     {
-        $valid = TRUE;
-
         $data = $this->trigger('before_update', $data);
 
         if ($skip_validation === FALSE)
