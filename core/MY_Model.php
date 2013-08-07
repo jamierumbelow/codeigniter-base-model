@@ -825,6 +825,7 @@ class MY_Model extends CI_Model
         
         if(!empty($this->validate))
         {
+       	    unset($_POST);
             foreach($data as $key => $val)
             {
                 $_POST[$key] = $val;
@@ -838,7 +839,11 @@ class MY_Model extends CI_Model
 
                 if ($this->form_validation->run() === TRUE)
                 {
-                    return $_POST;
+                    foreach($_POST as $key => $val)
+                    {
+                    	$data[$key] = $value;
+                    }
+                    return $data;
                 }
                 else
                 {
@@ -849,7 +854,11 @@ class MY_Model extends CI_Model
             {
                 if ($this->form_validation->run($this->validate) === TRUE)
                 {
-                    return $_POST;
+                    foreach($_POST as $key => $val)
+                    {
+                    	$data[$key] = $value;
+                    }
+                    return $data;
                 }
                 else
                 {
