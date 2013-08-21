@@ -131,22 +131,7 @@ class MY_Model extends CI_Model
      */
     public function get($primary_value)
     {
-        $this->trigger('before_get');
-
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
-
-        $row = $this->_database->where($this->primary_key, $primary_value)
-                        ->get($this->_table)
-                        ->{$this->_return_type()}();
-        $this->_temporary_return_type = $this->return_type;
-
-        $row = $this->trigger('after_get', $row);
-
-        $this->_with = array();
-        return $row;
+		return $this->get_by($this->primary_key, $primary_value);
     }
 
     /**
@@ -156,12 +141,13 @@ class MY_Model extends CI_Model
     public function get_by()
     {
         $where = func_get_args();
-        $this->_set_where($where);
-
+        
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->_database->where($this->soft_delete_key, FALSE);
         }
+		
+		$this->_set_where($where);
 
         $this->trigger('before_get');
 
