@@ -338,7 +338,7 @@ Install the testing framework (PHPUnit) with Composer:
 
 You can then run the tests using the `vendor/bin/phpunit` binary and specify the tests file:
 
-    $ vendor/bin/phpunit tests/MY_Model_test.php
+    $ vendor/bin/phpunit
 
 
 Contributing to MY_Model
