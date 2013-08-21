@@ -4,4 +4,9 @@
     colors="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true">
+	<testsuites>
+        <testsuite name="MyModel Test Suite">
+            <file>./tests/MY_Model_test.php</file>
+        </testsuite>
+    </testsuites>
 </phpunit>
