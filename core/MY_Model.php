@@ -180,11 +180,6 @@ class MY_Model extends CI_Model
      */
     public function get_many($values)
     {
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
-
         $this->_database->where_in($this->primary_key, $values);
 
         return $this->get_all();
@@ -197,11 +192,6 @@ class MY_Model extends CI_Model
     {
         $where = func_get_args();
         $this->_set_where($where);
-
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, FALSE);
-        }
 
         return $this->get_all();
     }
