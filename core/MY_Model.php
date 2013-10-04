@@ -103,9 +103,10 @@ class MY_Model extends CI_Model
 
         $this->load->helper('inflector');
 
+        $this->_database = $this->db;
+
         $this->_fetch_table();
         $this->_fetch_primary_key();
-        $this->_database = $this->db;
 
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
@@ -611,6 +612,14 @@ class MY_Model extends CI_Model
         return $this->_table;
     }
 
+    /**
+     * Getter for the primary key
+     */
+    public function primary_key()
+    {
+        return $this->primary_key;
+    }
+
     /* --------------------------------------------------------------
      * GLOBAL SCOPES
      * ------------------------------------------------------------ */
@@ -863,7 +872,7 @@ class MY_Model extends CI_Model
     /**
      * Guess the primary key for current table
      */
-    private function _fetch_primary_key()
+    protected function _fetch_primary_key()
     {
         if($this->primary_key == NULl)
         {

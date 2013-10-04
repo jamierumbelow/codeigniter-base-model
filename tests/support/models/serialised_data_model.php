@@ -15,4 +15,5 @@ class Serialised_data_model extends MY_Model
 {
 	public $before_create = array( 'serialize(data)' );
 	public $before_update = array( 'serialize(data)' );
+    protected $primary_key = 'id';
 }
