@@ -548,6 +548,16 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         return $model;
     }
 
+    public function test_validate_correctly_trims_data()
+    {
+        $this->model = $this->_validatable_model();
+        $input = array( 'name' => 'Jamie ', 'sexyness' => ' loads' );
+        $expected_output = array( 'name' => 'Jamie', 'sexyness' => 'loads' );
+
+        $this->assertEquals($this->model->validate($input), $expected_output);
+
+    }
+
     /* --------------------------------------------------------------
      * SOFT DELETE
      * ------------------------------------------------------------ */    
