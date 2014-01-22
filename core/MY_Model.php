@@ -104,6 +104,7 @@ class MY_Model extends CI_Model
         $this->load->helper('inflector');
 
         $this->_fetch_table();
+        $this->_table = $this->db->dbprefix($this->_table);
         $this->_database = $this->db;
 
         array_unshift($this->before_create, 'protect_attributes');
