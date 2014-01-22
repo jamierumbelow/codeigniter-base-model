@@ -106,7 +106,7 @@ class MY_Model extends CI_Model
         $this->_fetch_table();
         $this->_database = $this->db;
         
-        //Append DB Prefix from Specified Database Connection
+        //DB Prefix from Specified Database Connection
         $this->_table = $this->_database->dbprefix($this->_table);
 
         array_unshift($this->before_create, 'protect_attributes');
