@@ -801,7 +801,7 @@ class MY_Model extends CI_Model
     /**
      * Run validation on the passed data
      */
-    public function validate($data)
+    public function validate($data,$partial=null)
     {
         if($this->skip_validation)
         {
@@ -810,16 +810,22 @@ class MY_Model extends CI_Model
         
         if(!empty($this->validate))
         {
-            foreach($data as $key => $val)
-            {
-                $_POST[$key] = $val;
-            }
-
+            
             $this->load->library('form_validation');
+            $this->form_validation->reset_validation();
+	    $this->form_validation->set_data($data); #we are not using $_post hacking..
 
             if(is_array($this->validate))
             {
-                $this->form_validation->set_rules($this->validate);
+            	
+            	$config=[];
+                if(!$partial)$config = $this->validate;#every rule ablies
+		else foreach ($this->validate as $v)if (isset($data[$v['field']]))$config[] = $v;#validate submited forms only
+
+		if (empty($config))return $data;#no validation rules for this $data
+
+            
+	    	$this->form_validation->set_rules($config);
 
                 if ($this->form_validation->run() === TRUE)
                 {
