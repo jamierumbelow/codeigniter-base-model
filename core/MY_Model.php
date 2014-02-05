@@ -31,7 +31,7 @@ class MY_Model extends CI_Model
      * This model's default primary key or unique identifier.
      * Used by the get(), update() and delete() functions.
      */
-    protected $primary_key = 'id';
+    protected $primary_key = NULL;
 
     /**
      * Support for soft deletes and this model's 'deleted' key
@@ -103,8 +103,10 @@ class MY_Model extends CI_Model
 
         $this->load->helper('inflector');
 
-        $this->_fetch_table();
         $this->_database = $this->db;
+
+        $this->_fetch_table();
+        $this->_fetch_primary_key();
 
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
@@ -620,6 +622,14 @@ class MY_Model extends CI_Model
         return $this->_table;
     }
 
+    /**
+     * Getter for the primary key
+     */
+    public function primary_key()
+    {
+        return $this->primary_key;
+    }
+
     /* --------------------------------------------------------------
      * GLOBAL SCOPES
      * ------------------------------------------------------------ */
@@ -866,6 +876,17 @@ class MY_Model extends CI_Model
         if ($this->_table == NULL)
         {
             $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
+        }
+    }
+
+    /**
+     * Guess the primary key for current table
+     */
+    protected function _fetch_primary_key()
+    {
+        if($this->primary_key == NULl)
+        {
+            $this->primary_key = $this->_database->query("SHOW KEYS FROM `".$this->_table."` WHERE Key_name = 'PRIMARY'")->row()->Column_name;
         }
     }
 

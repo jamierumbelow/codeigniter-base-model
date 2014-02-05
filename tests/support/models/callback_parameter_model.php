@@ -15,6 +15,7 @@
 class Callback_parameter_model extends MY_Model
 {
 	public $callback = array('some_callback(some_param,another_param)');
+    protected $primary_key = 'id';
 
 	public function some_method()
 	{
