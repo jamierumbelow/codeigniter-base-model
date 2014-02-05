@@ -19,10 +19,10 @@ class MY_Model extends CI_Model
      * guessed by pluralising the model name.
      */
     protected $_table;
-    
+
     /**
      * The database connection object. Will be set to the default
-     * connection. This allows individual models to use different DBs 
+     * connection. This allows individual models to use different DBs
      * without overwriting CI's global $this->db connection.
      */
     public $_database;
@@ -131,12 +131,12 @@ class MY_Model extends CI_Model
     public function get_by()
     {
         $where = func_get_args();
-        
+
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
-		
+
 		$this->_set_where($where);
 
         $this->trigger('before_get');
@@ -190,12 +190,12 @@ class MY_Model extends CI_Model
     public function get_all()
     {
         $this->trigger('before_get');
-        
+
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
-        
+
         $result = $this->_database->get($this->_table)
                            ->{$this->_return_type(1)}();
         $this->_temporary_return_type = $this->return_type;
@@ -451,7 +451,7 @@ class MY_Model extends CI_Model
         {
 		    return $row;
         }
-		
+
         foreach ($this->belongs_to as $key => $value)
         {
             if (is_string($value))
@@ -560,6 +560,11 @@ class MY_Model extends CI_Model
      */
     public function count_by()
     {
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+        }
+
         $where = func_get_args();
         $this->_set_where($where);
 
@@ -571,6 +576,11 @@ class MY_Model extends CI_Model
      */
     public function count_all()
     {
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+        }
+
         return $this->_database->count_all($this->_table);
     }
 
@@ -640,7 +650,7 @@ class MY_Model extends CI_Model
         $this->_temporary_with_deleted = TRUE;
         return $this;
     }
-    
+
     /**
      * Only get deleted rows on the next call
      */
@@ -807,7 +817,7 @@ class MY_Model extends CI_Model
         {
             return $data;
         }
-        
+
         if(!empty($this->validate))
         {
             foreach($data as $key => $val)
