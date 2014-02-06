@@ -818,7 +818,7 @@ class MY_Model extends CI_Model
             if(is_array($this->validate))
             {
             	
-            	$config=[];
+            	$config=array();
                 
                 if(!$partial){
                     $config = $this->validate;#every rule ablies
