@@ -14,5 +14,4 @@
 class Protected_attributes_model extends MY_Model
 {
 	public $protected_attributes = array( 'id', 'hash' );
-    protected $primary_key = 'id';
 }

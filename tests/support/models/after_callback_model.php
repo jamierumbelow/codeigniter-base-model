@@ -18,7 +18,6 @@ class After_callback_model extends MY_Model
     protected $after_update = array('test_throw');
     protected $after_get = array('test_data_callback', 'test_data_callback_two');
     protected $after_delete = array('test_throw');
-    protected $primary_key = 'id';
 
     protected function test_throw($row)
     {

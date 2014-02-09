@@ -31,7 +31,6 @@ class MY_Model_Mock_DB
     public function count_all_results() { }
     public function count_all() { }
     public function truncate() { }
-    public function query() { }
 
     /**
      * CI_DB_Result
