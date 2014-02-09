@@ -31,7 +31,7 @@ class MY_Model extends CI_Model
      * This model's default primary key or unique identifier.
      * Used by the get(), update() and delete() functions.
      */
-    protected $primary_key = NULL;
+    protected $primary_key = 'id';
 
     /**
      * Support for soft deletes and this model's 'deleted' key
@@ -106,7 +106,6 @@ class MY_Model extends CI_Model
         $this->_database = $this->db;
 
         $this->_fetch_table();
-        $this->_fetch_primary_key();
 
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
