@@ -861,17 +861,6 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * Guess the primary key for current table
-     */
-    private function _fetch_primary_key()
-    {
-        if($this->primary_key == NULl)
-        {
-            $this->primary_key = $this->_database->query("SHOW KEYS FROM `".$this->_table."` WHERE Key_name = 'PRIMARY'")->row()->Column_name;
-        }
-    }
-
-    /**
      * Set WHERE parameters, cleverly
      */
     protected function _set_where($params)
