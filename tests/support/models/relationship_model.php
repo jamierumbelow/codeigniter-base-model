@@ -15,9 +15,11 @@ class Belongs_to_model extends MY_Model
 {
     public $belongs_to = array( 'author' );
     public $has_many = array( 'comments' );
+    protected $primary_key = 'id';
 }
 
 class Author_model extends MY_Model
 {
     protected $_table = 'authors';
+    protected $primary_key = 'id';
 }
