@@ -557,14 +557,39 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->model = new Soft_delete_model();
         $this->model->_database = $this->getMock('MY_Model_Mock_DB');
 
+        $this->model->_database->expects($this->at(0))
+                               ->method('where')
+                               ->with($this->equalTo('deleted'), FALSE);
+
+        $this->model->_database->expects($this->at(1))
+                               ->method('where')
+                               ->with('id', 2)
+                               ->will($this->returnValue($this->model->_database));
+
+        $fake_data = array('fake_record_here' => 'fake data');
+
         $this->model->_database->expects($this->once())
-                        ->method('where')
-                        ->with($this->equalTo('id'), $this->equalTo(2))
-                        ->will($this->returnValue($this->model->_database));
+                               ->method('row_array')
+                               ->will($this->returnValue($fake_data));
+
+        $this->_expect_get();
+
+        $this->model->_database->expects($this->at(4))
+                               ->method('where')
+                               ->with('id', 2)
+                               ->will($this->returnValue($this->model->_database));
+
+        $fake_data = array_merge($fake_data, array('deleted' => TRUE));
+
         $this->model->_database->expects($this->once())
-                        ->method('update')
-                        ->with($this->equalTo('records'), $this->equalTo(array( 'deleted' => TRUE )))
-                        ->will($this->returnValue(TRUE));
+                               ->method('set')
+                               ->with($fake_data)
+                               ->will($this->returnValue($this->model->_database));
+
+        $this->model->_database->expects($this->once())
+                               ->method('update')
+                               ->with('records')
+                               ->will($this->returnValue(TRUE));
 
         $this->assertEquals($this->model->delete(2), TRUE);
     }
@@ -573,15 +598,40 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     {
         $this->model = new Soft_delete_model('record_deleted');
         $this->model->_database = $this->getMock('MY_Model_Mock_DB');
+        
+        $this->model->_database->expects($this->at(0))
+                               ->method('where')
+                               ->with($this->equalTo('record_deleted'), FALSE);
+
+        $this->model->_database->expects($this->at(1))
+                               ->method('where')
+                               ->with('id', 2)
+                               ->will($this->returnValue($this->model->_database));
+
+        $fake_data = array('fake_record_here' => 'fake data');
 
         $this->model->_database->expects($this->once())
-                        ->method('where')
-                        ->with($this->equalTo('id'), $this->equalTo(2))
-                        ->will($this->returnValue($this->model->_database));
+                               ->method('row_array')
+                               ->will($this->returnValue($fake_data));
+
+        $this->_expect_get();
+
+        $this->model->_database->expects($this->at(4))
+                               ->method('where')
+                               ->with('id', 2)
+                               ->will($this->returnValue($this->model->_database));
+
+        $fake_data = array_merge($fake_data, array('record_deleted' => TRUE));
+
         $this->model->_database->expects($this->once())
-                        ->method('update')
-                        ->with($this->equalTo('records'), $this->equalTo(array( 'record_deleted' => TRUE )))
-                        ->will($this->returnValue(TRUE));
+                               ->method('set')
+                               ->with($fake_data)
+                               ->will($this->returnValue($this->model->_database));
+
+        $this->model->_database->expects($this->once())
+                               ->method('update')
+                               ->with('records')
+                               ->will($this->returnValue(TRUE));
 
         $this->assertEquals($this->model->delete(2), TRUE);
     }
