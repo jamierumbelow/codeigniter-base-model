@@ -876,13 +876,41 @@ class MY_Model extends CI_Model
      */
     protected function _set_where($params)
     {
-        if (count($params) == 1)
+        if (count($params) == 1 && is_array($params[0]))
+        {
+            foreach ($params[0] as $field => $filter)
+            {
+                if (is_array($filter))
+                {
+                    $this->_database->where_in($field, $filter);
+                }
+                else
+                {
+                    if (is_int($field))
+                    {
+                        $this->_database->where($filter);
+                    }
+                    else
+                    {
+                        $this->_database->where($field, $filter);
+                    }
+                }
+            }
+        } 
+        else if (count($params) == 1)
         {
             $this->_database->where($params[0]);
         }
     	else if(count($params) == 2)
 		{
-			$this->_database->where($params[0], $params[1]);
+            if (is_array($params[1]))
+            {
+                $this->_database->where_in($params[0], $params[1]);    
+            }
+            else
+            {
+                $this->_database->where($params[0], $params[1]);
+            }
 		}
 		else if(count($params) == 3)
 		{
@@ -890,7 +918,14 @@ class MY_Model extends CI_Model
 		}
         else
         {
-            $this->_database->where($params);
+            if (is_array($params[1]))
+            {
+                $this->_database->where_in($params[0], $params[1]);    
+            }
+            else
+            {
+                $this->_database->where($params[0], $params[1]);
+            }
         }
     }
 
