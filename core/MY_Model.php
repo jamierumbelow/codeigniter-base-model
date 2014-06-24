@@ -482,6 +482,7 @@ class MY_Model extends CI_Model
             {
                 $relationship = $key;
                 $options = $value;
+                $options["primary_key"] = $this->primary_key;
             }
 
             if (in_array($relationship, $this->_with))

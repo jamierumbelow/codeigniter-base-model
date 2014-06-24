@@ -192,7 +192,7 @@ If you'd like to customise this, you can pass through the model name as a parame
     class Post_model extends MY_Model
     {
         public $belongs_to = array( 'author' => array( 'model' => 'author_m' ) );
-        public $has_many = array( 'comments' => array( 'model' => 'model_comments' ) );
+        public $has_many = array( 'comments' => array( 'model' => 'model_comments', 'primary_key' => 'post_id' ) );
     }
 
 You can then access your related data using the `with()` method:
