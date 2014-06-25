@@ -430,7 +430,7 @@ class MY_Model extends CI_Model
 
         if (!in_array('relate', $this->after_get))
         {
-            $this->after_get[] = 'relate';
+            array_unshift($this->after_get, 'relate');
         }
 
         return $this;
