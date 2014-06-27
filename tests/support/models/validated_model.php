@@ -10,7 +10,7 @@
 class Validated_model extends MY_Model
 {
 	public $validate = array(
-		array( 'field' => 'name', 'label' => 'Name', 'rules' => 'required' ),
-		array( 'field' => 'sexyness', 'label' => 'Sexyness', 'rules' => 'required' )
+		array( 'field' => 'name', 'label' => 'Name', 'rules' => 'trim|required' ),
+		array( 'field' => 'sexyness', 'label' => 'Sexyness', 'rules' => 'trim|required' )
 	);
 }
