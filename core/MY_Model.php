@@ -31,7 +31,7 @@ class MY_Model extends CI_Model
      * This model's default primary key or unique identifier.
      * Used by the get(), update() and delete() functions.
      */
-    protected $primary_key = 'id';
+    protected $primary_key = NULL;
 
     /**
      * Support for soft deletes and this model's 'deleted' key
@@ -89,6 +89,8 @@ class MY_Model extends CI_Model
     protected $return_type = 'object';
     protected $_temporary_return_type = NULL;
 
+    private $_base_model_instance = NULL;
+
     /* --------------------------------------------------------------
      * GENERIC METHODS
      * ------------------------------------------------------------ */
@@ -106,6 +108,11 @@ class MY_Model extends CI_Model
         $this->_fetch_table();
 
         $this->_database = $this->db;
+        $this->_fetch_primary_key();
+
+        if($this->primary_key == null && $this->is_base_model_instance()) {
+            return;
+        }
 
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
@@ -611,6 +618,14 @@ class MY_Model extends CI_Model
         return $this->_table;
     }
 
+    /**
+     * Getter for the primary key
+     */
+    public function primary_key()
+    {
+        return $this->primary_key;
+    }
+
     /* --------------------------------------------------------------
      * GLOBAL SCOPES
      * ------------------------------------------------------------ */
@@ -863,12 +878,25 @@ class MY_Model extends CI_Model
     /**
      * Guess the primary key for current table
      */
-    private function _fetch_primary_key()
+    protected function _fetch_primary_key()
     {
-        if($this->primary_key == NULl)
+        if($this->is_base_model_instance()) {
+            return;
+        }
+
+        if ($this->primary_key == NULL && $this->_database)
         {
             $this->primary_key = $this->_database->query("SHOW KEYS FROM `".$this->_table."` WHERE Key_name = 'PRIMARY'")->row()->Column_name;
         }
+    }
+
+    private function is_base_model_instance()
+    {
+        if($this->_base_model_instance === null) {
+            $this->_base_model_instance = get_class($this) == __CLASS__;
+        }
+
+        return $this->_base_model_instance;
     }
 
     /**

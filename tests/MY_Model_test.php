@@ -41,6 +41,24 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->model->table(), 'records');
     }
 
+    public function test_constructor_guess_the_primary_key()
+    {
+        $this->model = new Book_model($this->model->_database, 'id');
+
+        $this->model->_database->expects($this->once())
+            ->method('query')
+            ->with($this->equalTo("SHOW KEYS FROM `books` WHERE Key_name = 'PRIMARY'"))
+            ->will($this->returnValue($this->model->_database))
+        ;
+        $this->model->_database->expects($this->once())
+            ->method('row')
+            ->will($this->returnValue((object)array('Column_name'=>'fake_primary_key')));
+
+        $this->model = $this->model->__construct($this->model->_database);
+
+        $this->assertEquals($this->model->primary_key(), 'fake_primary_key');
+    }
+
     /* --------------------------------------------------------------
      * CRUD INTERFACE
      * ------------------------------------------------------------ */
