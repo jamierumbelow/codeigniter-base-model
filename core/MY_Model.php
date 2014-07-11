@@ -447,6 +447,11 @@ class MY_Model extends CI_Model
 
         return $this;
     }
+    
+    public function with_r($relationship)
+    {
+    	//DO STUFF HERE
+    }
 
     public function relate($row)
     {
