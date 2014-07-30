@@ -110,7 +110,7 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
         return $row;
     }
 
-**By using the scope skip_observers() triggering of all the attached/registered observers can be disabled. For example:
+**By using the scope skip_observers() triggering of all the attached/registered observers can be disabled. For example:**
 
 ```php
 // A user logs in. We want to store a timestamp of this moment,
