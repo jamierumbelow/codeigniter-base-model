@@ -110,7 +110,7 @@ class MY_Model extends CI_Model
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
 
-        $this->_temporary_return_type = $this->return_type;
+        $this->_reset_state();
     }
 
     /* --------------------------------------------------------------
@@ -122,7 +122,7 @@ class MY_Model extends CI_Model
      */
     public function get($primary_value)
     {
-		return $this->get_by($this->primary_key, $primary_value);
+        return $this->get_by($this->primary_key, $primary_value);
     }
 
     /**
@@ -138,7 +138,7 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
-		$this->_set_where($where);
+        $this->_set_where($where);
 
         $this->trigger('before_get');
 
@@ -148,7 +148,8 @@ class MY_Model extends CI_Model
 
         $row = $this->trigger('after_get', $row);
 
-        $this->_with = array();
+        $this->_reset_state();
+
         return $row;
     }
 
@@ -196,7 +197,8 @@ class MY_Model extends CI_Model
             $row = $this->trigger('after_get', $row, ($key == count($result) - 1));
         }
 
-        $this->_with = array();
+        $this->_reset_state();
+
         return $result;
     }
 
@@ -220,12 +222,14 @@ class MY_Model extends CI_Model
 
             $this->trigger('after_create', $insert_id);
 
+            $this->_reset_state();
+
             return $insert_id;
         }
-        else
-        {
-            return FALSE;
-        }
+
+        $this->_reset_state();
+
+        return FALSE;
     }
 
     /**
@@ -263,12 +267,14 @@ class MY_Model extends CI_Model
 
             $this->trigger('after_update', array($data, $result));
 
+            $this->_reset_state();
+
             return $result;
         }
-        else
-        {
-            return FALSE;
-        }
+
+        $this->_reset_state();
+
+        return FALSE;
     }
 
     /**
@@ -291,12 +297,14 @@ class MY_Model extends CI_Model
 
             $this->trigger('after_update', array($data, $result));
 
+            $this->_reset_state();
+
             return $result;
         }
-        else
-        {
-            return FALSE;
-        }
+
+        $this->_reset_state();
+
+        return FALSE;
     }
 
     /**
@@ -316,12 +324,14 @@ class MY_Model extends CI_Model
                                ->update($this->_table);
             $this->trigger('after_update', array($data, $result));
 
+            $this->_reset_state();
+
             return $result;
         }
-        else
-        {
-            return FALSE;
-        }
+
+        $this->_reset_state();
+
+        return FALSE;
     }
 
     /**
@@ -333,6 +343,8 @@ class MY_Model extends CI_Model
         $result = $this->_database->set($data)
                            ->update($this->_table);
         $this->trigger('after_update', array($data, $result));
+
+        $this->_reset_state();
 
         return $result;
     }
@@ -357,6 +369,8 @@ class MY_Model extends CI_Model
 
         $this->trigger('after_delete', $result);
 
+        $this->_reset_state();
+
         return $result;
     }
 
@@ -367,10 +381,9 @@ class MY_Model extends CI_Model
     {
         $where = func_get_args();
 
-	    $where = $this->trigger('before_delete', $where);
+        $where = $this->trigger('before_delete', $where);
 
         $this->_set_where($where);
-
 
         if ($this->soft_delete)
         {
@@ -382,6 +395,8 @@ class MY_Model extends CI_Model
         }
 
         $this->trigger('after_delete', $result);
+
+        $this->_reset_state();
 
         return $result;
     }
@@ -406,6 +421,8 @@ class MY_Model extends CI_Model
 
         $this->trigger('after_delete', $result);
 
+        $this->_reset_state();
+
         return $result;
     }
 
@@ -416,6 +433,8 @@ class MY_Model extends CI_Model
     public function truncate()
     {
         $result = $this->_database->truncate($this->_table);
+
+        $this->_reset_state();
 
         return $result;
     }
@@ -438,9 +457,9 @@ class MY_Model extends CI_Model
 
     public function relate($row)
     {
-		if (empty($row))
+        if (empty($row))
         {
-		    return $row;
+            return $row;
         }
 
         foreach ($this->belongs_to as $key => $value)
@@ -543,6 +562,8 @@ class MY_Model extends CI_Model
 
         $options = $this->trigger('after_dropdown', $options);
 
+        $this->_reset_state();
+
         return $options;
     }
 
@@ -559,7 +580,11 @@ class MY_Model extends CI_Model
         $where = func_get_args();
         $this->_set_where($where);
 
-        return $this->_database->count_all_results($this->_table);
+        $result = $this->_database->count_all_results($this->_table);
+
+        $this->_reset_state();
+
+        return $result;
     }
 
     /**
@@ -572,7 +597,11 @@ class MY_Model extends CI_Model
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
-        return $this->_database->count_all($this->_table);
+        $result = $this->_database->count_all($this->_table);
+
+        $this->_reset_state();
+
+        return $result;
     }
 
     /**
@@ -804,12 +833,12 @@ class MY_Model extends CI_Model
      */
     public function validate($data)
     {
-        if($this->skip_validation)
+        if ($this->skip_validation)
         {
             return $data;
         }
 
-        if(!empty($this->validate))
+        if (!empty($this->validate))
         {
             foreach($data as $key => $val)
             {
@@ -818,7 +847,7 @@ class MY_Model extends CI_Model
 
             $this->load->library('form_validation');
 
-            if(is_array($this->validate))
+            if (is_array($this->validate))
             {
                 $this->form_validation->set_rules($this->validate);
 
@@ -901,8 +930,8 @@ class MY_Model extends CI_Model
         {
             $this->_database->where($params[0]);
         }
-    	else if(count($params) == 2)
-		{
+        else if(count($params) == 2)
+        {
             if (is_array($params[1]))
             {
                 $this->_database->where_in($params[0], $params[1]);    
@@ -911,11 +940,11 @@ class MY_Model extends CI_Model
             {
                 $this->_database->where($params[0], $params[1]);
             }
-		}
-		else if(count($params) == 3)
-		{
-			$this->_database->where($params[0], $params[1], $params[2]);
-		}
+        }
+        else if(count($params) == 3)
+        {
+            $this->_database->where($params[0], $params[1], $params[2]);
+        }
         else
         {
             if (is_array($params[1]))
@@ -937,4 +966,16 @@ class MY_Model extends CI_Model
         $method = ($multi) ? 'result' : 'row';
         return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
     }
+
+    /**
+     * Resets all internal state flags and temporary scope data.
+     */
+    protected function _reset_state()
+    {
+        $this->_with = array();
+        $this->_temporary_return_type = $this->return_type;
+        $this->_temporary_with_deleted = FALSE;
+        $this->_temporary_only_deleted = FALSE;
+    }
+
 }
