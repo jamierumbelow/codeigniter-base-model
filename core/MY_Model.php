@@ -57,6 +57,11 @@ class MY_Model extends CI_Model
     protected $callback_parameters = array();
 
     /**
+     * Support for skip_observers() scope.
+     */
+    protected $_temporary_skip_observers = FALSE;
+
+    /**
      * Protected, non-modifiable attributes
      */
     protected $protected_attributes = array();
@@ -237,10 +242,14 @@ class MY_Model extends CI_Model
      */
     public function insert_many($data, $skip_validation = FALSE)
     {
+        $skip_observers = $this->_temporary_skip_observers;
+
         $ids = array();
 
         foreach ($data as $key => $row)
         {
+            $this->_temporary_skip_observers = $skip_observers;
+
             $ids[] = $this->insert($row, $skip_validation, ($key == count($data) - 1));
         }
 
@@ -455,6 +464,9 @@ class MY_Model extends CI_Model
         return $this;
     }
 
+    // This observer is to be suppressed by skip_observers() scope too.
+    // This might change if there is a good/valid use-case, but let us not
+    // complicate code for now.
     public function relate($row)
     {
         if (empty($row))
@@ -680,6 +692,15 @@ class MY_Model extends CI_Model
         return $this;
     }
 
+    /**
+     * Disables triggering of all the attached/registered observers.
+     */
+    public function skip_observers()
+    {
+        $this->_temporary_skip_observers = TRUE;
+        return $this;
+    }
+
     /* --------------------------------------------------------------
      * OBSERVERS
      * ------------------------------------------------------------ */
@@ -809,7 +830,7 @@ class MY_Model extends CI_Model
      */
     public function trigger($event, $data = FALSE, $last = TRUE)
     {
-        if (isset($this->$event) && is_array($this->$event))
+        if (!$this->_temporary_skip_observers && isset($this->$event) && is_array($this->$event))
         {
             foreach ($this->$event as $method)
             {
@@ -976,6 +997,7 @@ class MY_Model extends CI_Model
         $this->_temporary_return_type = $this->return_type;
         $this->_temporary_with_deleted = FALSE;
         $this->_temporary_only_deleted = FALSE;
+        $this->_temporary_skip_observers = FALSE;
     }
 
 }

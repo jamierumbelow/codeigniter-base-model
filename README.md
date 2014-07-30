@@ -110,6 +110,15 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
         return $row;
     }
 
+**By using the scope skip_observers() triggering of all the attached/registered observers can be disabled. For example:
+
+```php
+// A user logs in. We want to store a timestamp of this moment,
+// but we don't the registered built-in observer 'updated_at' to be triggered,
+// i.e. we don't want the field 'updated_at' to change its value.
+$this->users->skip_observers()->update($id, array('last_login_at' => date('Y-m-d H:i:s')));
+```
+
 Validation
 ----------
 
