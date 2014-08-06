@@ -27,6 +27,8 @@ $this->post->insert(array(
 $this->post->update(1, array( 'status' => 'closed' ));
 
 $this->post->delete(1);
+
+$this->post->undelete(1); // works only if soft delete is enabled (see below)
 ```
 
 Installation/Usage
@@ -288,6 +290,10 @@ If you'd like to include only the columns that have been deleted, you can use th
     => $this->book_model->only_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 1
 
+If you'd like to undelete a previously delete entry, you can use the `undelete()` function:
+
+    => $this->book_model->undelete(1);
+
 Built-in Observers
 -------------------
 
@@ -309,6 +315,26 @@ The timestamps (MySQL compatible) `created_at` and `updated_at` are now availabl
         public $before_update = array( 'serialize(seat_types)' );
         public $after_get = array( 'unserialize(seat_types)' );
     }
+
+Common restrictions
+-------------------
+
+**MY_Model** contains an easy way to restrict all its results. Say you have an admin account which can see everything and user accounts which can see only their results, you can use the following codein your controller:
+
+    class Books extends CI_Controller {
+
+    function __construct() {
+        parent::__construct();
+
+        $this->load->model('book_model');
+
+        if (!$user_is_admin)
+        {
+            $this->book_model->set_restriction('book_owner = '.(int)$user_id);
+        }
+    }
+
+Don't forget to assign the correct value for `book_owner` when you create a new record, else the user won't be able to see its book.
 
 Database Connection
 -------------------
@@ -364,6 +390,10 @@ Other Documentation
 
 Changelog
 ---------
+
+**Version 2.1.0**
+* Added support for undeletes when using soft deletes
+* Added support for restricting viewable results
 
 **Version 2.0.0**
 * Added support for soft deletes
