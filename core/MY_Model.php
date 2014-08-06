@@ -351,7 +351,7 @@ class MY_Model extends CI_Model
     public function delete($id)
     {
 
-        $this->add_restrictions();
+        $this->add_restrictions(FALSE);
 
         $this->trigger('before_delete', $id);
 
@@ -389,7 +389,7 @@ class MY_Model extends CI_Model
         }
         else
         {
-            $result = false;
+            $result = FALSE;
         }
 
         $this->trigger('after_undelete', $result);
@@ -403,7 +403,7 @@ class MY_Model extends CI_Model
     public function delete_by()
     {
 
-        $this->add_restrictions();
+        $this->add_restrictions(FALSE);
 
         $where = func_get_args();
 
@@ -432,7 +432,7 @@ class MY_Model extends CI_Model
     public function delete_many($primary_values)
     {
 
-        $this->add_restrictions();
+        $this->add_restrictions(FALSE);
 
         $primary_values = $this->trigger('before_delete', $primary_values);
 
@@ -978,14 +978,22 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Set restriction to be appended to the query
+     */
+    public function set_restriction($restriction)
+    {
+        $this->restriction = $restriction;
+    }
+
+    /**
      * Add restrictions to query
      */
-    protected function add_restrictions() {
+    protected function add_restrictions($soft_delete_check = TRUE) {
         if ($this->restriction)
         {
             $this->_database->where($this->restriction);
         }
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        if ($soft_delete_check && $this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
