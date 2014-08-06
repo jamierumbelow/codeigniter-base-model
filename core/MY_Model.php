@@ -361,6 +361,29 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Undelete a row from the table by the primary value (only if soft delete is enabled)
+     */
+    public function undelete($id)
+    {
+        $this->trigger('before_undelete', $id);
+
+        $this->_database->where($this->primary_key, $id);
+
+        if ($this->soft_delete)
+        {
+            $result = $this->_database->update($this->_table, array( $this->soft_delete_key => FALSE ));
+        }
+        else
+        {
+            $result = false;
+        }
+
+        $this->trigger('after_undelete', $result);
+
+        return $result;
+    }
+
+    /**
      * Delete a row from the database table by an arbitrary WHERE clause
      */
     public function delete_by()
