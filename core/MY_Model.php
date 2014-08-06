@@ -42,6 +42,11 @@ class MY_Model extends CI_Model
     protected $_temporary_only_deleted = FALSE;
 
     /**
+     * Support for custom restrictions
+     */
+    protected $restriction = FALSE;
+
+    /**
      * The various callbacks available to the model. Each are
      * simple lists of method names (methods will be run on $this).
      */
@@ -133,10 +138,7 @@ class MY_Model extends CI_Model
     {
         $where = func_get_args();
 
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
-        }
+        $this->add_restrictions();
 
 		$this->_set_where($where);
 
@@ -182,10 +184,7 @@ class MY_Model extends CI_Model
     {
         $this->trigger('before_get');
 
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
-        }
+        $this->add_restrictions();
 
         $result = $this->_database->get($this->_table)
                            ->{$this->_return_type(1)}();
@@ -250,6 +249,8 @@ class MY_Model extends CI_Model
     {
         $data = $this->trigger('before_update', $data);
 
+        $this->add_restrictions();
+
         if ($skip_validation === FALSE)
         {
             $data = $this->validate($data);
@@ -277,6 +278,8 @@ class MY_Model extends CI_Model
     public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
         $data = $this->trigger('before_update', $data);
+
+        $this->add_restrictions();
 
         if ($skip_validation === FALSE)
         {
@@ -307,6 +310,8 @@ class MY_Model extends CI_Model
         $args = func_get_args();
         $data = array_pop($args);
 
+        $this->add_restrictions();
+
         $data = $this->trigger('before_update', $data);
 
         if ($this->validate($data) !== FALSE)
@@ -329,6 +334,9 @@ class MY_Model extends CI_Model
      */
     public function update_all($data)
     {
+
+        $this->add_restrictions();
+
         $data = $this->trigger('before_update', $data);
         $result = $this->_database->set($data)
                            ->update($this->_table);
@@ -342,6 +350,9 @@ class MY_Model extends CI_Model
      */
     public function delete($id)
     {
+
+        $this->add_restrictions();
+
         $this->trigger('before_delete', $id);
 
         $this->_database->where($this->primary_key, $id);
@@ -365,6 +376,9 @@ class MY_Model extends CI_Model
      */
     public function undelete($id)
     {
+
+        $this->add_restrictions();
+
         $this->trigger('before_undelete', $id);
 
         $this->_database->where($this->primary_key, $id);
@@ -388,6 +402,9 @@ class MY_Model extends CI_Model
      */
     public function delete_by()
     {
+
+        $this->add_restrictions();
+
         $where = func_get_args();
 
 	    $where = $this->trigger('before_delete', $where);
@@ -414,6 +431,9 @@ class MY_Model extends CI_Model
      */
     public function delete_many($primary_values)
     {
+
+        $this->add_restrictions();
+
         $primary_values = $this->trigger('before_delete', $primary_values);
 
         $this->_database->where_in($this->primary_key, $primary_values);
@@ -574,10 +594,8 @@ class MY_Model extends CI_Model
      */
     public function count_by()
     {
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
-        }
+
+        $this->add_restrictions();
 
         $where = func_get_args();
         $this->_set_where($where);
@@ -590,10 +608,8 @@ class MY_Model extends CI_Model
      */
     public function count_all()
     {
-        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
-        {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
-        }
+
+        $this->add_restrictions();
 
         return $this->_database->count_all($this->_table);
     }
@@ -959,5 +975,19 @@ class MY_Model extends CI_Model
     {
         $method = ($multi) ? 'result' : 'row';
         return $this->_temporary_return_type == 'array' ? $method . '_array' : $method;
+    }
+
+    /**
+     * Add restrictions to query
+     */
+    protected function add_restrictions() {
+        if ($this->restriction)
+        {
+            $this->_database->where($this->restriction);
+        }
+        if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
+        {
+            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+        }
     }
 }
