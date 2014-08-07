@@ -611,7 +611,7 @@ class MY_Model extends CI_Model
 
         $this->add_restrictions();
 
-        return $this->_database->count_all($this->_table);
+        return $this->_database->count_all_results($this->_table);
     }
 
     /**
