@@ -839,7 +839,7 @@ class MY_Model_tests extends PHPUnit_Framework_TestCase
     public function test_count_all()
     {
         $this->model->_database->expects($this->once())
-                        ->method('count_all')
+                        ->method('count_all_results')
                         ->with($this->equalTo('records'))
                         ->will($this->returnValue(200));
         $this->assertEquals($this->model->count_all(), 200);
