@@ -45,6 +45,7 @@ class MY_Model extends CI_Model
      * Support for custom restrictions
      */
     protected $restriction = FALSE;
+    protected $_temporary_without_restriction = FALSE;
 
     /**
      * The various callbacks available to the model. Each are
@@ -986,16 +987,29 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Don't care about restrictions on the next call
+     */
+    public function without_restriction()
+    {
+        $this->_temporary_without_restriction = TRUE;
+        return $this;
+    }
+
+    /**
      * Add restrictions to query
      */
     protected function add_restrictions($soft_delete_check = TRUE) {
-        if ($this->restriction)
+        if ($this->_temporary_without_restriction !== TRUE && $this->restriction)
         {
             $this->_database->where($this->restriction);
+        } else {
+            $this->_temporary_without_restriction = FALSE;
         }
         if ($soft_delete_check && $this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
-        }
+        } else {
+        	$this->_temporary_with_deleted = $this->_temporary_only_deleted = FALSE;
+    	}
     }
 }

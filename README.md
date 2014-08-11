@@ -275,17 +275,17 @@ By default, MY_Model expects a `TINYINT` or `INT` column named `deleted`. If you
         protected $soft_delete_key = 'book_deleted_status';
     }
 
-Now, when you make a call to any of the `get_` methods, a constraint will be added to not withdraw deleted columns:
+Now, when you make a call to any of the `get_` methods, a constraint will be added to not withdraw deleted rows:
 
     => $this->book_model->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 0
 
-If you'd like to include deleted columns, you can use the `with_deleted()` scope:
+If you'd like to include deleted rows, you can use the `with_deleted()` scope:
 
     => $this->book_model->with_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1
     
-If you'd like to include only the columns that have been deleted, you can use the `only_deleted()` scope:
+If you'd like to include only the rows that have been deleted, you can use the `only_deleted()` scope:
 
     => $this->book_model->only_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 1
@@ -335,6 +335,10 @@ Common restrictions
     }
 
 Don't forget to assign the correct value for `book_owner` when you create a new record, else the user won't be able to see its book.
+
+If you'd like to include restricted rows, you can use the `without_restriction()` scope:
+
+    => $this->book_model->without_restriction()->get_by('user_id', 1);
 
 Database Connection
 -------------------
@@ -392,8 +396,8 @@ Changelog
 ---------
 
 **Version 2.1.0**
-* Added support for undeletes when using soft deletes
-* Added support for restricting viewable results
+* Added support for undeletes when using soft deletes (thanks [julienmru](https://github.com/julienmru)!)
+* Added support for restricting viewable results (thanks [julienmru](https://github.com/julienmru)!)
 
 **Version 2.0.0**
 * Added support for soft deletes
