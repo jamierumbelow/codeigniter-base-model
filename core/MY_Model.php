@@ -459,8 +459,17 @@ class MY_Model extends CI_Model
      */
     public function truncate()
     {
-        $result = $this->_database->truncate($this->_table);
-
+        if ($this->restriction)
+        {
+            $this->add_restrictions(FALSE);
+            
+            $result = $this->_database->delete_by("1 = 1");
+        }
+        else
+        {
+            $result = $this->_database->truncate($this->_table);
+        }
+        
         return $result;
     }
 
@@ -1002,13 +1011,17 @@ class MY_Model extends CI_Model
         if ($this->_temporary_without_restriction !== TRUE && $this->restriction)
         {
             $this->_database->where($this->restriction);
-        } else {
+        }
+        else
+        {
             $this->_temporary_without_restriction = FALSE;
         }
         if ($soft_delete_check && $this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
             $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
-        } else {
+        }
+        else
+        {
         	$this->_temporary_with_deleted = $this->_temporary_only_deleted = FALSE;
     	}
     }
