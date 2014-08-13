@@ -112,6 +112,8 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
         return $row;
     }
 
+If you need the primary key value in an observer, you can use `get_primary_value()` utility function. This works only for single-row queries (eg: `get`, `create`, `update`, `delete`). On multi-row queries, it will return FALSE (eg: `get_all`, `delete_by`).
+
 Validation
 ----------
 

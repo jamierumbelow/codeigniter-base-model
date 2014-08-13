@@ -32,6 +32,7 @@ class MY_Model extends CI_Model
      * Used by the get(), update() and delete() functions.
      */
     protected $primary_key = 'id';
+    protected $primary_value = FALSE;
 
     /**
      * Support for soft deletes and this model's 'deleted' key
@@ -128,6 +129,8 @@ class MY_Model extends CI_Model
      */
     public function get($primary_value)
     {
+        $this->primary_value = $primary_value;
+
 		return $this->get_by($this->primary_key, $primary_value);
     }
 
@@ -140,6 +143,8 @@ class MY_Model extends CI_Model
         $where = func_get_args();
 
         $this->add_restrictions();
+
+        $this->primary_value = FALSE;
 
 		$this->_set_where($where);
 
@@ -183,6 +188,9 @@ class MY_Model extends CI_Model
      */
     public function get_all()
     {
+
+        $this->primary_value = FALSE;
+
         $this->trigger('before_get');
 
         $this->add_restrictions();
@@ -213,10 +221,15 @@ class MY_Model extends CI_Model
 
         if ($data !== FALSE)
         {
+
+            $this->primary_value = FALSE;
+
             $data = $this->trigger('before_create', $data);
 
             $this->_database->insert($this->_table, $data);
             $insert_id = $this->_database->insert_id();
+
+            $this->primary_value = $insert_id;
 
             $this->trigger('after_create', $insert_id);
 
@@ -248,6 +261,8 @@ class MY_Model extends CI_Model
      */
     public function update($primary_value, $data, $skip_validation = FALSE)
     {
+        $this->primary_value = $primary_value;
+
         $data = $this->trigger('before_update', $data);
 
         $this->add_restrictions();
@@ -278,6 +293,9 @@ class MY_Model extends CI_Model
      */
     public function update_many($primary_values, $data, $skip_validation = FALSE)
     {
+
+        $this->primary_value = FALSE;
+
         $data = $this->trigger('before_update', $data);
 
         $this->add_restrictions();
@@ -313,6 +331,8 @@ class MY_Model extends CI_Model
 
         $this->add_restrictions();
 
+        $this->primary_value = FALSE;
+
         $data = $this->trigger('before_update', $data);
 
         if ($this->validate($data) !== FALSE)
@@ -338,6 +358,8 @@ class MY_Model extends CI_Model
 
         $this->add_restrictions();
 
+        $this->primary_value = FALSE;
+
         $data = $this->trigger('before_update', $data);
         $result = $this->_database->set($data)
                            ->update($this->_table);
@@ -351,6 +373,8 @@ class MY_Model extends CI_Model
      */
     public function delete($id)
     {
+
+        $this->primary_value = $id;
 
         $this->add_restrictions(FALSE);
 
@@ -380,6 +404,8 @@ class MY_Model extends CI_Model
 
         $this->add_restrictions();
 
+        $this->primary_value = $id;
+
         $this->trigger('before_undelete', $id);
 
         $this->_database->where($this->primary_key, $id);
@@ -408,6 +434,8 @@ class MY_Model extends CI_Model
 
         $where = func_get_args();
 
+        $this->primary_value = FALSE;
+
 	    $where = $this->trigger('before_delete', $where);
 
         $this->_set_where($where);
@@ -434,6 +462,8 @@ class MY_Model extends CI_Model
     {
 
         $this->add_restrictions(FALSE);
+
+        $this->primary_value = FALSE;
 
         $primary_values = $this->trigger('before_delete', $primary_values);
 
@@ -1024,5 +1054,14 @@ class MY_Model extends CI_Model
         {
         	$this->_temporary_with_deleted = $this->_temporary_only_deleted = FALSE;
     	}
+    }
+
+    /**
+     * Get current primary key value
+     * (useful for observers which don't pass the primary key, such as after_update)
+     */
+    public function get_primary_value()
+    {
+        return $this->primary_value;
     }
 }
