@@ -585,6 +585,16 @@ class MY_Model extends CI_Model
         return $row;
     }
 
+    /**
+     * Direct ActiveRecord join
+     */
+    public function join($table, $cond, $type = '', $escape = NULL)
+    {
+    	$this->_database->join($table, $cond, $type, $escape);
+
+    	return $this;
+    }
+
     /* --------------------------------------------------------------
      * UTILITY METHODS
      * ------------------------------------------------------------ */

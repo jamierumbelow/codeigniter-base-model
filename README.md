@@ -232,6 +232,11 @@ To change this, use the `primary_key` value when configuring:
         public $has_many = array( 'comments' => array( 'primary_key' => 'parent_post_id' ) );
     }
 
+You can also create a more complex join using `join()` method which works exactly as its ActiveRecord counterpart.
+
+    $post = $this->post_model->join('author', 'author_id = post_author', 'left')
+                             ->get(1);
+
 Arrays vs Objects
 -----------------
 
@@ -292,7 +297,7 @@ If you'd like to include only the rows that have been deleted, you can use the `
     => $this->book_model->only_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 1
 
-If you'd like to undelete a previously delete entry, you can use the `undelete()` function:
+If you'd like to undelete a previously delete entry, you can use the `undelete()` method:
 
     => $this->book_model->undelete(1);
 
