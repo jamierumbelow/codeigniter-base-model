@@ -82,6 +82,8 @@ The full list of observers are as follows:
 * $after_get
 * $before_delete
 * $after_delete
+* $before_undelete
+* $after_undelete
 
 These are instance variables usually defined at the class level. They are arrays of methods on this class to be called at certain points. An example:
 

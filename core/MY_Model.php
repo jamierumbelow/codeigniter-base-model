@@ -199,9 +199,11 @@ class MY_Model extends CI_Model
                            ->{$this->_return_type(1)}();
         $this->_temporary_return_type = $this->return_type;
 
+        $last_key = count($result) - 1;
+        
         foreach ($result as $key => &$row)
         {
-            $row = $this->trigger('after_get', $row, ($key == count($result) - 1));
+            $row = $this->trigger('after_get', $row, ($key == $last_key));
         }
 
         $this->_with = array();
@@ -250,7 +252,7 @@ class MY_Model extends CI_Model
 
         foreach ($data as $key => $row)
         {
-            $ids[] = $this->insert($row, $skip_validation, ($key == count($data) - 1));
+            $ids[] = $this->insert($row, $skip_validation);
         }
 
         return $ids;
