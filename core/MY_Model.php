@@ -402,7 +402,7 @@ class MY_Model extends CI_Model
     public function undelete($id)
     {
 
-        $this->add_restrictions();
+        $this->add_restrictions(FALSE);
 
         $this->primary_value = $id;
 
