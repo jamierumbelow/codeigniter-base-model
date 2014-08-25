@@ -216,6 +216,16 @@ The related data will be embedded in the returned value from `get`:
         echo $message;
     }
 
+You can also access a deeper level of related data by specifying a second parameter to the `with()` method:
+
+    $post = $this->post_model->with('author', 'country')
+                             ->with('comments')
+                             ->get(1);
+
+Will allow you to use:
+
+    echo $post->author->country->name;
+
 Separate queries will be run to select the data, so where performance is important, a separate JOIN and SELECT call is recommended.
 
 The primary key can also be configured. For _belongs\_to_ calls, the related key is on the current object, not the foreign one. Pseudocode:

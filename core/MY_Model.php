@@ -76,6 +76,7 @@ class MY_Model extends CI_Model
     protected $has_many = array();
 
     protected $_with = array();
+    protected $_subwith = array();
 
     /**
      * An array of validation rules. This needs to be the same format
@@ -509,9 +510,10 @@ class MY_Model extends CI_Model
      * RELATIONSHIPS
      * ------------------------------------------------------------ */
 
-    public function with($relationship)
+    public function with($relationship, $subrelationship = FALSE)
     {
         $this->_with[] = $relationship;
+        if ($subrelationship !== FALSE ) $this->_subwith[$relationship] = $subrelationship;
 
         if (!in_array('relate', $this->after_get))
         {
@@ -547,11 +549,13 @@ class MY_Model extends CI_Model
 
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$relationship . '_model'}->get($row->{$options['primary_key']});
+                    if (isset($this->_subwith[$relationship]) && $this->_subwith[$relationship]) $row->{$relationship} = $this->{$relationship . '_model'}->with($this->_subwith[$relationship])->get($row->{$options['primary_key']});
+                    else $row->{$relationship} = $this->{$relationship . '_model'}->get($row->{$options['primary_key']});
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$relationship . '_model'}->get($row[$options['primary_key']]);
+                    if (isset($this->_subwith[$relationship]) && $this->_subwith[$relationship]) $row[$relationship] = $this->{$relationship . '_model'}->with($this->_subwith[$relationship])->get($row[$options['primary_key']]);
+                    else $row[$relationship] = $this->{$relationship . '_model'}->get($row[$options['primary_key']]);
                 }
             }
         }
