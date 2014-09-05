@@ -61,6 +61,8 @@ class MY_Model extends CI_Model
     protected $before_delete = array();
     protected $after_delete = array();
 
+    protected $_temporary_without_triggers = FALSE;
+
     protected $callback_parameters = array();
 
     /**
@@ -132,7 +134,7 @@ class MY_Model extends CI_Model
     {
         $this->primary_value = $primary_value;
 
-		return $this->get_by($this->primary_key, $primary_value);
+        return $this->get_by($this->primary_key, $primary_value);
     }
 
     /**
@@ -147,7 +149,7 @@ class MY_Model extends CI_Model
 
         $this->primary_value = FALSE;
 
-		$this->_set_where($where);
+        $this->_set_where($where);
 
         $this->trigger('before_get');
 
@@ -439,7 +441,7 @@ class MY_Model extends CI_Model
 
         $this->primary_value = FALSE;
 
-	    $where = $this->trigger('before_delete', $where);
+        $where = $this->trigger('before_delete', $where);
 
         $this->_set_where($where);
 
@@ -525,9 +527,9 @@ class MY_Model extends CI_Model
 
     public function relate($row)
     {
-		if (empty($row))
+        if (empty($row))
         {
-		    return $row;
+            return $row;
         }
 
         foreach ($this->belongs_to as $key => $value)
@@ -596,9 +598,19 @@ class MY_Model extends CI_Model
      */
     public function join($table, $cond, $type = '', $escape = NULL)
     {
-    	$this->_database->join($table, $cond, $type, $escape);
+        $this->_database->join($table, $cond, $type, $escape);
 
-    	return $this;
+        return $this;
+    }
+
+    /**
+     * Direct ActiveRecord group by
+     */
+    public function group_by($by, $escape = NULL)
+    {
+        $this->_database->group_by($by, $escape);
+        
+        return $this;
     }
 
     /* --------------------------------------------------------------
@@ -875,21 +887,30 @@ class MY_Model extends CI_Model
      */
     public function trigger($event, $data = FALSE, $last = TRUE)
     {
-        if (isset($this->$event) && is_array($this->$event))
+        if ($this->_temporary_without_triggers)
         {
-            foreach ($this->$event as $method)
+            if (strpos($event, 'after_') === 0) $this->_temporary_without_triggers = FALSE;
+            return $data;
+        }
+        else
+        {
+            if (isset($this->$event) && is_array($this->$event))
             {
-                if (strpos($method, '('))
+                foreach ($this->$event as $method)
                 {
-                    preg_match('/([a-zA-Z0-9\_\-]+)(\(([a-zA-Z0-9\_\-\., ]+)\))?/', $method, $matches);
+                    if (strpos($method, '('))
+                    {
+                        preg_match('/([a-zA-Z0-9\_\-]+)(\(([a-zA-Z0-9\_\-\., ]+)\))?/', $method, $matches);
 
-                    $method = $matches[1];
-                    $this->callback_parameters = explode(',', $matches[3]);
+                        $method = $matches[1];
+                        $this->callback_parameters = explode(',', $matches[3]);
+                    }
+
+                    $data = call_user_func_array(array($this, $method), array($data, $last));
                 }
-
-                $data = call_user_func_array(array($this, $method), array($data, $last));
             }
         }
+
 
         return $data;
     }
@@ -996,8 +1017,8 @@ class MY_Model extends CI_Model
         {
             $this->_database->where($params[0]);
         }
-    	else if(count($params) == 2)
-		{
+        else if(count($params) == 2)
+        {
             if (is_array($params[1]))
             {
                 $this->_database->where_in($params[0], $params[1]);    
@@ -1006,11 +1027,11 @@ class MY_Model extends CI_Model
             {
                 $this->_database->where($params[0], $params[1]);
             }
-		}
-		else if(count($params) == 3)
-		{
-			$this->_database->where($params[0], $params[1], $params[2]);
-		}
+        }
+        else if(count($params) == 3)
+        {
+            $this->_database->where($params[0], $params[1], $params[2]);
+        }
         else
         {
             if (is_array($params[1]))
@@ -1068,8 +1089,8 @@ class MY_Model extends CI_Model
         }
         else
         {
-        	$this->_temporary_with_deleted = $this->_temporary_only_deleted = FALSE;
-    	}
+            $this->_temporary_with_deleted = $this->_temporary_only_deleted = FALSE;
+        }
     }
 
     /**
@@ -1079,5 +1100,15 @@ class MY_Model extends CI_Model
     public function get_primary_value()
     {
         return $this->primary_value;
+    }
+
+    /**
+     * Don't issue callbacks on the next call
+     */
+    public function without_callbacks()
+    {
+        $this->_temporary_without_triggers = TRUE;
+
+        return $this;
     }
 }
