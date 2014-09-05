@@ -61,8 +61,6 @@ class MY_Model extends CI_Model
     protected $before_delete = array();
     protected $after_delete = array();
 
-    protected $_temporary_without_triggers = FALSE;
-
     protected $callback_parameters = array();
 
     /**
@@ -598,19 +596,9 @@ class MY_Model extends CI_Model
      */
     public function join($table, $cond, $type = '', $escape = NULL)
     {
-        $this->_database->join($table, $cond, $type, $escape);
+    	$this->_database->join($table, $cond, $type, $escape);
 
-        return $this;
-    }
-
-    /**
-     * Direct ActiveRecord group by
-     */
-    public function group_by($by, $escape = NULL)
-    {
-        $this->_database->group_by($by, $escape);
-        
-        return $this;
+    	return $this;
     }
 
     /* --------------------------------------------------------------
@@ -887,30 +875,21 @@ class MY_Model extends CI_Model
      */
     public function trigger($event, $data = FALSE, $last = TRUE)
     {
-        if ($this->_temporary_without_triggers)
+        if (isset($this->$event) && is_array($this->$event))
         {
-            if (strpos($event, 'after_') === 0) $this->_temporary_without_triggers = FALSE;
-            return $data;
-        }
-        else
-        {
-            if (isset($this->$event) && is_array($this->$event))
+            foreach ($this->$event as $method)
             {
-                foreach ($this->$event as $method)
+                if (strpos($method, '('))
                 {
-                    if (strpos($method, '('))
-                    {
-                        preg_match('/([a-zA-Z0-9\_\-]+)(\(([a-zA-Z0-9\_\-\., ]+)\))?/', $method, $matches);
+                    preg_match('/([a-zA-Z0-9\_\-]+)(\(([a-zA-Z0-9\_\-\., ]+)\))?/', $method, $matches);
 
-                        $method = $matches[1];
-                        $this->callback_parameters = explode(',', $matches[3]);
-                    }
-
-                    $data = call_user_func_array(array($this, $method), array($data, $last));
+                    $method = $matches[1];
+                    $this->callback_parameters = explode(',', $matches[3]);
                 }
+
+                $data = call_user_func_array(array($this, $method), array($data, $last));
             }
         }
-
 
         return $data;
     }
@@ -1100,15 +1079,5 @@ class MY_Model extends CI_Model
     public function get_primary_value()
     {
         return $this->primary_value;
-    }
-
-    /**
-     * Don't issue callbacks on the next call
-     */
-    public function without_callbacks()
-    {
-        $this->_temporary_without_triggers = TRUE;
-
-        return $this;
     }
 }
