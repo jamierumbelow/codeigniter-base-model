@@ -702,17 +702,18 @@ class MY_Model extends CI_Model
 
     public function unserialize($row)
     {
-        foreach ($this->callback_parameters as $column)
-        {
-            if (is_array($row))
+        if ( !empty($row) )
+            foreach ($this->callback_parameters as $column)
             {
-                $row[$column] = unserialize($row[$column]);
+                if (is_array($row))
+                {
+                    $row[$column] = unserialize($row[$column]);
+                }
+                else
+                {
+                    $row->$column = unserialize($row->$column);
+                }
             }
-            else
-            {
-                $row->$column = unserialize($row->$column);
-            }
-        }
 
         return $row;
     }
