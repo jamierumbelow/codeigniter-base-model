@@ -105,7 +105,10 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
 
     protected function data_process($row)
     {
-        $row[$this->callback_parameters[0]] = $this->_process($row[$this->callback_parameters[0]]);
+        if (is_object($row) && $row->{$this->callback_parameters[0]})//check if object then process
+          $row->{$this->callback_parameters[0]} = $this->user_model->order_by('level')->get_many($row->{$this->callback_parameters[0]});
+        elseif (is_array($row) && $row[$this->callback_parameters[0]])//check if array then process
+          $row[$this->callback_parameters[0]] = $this->user_model->order_by('level')->get_many($row[$this->callback_parameters[0]]);
 
         return $row;
     }
