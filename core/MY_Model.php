@@ -454,6 +454,8 @@ class MY_Model extends CI_Model
             {
                 $relationship = $key;
                 $options = $value;
+                if (!isset($options['model']))
+                    $options['model'] = $value . '_model';
             }
 
             if (in_array($relationship, $this->_with))
@@ -482,6 +484,8 @@ class MY_Model extends CI_Model
             {
                 $relationship = $key;
                 $options = $value;
+                if (!isset($options['model']))
+                    $options['model'] = $value . '_model';
             }
 
             if (in_array($relationship, $this->_with))
