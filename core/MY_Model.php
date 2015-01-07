@@ -257,6 +257,8 @@ class MY_Model extends CI_Model
 
         if ($data !== FALSE)
         {
+            if(!is_array($primary_value)) $primary_value = [$this->primary_key => $primary_value];
+            
             $result = $this->_database->where($this->primary_key, $primary_value)
                                ->set($data)
                                ->update($this->_table);
