@@ -865,7 +865,7 @@ class MY_Model extends CI_Model
      */
     private function _fetch_primary_key()
     {
-        if($this->primary_key == NULl)
+        if($this->primary_key == NULL)
         {
             $this->primary_key = $this->_database->query("SHOW KEYS FROM `".$this->_table."` WHERE Key_name = 'PRIMARY'")->row()->Column_name;
         }
