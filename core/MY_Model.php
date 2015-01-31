@@ -820,6 +820,7 @@ class MY_Model extends CI_Model
 
             if(is_array($this->validate))
             {
+            	$_SERVER["REQUEST_METHOD"] = 'POST';
                 $this->form_validation->set_rules($this->validate);
 
                 if ($this->form_validation->run() === TRUE)
