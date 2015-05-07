@@ -814,6 +814,7 @@ class MY_Model extends CI_Model
             isset($this->form_validation) or $this->load->library('form_validation');
 
             if (method_exists($this->form_validation, 'set_data')) {
+                $this->form_validation->reset_validation();
                 $this->form_validation->set_data($data);
             } else {
                 foreach($data as $key => $val) {
