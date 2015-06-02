@@ -51,7 +51,9 @@ class MY_Model extends CI_Model
     protected $after_get = array();
     protected $before_delete = array();
     protected $after_delete = array();
-
+    protected $before_replace = array();
+    protected $after_replace = array();
+    
     protected $callback_parameters = array();
 
     /**
@@ -431,7 +433,32 @@ class MY_Model extends CI_Model
         return $result;
     }
 
-
+    /**
+     * Replace data
+     */
+     public function replace($data, $skip_validation = FALSE)
+	{
+		if ($skip_validation === FALSE)
+		{
+			$data = $this->validate($data);
+		}
+	
+		if ($data !== FALSE)
+		{
+			$data = $this->trigger('before_replace', $data);
+	
+			$result = $this->_database->replace($this->_table, $data);
+			
+			$this->trigger('after_replace', array($data, $result));
+	
+			return $result;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	
     /**
      * Truncates the table
      */
