@@ -251,7 +251,7 @@ class MY_Model extends CI_Model
      */
     public function insert_batch($data) 
     {
-	$result = $this->db->insert_batch($this->_table, $data);
+	$result = $this->_database->insert_batch($this->_table, $data);
 
 	return $result;
     }
