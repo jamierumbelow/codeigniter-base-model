@@ -21,8 +21,8 @@ class MY_Model extends CI_Model
     protected $_table;
 
     /**
-     * The database connection object. Will be set to the default
-     * connection. This allows individual models to use different DBs
+     * The database connection object. Will be set to the default group
+     * connection. This allows individual models to use different DB groups
      * without overwriting CI's global $this->db connection.
      */
     public $_database;
@@ -105,6 +105,9 @@ class MY_Model extends CI_Model
 
         $this->_fetch_table();
 
+        if($this->_database){
+            $this->db = $this->load->database($this->_database, TRUE);
+        }
         $this->_database = $this->db;
 
         array_unshift($this->before_create, 'protect_attributes');
