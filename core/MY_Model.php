@@ -122,6 +122,7 @@ class MY_Model extends CI_Model
      */
     public function get($primary_value)
     {
+    		$this->db->limit(1);
 		return $this->get_by($this->primary_key, $primary_value);
     }
 
