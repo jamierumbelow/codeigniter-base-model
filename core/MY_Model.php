@@ -513,7 +513,13 @@ class MY_Model extends CI_Model
     {
         $args = func_get_args();
 
-        if(count($args) == 2)
+        if(count($args) == 3)
+	{
+	    list($key, $value, $where) = $args;
+	    
+	    $this->_set_where($where);
+	}
+        else if(count($args) == 2)
         {
             list($key, $value) = $args;
         }
