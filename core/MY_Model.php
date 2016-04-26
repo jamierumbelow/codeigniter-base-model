@@ -111,6 +111,14 @@ class MY_Model extends CI_Model
         array_unshift($this->before_update, 'protect_attributes');
 
         $this->_temporary_return_type = $this->return_type;
+		
+		// Load our own instance of CI form validation
+		$this->load->library('form_validation');
+		if (property_exists($this, 'form_validation'))
+		{
+			$form_validation_class = get_class($this->form_validation);
+			$this->form_validation = new $form_validation_class();
+		}
     }
 
     /* --------------------------------------------------------------
@@ -811,12 +819,14 @@ class MY_Model extends CI_Model
 
         if(!empty($this->validate))
         {
+			// Temporarily reset the contents of $_POST
+            $post_tmp = $_POST;
+            $_POST = array();
+			
             foreach($data as $key => $val)
             {
                 $_POST[$key] = $val;
             }
-
-            $this->load->library('form_validation');
 
             if(is_array($this->validate))
             {
@@ -842,6 +852,9 @@ class MY_Model extends CI_Model
                     return FALSE;
                 }
             }
+			
+			// Restore $_POST to its initial state
+            $_POST = $post_tmp;
         }
         else
         {
