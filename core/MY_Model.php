@@ -103,6 +103,8 @@ class MY_Model extends CI_Model
 
         $this->load->helper('inflector');
 
+		$this->load->library('form_validation');
+
         $this->_fetch_table();
 
         $this->_database = $this->db;
@@ -112,12 +114,17 @@ class MY_Model extends CI_Model
 
         $this->_temporary_return_type = $this->return_type;
 		
-		// Load our own instance of CI form validation
-		$this->load->library('form_validation');
-		if (property_exists($this, 'form_validation'))
+		if (function_exists('get_instance'))
 		{
-			$form_validation_class = get_class($this->form_validation);
-			$this->form_validation = new $form_validation_class();
+			$CI =& get_instance();
+			
+			if (property_exists($CI, 'form_validation'))
+			{
+				// Create our own instance of CI form validation
+				$form_validation_class = get_class($CI->form_validation);
+				$this->form_validation = new $form_validation_class();
+			}
+			
 		}
     }
 
