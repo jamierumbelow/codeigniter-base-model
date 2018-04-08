@@ -29,6 +29,8 @@ $this->post->insert(array(
 $this->post->update(1, array( 'status' => 'closed' ));
 
 $this->post->delete(1);
+
+$this->post->undelete(1); // works only if soft delete is enabled (see below)
 ```
 
 Installation/Usage
@@ -82,6 +84,8 @@ The full list of observers are as follows:
 * $after_get
 * $before_delete
 * $after_delete
+* $before_undelete
+* $after_undelete
 
 These are instance variables usually defined at the class level. They are arrays of methods on this class to be called at certain points. An example:
 
@@ -111,6 +115,10 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
 
         return $row;
     }
+
+If you need the primary key value in an observer, you can use `get_primary_value()` utility method. This works only for single-row queries (eg: `get`, `create`, `update`, `delete`). On multi-row queries, it will return FALSE (eg: `get_all`, `delete_by`).
+
+You can temporarly disable callbacks (eg. to get raw MySQL data) using `without_callbacks()` method.
 
 Validation
 ----------
@@ -212,6 +220,16 @@ The related data will be embedded in the returned value from `get`:
         echo $message;
     }
 
+You can also access a deeper level of related data by specifying a second parameter to the `with()` method:
+
+    $post = $this->post_model->with('author', 'country')
+                             ->with('comments')
+                             ->get(1);
+
+Will allow you to use:
+
+    echo $post->author->country->name;
+
 Separate queries will be run to select the data, so where performance is important, a separate JOIN and SELECT call is recommended.
 
 The primary key can also be configured. For _belongs\_to_ calls, the related key is on the current object, not the foreign one. Pseudocode:
@@ -229,6 +247,11 @@ To change this, use the `primary_key` value when configuring:
         public $belongs_to = array( 'author' => array( 'primary_key' => 'post_author_id' ) );
         public $has_many = array( 'comments' => array( 'primary_key' => 'parent_post_id' ) );
     }
+
+You can also create a more complex join using `join()` method which works exactly as its ActiveRecord counterpart.
+
+    $post = $this->post_model->join('author', 'author_id = post_author', 'left')
+                             ->get(1);
 
 Arrays vs Objects
 -----------------
@@ -275,20 +298,24 @@ By default, MY_Model expects a `TINYINT` or `INT` column named `deleted`. If you
         protected $soft_delete_key = 'book_deleted_status';
     }
 
-Now, when you make a call to any of the `get_` methods, a constraint will be added to not withdraw deleted columns:
+Now, when you make a call to any of the `get_` methods, a constraint will be added to not withdraw deleted rows:
 
     => $this->book_model->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 0
 
-If you'd like to include deleted columns, you can use the `with_deleted()` scope:
+If you'd like to include deleted rows, you can use the `with_deleted()` scope:
 
     => $this->book_model->with_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1
     
-If you'd like to include only the columns that have been deleted, you can use the `only_deleted()` scope:
+If you'd like to include only the rows that have been deleted, you can use the `only_deleted()` scope:
 
     => $this->book_model->only_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 1
+
+If you'd like to undelete a previously delete entry, you can use the `undelete()` method:
+
+    => $this->book_model->undelete(1);
 
 Built-in Observers
 -------------------
@@ -311,6 +338,30 @@ The timestamps (MySQL compatible) `created_at` and `updated_at` are now availabl
         public $before_update = array( 'serialize(seat_types)' );
         public $after_get = array( 'unserialize(seat_types)' );
     }
+
+Common restrictions
+-------------------
+
+**MY_Model** contains an easy way to restrict all its results. Say you have an admin account which can see everything and user accounts which can see only their results, you can use the following codein your controller:
+
+    class Books extends CI_Controller {
+
+    function __construct() {
+        parent::__construct();
+
+        $this->load->model('book_model');
+
+        if (!$user_is_admin)
+        {
+            $this->book_model->set_restriction('book_owner = '.(int)$user_id);
+        }
+    }
+
+Don't forget to assign the correct value for `book_owner` when you create a new record, else the user won't be able to see its book.
+
+If you'd like to include restricted rows, you can use the `without_restriction()` scope:
+
+    => $this->book_model->without_restriction()->get_by('user_id', 1);
 
 Database Connection
 -------------------
@@ -366,6 +417,10 @@ Other Documentation
 
 Changelog
 ---------
+
+**Version 2.1.0**
+* Added support for undeletes when using soft deletes (thanks [julienmru](https://github.com/julienmru)!)
+* Added support for restricting viewable results (thanks [julienmru](https://github.com/julienmru)!)
 
 **Version 2.0.0**
 * Added support for soft deletes
