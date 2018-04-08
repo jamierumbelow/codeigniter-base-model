@@ -507,6 +507,27 @@ class MY_Model extends CI_Model
      * ------------------------------------------------------------ */
 
     /**
+     * Retrieve and generate a form_dropdown friendly array based on an arbitrary WHERE call.
+     */
+    function dropdown_by(){
+        $args = func_get_args();
+        if(count($args) == 3)
+        {
+            list($where, $key, $value) = $args;
+        }
+        else
+        {
+            $where = $args[0];
+            $key = $this->primary_key;
+            $value = $args[1];
+        }
+        
+        $this->_set_where(array($where));
+        
+        return $this->dropdown($key,$value);
+    }
+    
+    /**
      * Retrieve and generate a form_dropdown friendly array
      */
     function dropdown()
@@ -878,6 +899,7 @@ class MY_Model extends CI_Model
     {
         if (count($params) == 1 && is_array($params[0]))
         {
+            
             foreach ($params[0] as $field => $filter)
             {
                 if (is_array($filter))
@@ -902,7 +924,7 @@ class MY_Model extends CI_Model
             $this->_database->where($params[0]);
         }
     	else if(count($params) == 2)
-		{
+        {
             if (is_array($params[1]))
             {
                 $this->_database->where_in($params[0], $params[1]);    
@@ -911,11 +933,11 @@ class MY_Model extends CI_Model
             {
                 $this->_database->where($params[0], $params[1]);
             }
-		}
-		else if(count($params) == 3)
-		{
-			$this->_database->where($params[0], $params[1], $params[2]);
-		}
+        }
+        else if(count($params) == 3)
+        {
+                $this->_database->where($params[0], $params[1], $params[2]);
+        }
         else
         {
             if (is_array($params[1]))
