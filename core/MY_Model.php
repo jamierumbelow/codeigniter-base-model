@@ -342,16 +342,23 @@ class MY_Model extends CI_Model
      */
     public function delete($id)
     {
-        $this->trigger('before_delete', $id);
-
-        $this->_database->where($this->primary_key, $id);
-
         if ($this->soft_delete)
         {
-            $result = $this->_database->update($this->_table, array( $this->soft_delete_key => TRUE ));
+            $data = $this->as_array()
+                         ->get($id);
+
+            $data = $this->trigger('before_delete', $data);
+
+            $data = array_merge($data, array($this->soft_delete_key => TRUE));
+
+            $result = $this->update($id, $data);
         }
         else
         {
+            $this->trigger('before_delete', $id);
+
+            $this->_database->where($this->primary_key, $id);
+
             $result = $this->_database->delete($this->_table);
         }
 
