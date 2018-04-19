@@ -178,10 +178,19 @@ Relationships
 
 **MY\_Model** now has support for basic _belongs\_to_ and has\_many relationships. These relationships are easy to define:
 
+
     class Post_model extends MY_Model
     {
         public $belongs_to = array( 'author' );
         public $has_many = array( 'comments' );
+    }
+
+It's better to set primary key for _belongs\_to_ and _has\_many_ :
+    
+    class Post_model extends MY_Model
+    {
+        public $belongs_to = array( 'author' => array( 'model' => 'author_m', 'primary_key' => 'author_id' ) );
+        public $has_many = array( 'comments' => array( 'model' => 'model_comments', 'primary_key' => 'post_id' ) );
     }
 
 It will assume that a MY_Model API-compatible model with the singular relationship's name has been defined. By default, this will be `relationship_model`. The above example, for instance, would require two other models:
@@ -193,8 +202,8 @@ If you'd like to customise this, you can pass through the model name as a parame
 
     class Post_model extends MY_Model
     {
-        public $belongs_to = array( 'author' => array( 'model' => 'author_m' ) );
-        public $has_many = array( 'comments' => array( 'model' => 'model_comments' ) );
+        public $belongs_to = array( 'author' => array( 'model' => 'author_m', 'primary_key' => 'author_id' ) );
+        public $has_many = array( 'comments' => array( 'model' => 'model_comments', 'primary_key' => 'post_id' ) );
     }
 
 You can then access your related data using the `with()` method:
