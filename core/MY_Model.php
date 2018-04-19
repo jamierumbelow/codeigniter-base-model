@@ -168,7 +168,7 @@ class MY_Model extends CI_Model
     public function get_many_by()
     {
         $where = func_get_args();
-        
+
         $this->_set_where($where);
 
         return $this->get_all();
@@ -811,12 +811,16 @@ class MY_Model extends CI_Model
 
         if(!empty($this->validate))
         {
-            foreach($data as $key => $val)
-            {
-                $_POST[$key] = $val;
-            }
+            isset($this->form_validation) or $this->load->library('form_validation');
 
-            $this->load->library('form_validation');
+            if (method_exists($this->form_validation, 'set_data')) {
+                $this->form_validation->reset_validation();
+                $this->form_validation->set_data($data);
+            } else {
+                foreach($data as $key => $val) {
+                    $_POST[$key] = $val;
+                }
+            }
 
             if(is_array($this->validate))
             {
@@ -896,7 +900,7 @@ class MY_Model extends CI_Model
                     }
                 }
             }
-        } 
+        }
         else if (count($params) == 1)
         {
             $this->_database->where($params[0]);
@@ -905,7 +909,7 @@ class MY_Model extends CI_Model
 		{
             if (is_array($params[1]))
             {
-                $this->_database->where_in($params[0], $params[1]);    
+                $this->_database->where_in($params[0], $params[1]);
             }
             else
             {
@@ -920,7 +924,7 @@ class MY_Model extends CI_Model
         {
             if (is_array($params[1]))
             {
-                $this->_database->where_in($params[0], $params[1]);    
+                $this->_database->where_in($params[0], $params[1]);
             }
             else
             {
