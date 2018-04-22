@@ -206,6 +206,8 @@ class MY_Model extends CI_Model
      */
     public function insert($data, $skip_validation = FALSE)
     {
+        $data = $this->trigger('before_create', $data);
+        
         if ($skip_validation === FALSE)
         {
             $data = $this->validate($data);
@@ -213,8 +215,6 @@ class MY_Model extends CI_Model
 
         if ($data !== FALSE)
         {
-            $data = $this->trigger('before_create', $data);
-
             $this->_database->insert($this->_table, $data);
             $insert_id = $this->_database->insert_id();
 
