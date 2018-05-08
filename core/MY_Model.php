@@ -438,6 +438,8 @@ class MY_Model extends CI_Model
 
     public function relate($row)
     {
+        $_where_belongs = $_where_has_many = array();
+
 		if (empty($row))
         {
 		    return $row;
@@ -455,18 +457,24 @@ class MY_Model extends CI_Model
                 $relationship = $key;
                 $options = $value;
             }
-
+           
             if (in_array($relationship, $this->_with))
             {
                 $this->load->model($options['model'], $relationship . '_model');
 
+               if(isset($options['where']) && is_array($options['where']))
+                    foreach ($options['where'] as $key => $value)
+                        $_where_belongs[$key] = $value;
+                
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$relationship . '_model'}->get($row->{$options['primary_key']});
+                    $_where_belongs[$options['primary_key']] = $row->{$options['primary_key']};
+                    $row->{$relationship} = $this->{$relationship . '_model'}->get_by($_where_belongs);
                 }
                 else
-                {
-                    $row[$relationship] = $this->{$relationship . '_model'}->get($row[$options['primary_key']]);
+                {   
+                    $_where_belongs[$options['primary_key']] = $row[$options['primary_key']];
+                    $row[$relationship] = $this->{$relationship . '_model'}->get($_where_belongs);
                 }
             }
         }
@@ -484,19 +492,28 @@ class MY_Model extends CI_Model
                 $options = $value;
             }
 
+                                      
             if (in_array($relationship, $this->_with))
             {
                 $this->load->model($options['model'], $relationship . '_model');
 
+                $_where_has_many[$options['primary_key']] = $row->{$this->primary_key};
+
+                if(isset($options['where']) && is_array($options['where']))
+                    foreach ($options['where'] as $key => $value)
+                        $_where_has_many[$key] = $value;              
+
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$relationship . '_model'}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+                    $row->{$relationship} = $this->{$relationship . '_model'}->get_many_by($_where_has_many);
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$relationship . '_model'}->get_many_by($options['primary_key'], $row[$this->primary_key]);
+                    $row[$relationship] = $this->{$relationship . '_model'}->get_many_by($_where_has_many);
                 }
+                
             }
+
         }
 
         return $row;
