@@ -44,28 +44,35 @@ Naming Conventions
 This class will try to guess the name of the table to use, by finding the plural of the class name. 
 
 For instance:
-
+```php
     class Post_model extends MY_Model { }
+```
 
 ...will guess a table name of `posts`. It also works with `_m`:
 
+```php
     class Book_m extends MY_Model { }
+```
 
 ...will guess `books`.
 
 If you need to set it to something else, you can declare the _$\_table_ instance variable and set it to the table name:
 
+```php
     class Post_model extends MY_Model
     {
         public $_table = 'blogposts';
     }
+```
 
 Some of the CRUD functions also assume that your primary key ID column is called _'id'_. You can overwrite this functionality by setting the _$primary\_key_ instance variable:
 
+```php
     class Post_model extends MY_Model
     {
         public $primary_key = 'post_id';
     }
+```
 
 Callbacks/Observers
 -------------------
@@ -102,6 +109,7 @@ class Book_model extends MY_Model
 
 Observers can also take parameters in their name, much like CodeIgniter's Form Validation library. Parameters are then accessed in `$this->callback_parameters`:
 
+```php
     public $before_create = array( 'data_process(name)' );
     public $before_update = array( 'data_process(date)' );
 
@@ -111,6 +119,7 @@ Observers can also take parameters in their name, much like CodeIgniter's Form V
 
         return $row;
     }
+```
 
 Validation
 ----------
@@ -119,6 +128,7 @@ MY_Model uses CodeIgniter's built in form validation to validate data on insert.
 
 You can enable validation by setting the `$validate` instance to the usual form validation library rules array:
 
+```php
     class User_model extends MY_Model
     {
         public $validate = array(
@@ -133,6 +143,7 @@ You can enable validation by setting the `$validate` instance to the usual form 
                    'rules' => 'required|matches[password]' ),
         );
     }
+```
 
 Anything valid in the form validation library can be used here. To find out more about the rules array, please [view the library's documentation](http://codeigniter.com/user_guide/libraries/form_validation.html#validationrulesasarray).
 
@@ -140,8 +151,10 @@ With this array set, each call to `insert()` or `update()` will validate the dat
 
 You can skip the validation with `skip_validation()`:
 
+```php
     $this->user_model->skip_validation();
     $this->user_model->insert(array( 'email' => 'blah' ));
+```
 
 Alternatively, pass through a `TRUE` to `insert()`:
 
@@ -158,13 +171,16 @@ To prevent this from happening, MY_Model supports protected attributes. These ar
 
 You can set protected attributes with the `$protected_attributes` array:
 
+```php
     class Post_model extends MY_Model
     {
         public $protected_attributes = array( 'id', 'hash' );
     }
+```
 
 Now, when `insert` or `update` is called, the attributes will automatically be removed from the array, and, thus, protected:
 
+```php
     $this->post_model->insert(array(
         'id' => 2,
         'hash' => 'aqe3fwrga23fw243fWE',
@@ -172,63 +188,80 @@ Now, when `insert` or `update` is called, the attributes will automatically be r
     ));
 
     // SQL: INSERT INTO posts (title) VALUES ('A new post')
+```
 
 Relationships
 -------------
 
 **MY\_Model** now has support for basic _belongs\_to_ and has\_many relationships. These relationships are easy to define:
 
+```php
     class Post_model extends MY_Model
     {
         public $belongs_to = array( 'author' );
         public $has_many = array( 'comments' );
     }
+```
 
 It will assume that a MY_Model API-compatible model with the singular relationship's name has been defined. By default, this will be `relationship_model`. The above example, for instance, would require two other models:
 
+```php
     class Author_model extends MY_Model { }
     class Comment_model extends MY_Model { }
+```
 
 If you'd like to customise this, you can pass through the model name as a parameter:
 
+```php
     class Post_model extends MY_Model
     {
         public $belongs_to = array( 'author' => array( 'model' => 'author_m' ) );
         public $has_many = array( 'comments' => array( 'model' => 'model_comments' ) );
     }
+```
 
 You can then access your related data using the `with()` method:
 
+```php
     $post = $this->post_model->with('author')
                              ->with('comments')
                              ->get(1);
+```
 
 The related data will be embedded in the returned value from `get`:
 
+```php
     echo $post->author->name;
 
     foreach ($post->comments as $comment)
     {
         echo $message;
     }
+```
 
 Separate queries will be run to select the data, so where performance is important, a separate JOIN and SELECT call is recommended.
 
 The primary key can also be configured. For _belongs\_to_ calls, the related key is on the current object, not the foreign one. Pseudocode:
 
+```php
     SELECT * FROM authors WHERE id = $post->author_id
+```
 
 ...and for a _has\_many_ call:
 
+```php
     SELECT * FROM comments WHERE post_id = $post->id
+```
 
 To change this, use the `primary_key` value when configuring:
 
+```php
     class Post_model extends MY_Model
     {
         public $belongs_to = array( 'author' => array( 'primary_key' => 'post_author_id' ) );
         public $has_many = array( 'comments' => array( 'primary_key' => 'parent_post_id' ) );
     }
+```
 
 Arrays vs Objects
 -----------------
@@ -237,17 +270,21 @@ By default, MY_Model is setup to return objects using CodeIgniter's QB's `row()`
 
 If you'd like all your calls to use the array methods, you can set the `$return_type` variable to `array`.
 
+```php
     class Book_model extends MY_Model
     {
         protected $return_type = 'array';
     }
+```
 
 If you'd like just your _next_ call to return a specific type, there are two scoping methods you can use:
 
+```php
     $this->book_model->as_array()
                      ->get(1);
     $this->book_model->as_object()
                      ->get_by('column', 'value');
+```
 
 Soft Delete
 -----------
@@ -258,37 +295,49 @@ If you enable soft deleting, the deleted row will be marked as `deleted` rather 
 
 Take, for example, a `Book_model`:
 
+```php
     class Book_model extends MY_Model { }
+```
 
 We can enable soft delete by setting the `$this->soft_delete` key:
 
+```php
     class Book_model extends MY_Model
     { 
         protected $soft_delete = TRUE;
     }
+```
 
 By default, MY_Model expects a `TINYINT` or `INT` column named `deleted`. If you'd like to customise this, you can set `$soft_delete_key`:
 
+```php
     class Book_model extends MY_Model
     { 
         protected $soft_delete = TRUE;
         protected $soft_delete_key = 'book_deleted_status';
     }
+```
 
 Now, when you make a call to any of the `get_` methods, a constraint will be added to not withdraw deleted columns:
 
+```php
     => $this->book_model->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 0
+```
 
 If you'd like to include deleted columns, you can use the `with_deleted()` scope:
 
+```php
     => $this->book_model->with_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1
-    
+```
+
 If you'd like to include only the columns that have been deleted, you can use the `only_deleted()` scope:
 
+```php
     => $this->book_model->only_deleted()->get_by('user_id', 1);
     -> SELECT * FROM books WHERE user_id = 1 AND deleted = 1
+```
 
 Built-in Observers
 -------------------
@@ -297,20 +346,24 @@ Built-in Observers
 
 The timestamps (MySQL compatible) `created_at` and `updated_at` are now available as built-in observers:
 
+```php
     class Post_model extends MY_Model
     {
         public $before_create = array( 'created_at', 'updated_at' );
         public $before_update = array( 'updated_at' );
     }
+```
 
 **MY_Model** also contains serialisation observers for serialising and unserialising native PHP objects. This allows you to pass complex structures like arrays and objects into rows and have it be serialised automatically in the background. Call the `serialize` and `unserialize` observers with the column name(s) as a parameter:
 
+```php
     class Event_model extends MY_Model
     {
         public $before_create = array( 'serialize(seat_types)' );
         public $before_update = array( 'serialize(seat_types)' );
         public $after_get = array( 'unserialize(seat_types)' );
     }
+```
 
 Database Connection
 -------------------
