@@ -106,6 +106,9 @@ class MY_Model extends CI_Model
         $this->_fetch_table();
 
         $this->_database = $this->db;
+        
+        //DB Prefix from Specified Database Connection
+        $this->_table = $this->_database->dbprefix($this->_table);
 
         array_unshift($this->before_create, 'protect_attributes');
         array_unshift($this->before_update, 'protect_attributes');
@@ -434,6 +437,11 @@ class MY_Model extends CI_Model
         }
 
         return $this;
+    }
+    
+    public function with_r($relationship)
+    {
+    	//DO STUFF HERE
     }
 
     public function relate($row)
