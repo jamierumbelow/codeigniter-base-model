@@ -244,6 +244,19 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * Insert rows in batch into the table instead of doing one by one.
+     * This method is faster than "insert_many", but beware of passing unvalidated data, since this
+     * method does not deploy class validation nor db trigger execution either.
+     * Returns true on success or false otherwise.
+     */
+    public function insert_batch($data) 
+    {
+	$result = $this->_database->insert_batch($this->_table, $data);
+
+	return $result;
+    }
+
+    /**
      * Updated a record based on the primary value.
      */
     public function update($primary_value, $data, $skip_validation = FALSE)
