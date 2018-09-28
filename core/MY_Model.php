@@ -210,6 +210,15 @@ class MY_Model extends CI_Model
         {
             $data = $this->validate($data);
         }
+		
+		/* Auto assign ZERO(0) to soft delete key if not specified by user*/
+		if ($this->soft_delete)
+        {
+            if (!isset($data[$this->soft_delete_key]))
+            {
+                $data[$this->soft_delete_key] = 0;
+            }
+        }
 
         if ($data !== FALSE)
         {
