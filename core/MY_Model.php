@@ -88,6 +88,11 @@ class MY_Model extends CI_Model
      */
     protected $return_type = 'object';
     protected $_temporary_return_type = NULL;
+    
+    /**
+     * Model suffix for relationships
+     */
+    protected $model_suffix = '_model';
 
     /* --------------------------------------------------------------
      * GENERIC METHODS
@@ -448,7 +453,7 @@ class MY_Model extends CI_Model
             if (is_string($value))
             {
                 $relationship = $value;
-                $options = array( 'primary_key' => $value . '_id', 'model' => $value . '_model' );
+                $options = array( 'primary_key' => $value . '_id', 'model' => $value . $this->model_suffix);
             }
             else
             {
@@ -458,15 +463,15 @@ class MY_Model extends CI_Model
 
             if (in_array($relationship, $this->_with))
             {
-                $this->load->model($options['model'], $relationship . '_model');
+                $this->load->model($options['model'], $relationship . $this->model_suffix);
 
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$relationship . '_model'}->get($row->{$options['primary_key']});
+                    $row->{$relationship} = $this->{$relationship . $this->model_suffix}->get($row->{$options['primary_key']});
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$relationship . '_model'}->get($row[$options['primary_key']]);
+                    $row[$relationship] = $this->{$relationship . $this->model_suffix}->get($row[$options['primary_key']]);
                 }
             }
         }
@@ -476,7 +481,7 @@ class MY_Model extends CI_Model
             if (is_string($value))
             {
                 $relationship = $value;
-                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . '_model' );
+                $options = array( 'primary_key' => singular($this->_table) . '_id', 'model' => singular($value) . $this->model_suffix);
             }
             else
             {
@@ -486,15 +491,15 @@ class MY_Model extends CI_Model
 
             if (in_array($relationship, $this->_with))
             {
-                $this->load->model($options['model'], $relationship . '_model');
+                $this->load->model($options['model'], $relationship . $this->model_suffix);
 
                 if (is_object($row))
                 {
-                    $row->{$relationship} = $this->{$relationship . '_model'}->get_many_by($options['primary_key'], $row->{$this->primary_key});
+                    $row->{$relationship} = $this->{$relationship . $this->model_suffix}->get_many_by($options['primary_key'], $row->{$this->primary_key});
                 }
                 else
                 {
-                    $row[$relationship] = $this->{$relationship . '_model'}->get_many_by($options['primary_key'], $row[$this->primary_key]);
+                    $row[$relationship] = $this->{$relationship . $this->model_suffix}->get_many_by($options['primary_key'], $row[$this->primary_key]);
                 }
             }
         }
@@ -856,7 +861,7 @@ class MY_Model extends CI_Model
     {
         if ($this->_table == NULL)
         {
-            $this->_table = plural(preg_replace('/(_m|_model)?$/', '', strtolower(get_class($this))));
+            $this->_table = plural(preg_replace('/(_m|' . $this->model_suffix . ')?$/', '', strtolower(get_class($this))));
         }
     }
 
