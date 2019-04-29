@@ -694,7 +694,7 @@ class MY_Model extends CI_Model
     {
         foreach ($this->callback_parameters as $column)
         {
-            $row[$column] = serialize($row[$column]);
+            if (isset($row[$column])) $row[$column] = serialize($row[$column]);
         }
 
         return $row;
