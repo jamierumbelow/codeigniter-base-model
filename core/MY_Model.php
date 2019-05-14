@@ -135,7 +135,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+            $this->_database->where($this->_table . '.' . $this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
 		$this->_set_where($where);
@@ -184,7 +184,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+            $this->_database->where($this->_table . '.' . $this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         $result = $this->_database->get($this->_table)
@@ -454,6 +454,8 @@ class MY_Model extends CI_Model
             {
                 $relationship = $key;
                 $options = $value;
+                if (!isset($options['model']))
+                    $options['model'] = $value . '_model';
             }
 
             if (in_array($relationship, $this->_with))
@@ -482,6 +484,8 @@ class MY_Model extends CI_Model
             {
                 $relationship = $key;
                 $options = $value;
+                if (!isset($options['model']))
+                    $options['model'] = $value . '_model';
             }
 
             if (in_array($relationship, $this->_with))
@@ -527,7 +531,7 @@ class MY_Model extends CI_Model
 
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, FALSE);
+            $this->_database->where($this->_table . '.' . $this->soft_delete_key, FALSE);
         }
 
         $result = $this->_database->select(array($key, $value))
@@ -553,7 +557,7 @@ class MY_Model extends CI_Model
     {
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+            $this->_database->where($this->_table . '.' . $this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         $where = func_get_args();
@@ -569,7 +573,7 @@ class MY_Model extends CI_Model
     {
         if ($this->soft_delete && $this->_temporary_with_deleted !== TRUE)
         {
-            $this->_database->where($this->soft_delete_key, (bool)$this->_temporary_only_deleted);
+            $this->_database->where($this->_table . '.' . $this->soft_delete_key, (bool)$this->_temporary_only_deleted);
         }
 
         return $this->_database->count_all($this->_table);
@@ -702,17 +706,18 @@ class MY_Model extends CI_Model
 
     public function unserialize($row)
     {
-        foreach ($this->callback_parameters as $column)
-        {
-            if (is_array($row))
+        if ( !empty($row) )
+            foreach ($this->callback_parameters as $column)
             {
-                $row[$column] = unserialize($row[$column]);
+                if (is_array($row))
+                {
+                    $row[$column] = unserialize($row[$column]);
+                }
+                else
+                {
+                    $row->$column = unserialize($row->$column);
+                }
             }
-            else
-            {
-                $row->$column = unserialize($row->$column);
-            }
-        }
 
         return $row;
     }
