@@ -75,6 +75,18 @@ class MY_Model extends CI_Model
      * as validation rules passed to the Form_validation library.
      */
     protected $validate = array();
+    
+    /**
+     * An array of validation rules message. The format is
+     * protected $validate_messages = array(
+        array(
+        	'rule'=> 'required',
+        	'message' => '{field} is required. Please insert de text'),
+       array(
+        	'rule'=> 'greater_than',
+        	'message' => '{field} bla bla bla bla'));
+     */
+    protected $validate_messages = array();
 
     /**
      * Optionally skip the validation. Used in conjunction with
@@ -821,7 +833,9 @@ class MY_Model extends CI_Model
             if(is_array($this->validate))
             {
                 $this->form_validation->set_rules($this->validate);
-
+               	foreach ($this->validate_messages as $validate_message) {
+                    $this->form_validation->set_message($validate_message['rule'], $validate_message['message']);
+                }
                 if ($this->form_validation->run() === TRUE)
                 {
                     return $data;
